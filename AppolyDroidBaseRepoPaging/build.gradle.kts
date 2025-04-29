@@ -15,6 +15,7 @@ android {
 	publishing {
 		singleVariant("release") {
 			withSourcesJar()
+			withJavadocJar()
 		}
 	}
 
@@ -54,4 +55,17 @@ dependencies {
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
 	androidTestImplementation(libs.androidx.espresso.core)
+}
+
+publishing {
+	publications {
+		create<MavenPublication>("release") {
+			afterEvaluate {
+				from(components["release"])
+			}
+			groupId = "com.github.appoly"
+			artifactId = project.name
+			version = "1.0.0" // Replace with your desired version
+		}
+	}
 }
