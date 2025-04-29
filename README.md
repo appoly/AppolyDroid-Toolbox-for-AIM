@@ -8,17 +8,7 @@ https://jitpack.io/#appoly/AppolyDroid-Toolbox
 
 see https://jitpack.io/private#auth for information on how to set up authentication
 
-Add it to your build.gradle with:
-```gradle
-allprojects {
-    repositories {
-        ...
-        maven { url "https://jitpack.io" }
-        credentials { username authToken }
-    }
-}
-```
-or in your `settings.gradle.kts` with:
+Add it to your `build.gradle.kts` with:
 ```gradle.kts
 dependencyResolutionManagement {
 	repositories {
@@ -30,6 +20,17 @@ dependencyResolutionManagement {
 	}
 }
 ```
+or in your `settings.gradle` with:
+```gradle
+allprojects {
+    repositories {
+        ...
+        maven { url "https://jitpack.io" }
+        credentials { username authToken }
+    }
+}
+```
+
 and: in your module with version catalog:
 ```toml
     [versions]
