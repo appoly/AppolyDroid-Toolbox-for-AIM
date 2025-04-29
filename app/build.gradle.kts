@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-	namespace = "uk.co.appoly.droid"
+	namespace = "uk.co.appoly.droid.app"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	defaultConfig {
