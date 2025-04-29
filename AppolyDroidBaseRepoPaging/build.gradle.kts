@@ -65,7 +65,7 @@ publishing {
 			}
 			groupId = "com.github.appoly"
 			artifactId = project.name
-			version = "1.0.0" // Replace with your desired version
+			version = libs.versions.libraryVersion.get()
 		}
 	}
 }
