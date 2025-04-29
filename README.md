@@ -30,9 +30,26 @@ dependencyResolutionManagement {
 	}
 }
 ```
-and:
+and: in your module with version catalog:
+```toml
+    [versions]
+    appolydroidToolbox = "Tag"
 
-```gradle
+    [libraries]
+    #AppolyDroid-Toolbox
+    appolydroid-toolbox-AppolyDroidBaseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroidBaseRepo", version.ref = "appolydroidToolbox" }
+    appolydroid-toolbox-AppolyDroidBaseRepoS3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroidBaseRepoS3", version.ref = "appolydroidToolbox" }
+    appolydroid-toolbox-AppolyDroidBaseRepoPaging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroidBaseRepoPaging", version.ref = "appolydroidToolbox" }
+```
+```gradle.kts
+    dependencies {
+        implementation(libs.appolydroid.toolbox.AppolyDroidBaseRepo)
+        implementation(libs.appolydroid.toolbox.AppolyDroidBaseRepoS3)
+        implementation(libs.appolydroid.toolbox.AppolyDroidBaseRepoPaging)
+    }
+```
+or just gradle.kts as:
+```gradle.kts
 dependencies {
     implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepo:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepoS3:Tag")
