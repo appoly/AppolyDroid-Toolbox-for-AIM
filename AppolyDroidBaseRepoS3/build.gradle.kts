@@ -1,7 +1,7 @@
 plugins {
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.kotlin.android)
-	id("maven-publish")
+	`maven-publish`
 }
 
 group = "com.github.appoly"
@@ -11,7 +11,9 @@ android {
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	publishing {
-		singleVariant("release") {}
+		singleVariant("release") {
+			withSourcesJar()
+		}
 	}
 
 	defaultConfig {

@@ -4,7 +4,7 @@ plugins {
 	alias(libs.plugins.kotlinKSP)
 	alias(libs.plugins.kotlinxSerialization)
 	alias(libs.plugins.kotlin.compose)
-	id("maven-publish")
+	`maven-publish`
 }
 
 group = "com.github.appoly"
@@ -14,7 +14,9 @@ android {
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	publishing {
-		singleVariant("release") {}
+		singleVariant("release") {
+			withSourcesJar()
+		}
 	}
 
 	defaultConfig {

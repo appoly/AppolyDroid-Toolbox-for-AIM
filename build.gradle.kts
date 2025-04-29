@@ -7,3 +7,8 @@ plugins {
 	alias(libs.plugins.kotlin.compose) apply false
 	alias(libs.plugins.kotlinxSerialization) apply false
 }
+
+tasks.wrapper {
+	gradleVersion = libs.versions.agp.get()
+	distributionType = Wrapper.DistributionType.ALL
+}
