@@ -1,0 +1,22 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+/caches
+/libraries
+/modules.xml
+/navEditor.xml
+/assetWizardSettings.xml
+/my-plygin-state.xml
+/vcs.xml
+/other.xml
+/deploymentTargetSelector.xml
+/migrations.xml
+/misc.xml
+/androidTestResultsUserPreferences.xml
+/runConfigurations.xml
+/appInsightsSettings.xml
+/studiobot.xml
+/my-plugin-state.xml
+/.name
+/kotlinc.xml
+/inspectionProfiles
