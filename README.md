@@ -34,8 +34,8 @@ and:
 
 ```gradle
 dependencies {
-    implementation("com.github.appoly:AppolyDroid-Toolbox:AppolyDroidBaseRepo:Tag")
-    implementation("com.github.appoly:AppolyDroid-Toolbox:AppolyDroidBaseRepoS3:Tag")
-    implementation("com.github.appoly:AppolyDroid-Toolbox:AppolyDroidBaseRepoPaging:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepo:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepoS3:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepoPaging:Tag")
 }
 ```

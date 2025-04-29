@@ -64,7 +64,7 @@ publishing {
 			}
 			groupId = "com.github.appoly"
 			artifactId = project.name
-			version = libs.versions.libraryVersion.get()
+			version = libs.versions.toolboxVersion.get()
 		}
 	}
 }
