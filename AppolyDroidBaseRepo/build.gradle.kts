@@ -4,13 +4,18 @@ plugins {
 	alias(libs.plugins.kotlinKSP)
 	alias(libs.plugins.kotlinxSerialization)
 	alias(libs.plugins.kotlin.compose)
+	id("maven-publish")
 }
 
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid"
+	namespace = "uk.co.appoly.droid.baserepo"
 	compileSdk = libs.versions.compileSdk.get().toInt()
+
+	publishing {
+		singleVariant("release") {}
+	}
 
 	defaultConfig {
 		minSdk = libs.versions.minSdk.get().toInt()

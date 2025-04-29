@@ -1,13 +1,18 @@
 plugins {
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.kotlin.android)
+	id("maven-publish")
 }
 
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid"
+	namespace = "uk.co.appoly.droid.baserepo.s3"
 	compileSdk = libs.versions.compileSdk.get().toInt()
+
+	publishing {
+		singleVariant("release") {}
+	}
 
 	defaultConfig {
 		minSdk = libs.versions.minSdk.get().toInt()
