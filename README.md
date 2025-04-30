@@ -41,12 +41,14 @@ and: in your module with version catalog:
     appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo", version.ref = "appolydroidToolbox" }
     appolydroid-toolbox-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader", version.ref = "appolydroidToolbox" }
     appolydroid-toolbox-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-Paging", version.ref = "appolydroidToolbox" }
+    appolydroid-toolbox-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState", version.ref = "appolydroidToolbox" }
 ```
 ```gradle.kts
     dependencies {
         implementation(libs.appolydroid.toolbox.baseRepo)
         implementation(libs.appolydroid.toolbox.baseRepo.s3)
         implementation(libs.appolydroid.toolbox.baseRepo.paging)
+        implementation(libs.appolydroid.toolbox.uiState)
     }
 ```
 or just gradle.kts as:
@@ -55,5 +57,6 @@ dependencies {
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:Tag")
 }
 ```

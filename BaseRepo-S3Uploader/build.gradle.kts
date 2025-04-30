@@ -40,9 +40,9 @@ android {
 
 dependencies {
 	implementation(libs.androidx.core.ktx)
+	implementation(project(":BaseRepo"))
 
 	//AppolyDroidBaseRepo
-	implementation(project(":AppolyDroidBaseRepo"))
 
 	//s3Uploader
 	api(libs.s3Uploader)
@@ -59,7 +59,7 @@ publishing {
 				from(components["release"])
 			}
 			groupId = "com.github.appoly"
-			artifactId = "BaseRepo-S3Uploader"
+			artifactId = project.name
 			version = libs.versions.toolboxVersion.get()
 		}
 	}

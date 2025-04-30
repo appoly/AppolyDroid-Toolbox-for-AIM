@@ -1,15 +1,13 @@
 plugins {
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.kotlin.android)
-	alias(libs.plugins.kotlinKSP)
-	alias(libs.plugins.kotlinxSerialization)
 	`maven-publish`
 }
 
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid.baserepo.paging"
+	namespace = "uk.co.appoly.droid.uistate"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	publishing {
@@ -43,13 +41,7 @@ android {
 dependencies {
 
 	implementation(libs.androidx.core.ktx)
-
-	//AppolyDroidBaseRepo
-	implementation(project(":AppolyDroidBaseRepo"))
-
-	//Paging
-	api(libs.paging.runtime)
-	testImplementation(libs.paging.common)
+	implementation(libs.androidx.appcompat)
 
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
@@ -63,7 +55,7 @@ publishing {
 				from(components["release"])
 			}
 			groupId = "com.github.appoly"
-			artifactId = "BaseRepo-Paging"
+			artifactId = project.name
 			version = libs.versions.toolboxVersion.get()
 		}
 	}
