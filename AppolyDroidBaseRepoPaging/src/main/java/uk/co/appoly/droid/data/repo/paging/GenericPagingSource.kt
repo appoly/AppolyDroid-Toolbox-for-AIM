@@ -70,8 +70,7 @@ class GenericPagingSource<T : Any>(
 		} else {
 			// For jumping support
 			state.anchorPosition?.let { anchorPosition ->
-				val pageIndex = (anchorPosition / pageSize) + 1
-				return pageIndex
+				(anchorPosition / pageSize) + 1
 			}
 		}
 	}
