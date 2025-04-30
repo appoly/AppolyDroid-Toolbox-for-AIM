@@ -59,7 +59,7 @@ publishing {
 				from(components["release"])
 			}
 			groupId = "com.github.appoly"
-			artifactId = project.name
+			artifactId = "BaseRepo-S3Uploader"
 			version = libs.versions.toolboxVersion.get()
 		}
 	}
