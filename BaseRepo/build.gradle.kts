@@ -74,7 +74,7 @@ publishing {
 				from(components["release"])
 			}
 			groupId = "com.github.appoly"
-			artifactId = "BaseRepo"
+			artifactId = project.name
 			version = libs.versions.toolboxVersion.get()
 		}
 	}

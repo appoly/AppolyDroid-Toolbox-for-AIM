@@ -24,6 +24,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "AppolyDroid"
 include(":app")
-include(":AppolyDroidBaseRepo")
-include(":AppolyDroidBaseRepoS3")
-include(":AppolyDroidBaseRepoPaging")
+include(":BaseRepo")
+include(":BaseRepo-S3Uploader")
+include(":BaseRepo-Paging")
+include(":UiState")

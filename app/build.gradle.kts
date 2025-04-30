@@ -48,9 +48,10 @@ dependencies {
 	implementation(libs.androidx.material3)
 
 	//AppolyDroidBaseRepo
-	implementation(project(":AppolyDroidBaseRepo"))
-	implementation(project(":AppolyDroidBaseRepoS3"))
-	implementation(project(":AppolyDroidBaseRepoPaging"))
+	implementation(project(":BaseRepo"))
+	implementation(project(":BaseRepo-S3Uploader"))
+	implementation(project(":BaseRepo-Paging"))
+	implementation(project(":UiState"))
 
 	//Paging
 	implementation(libs.paging.runtime)
