@@ -38,22 +38,22 @@ and: in your module with version catalog:
 
     [libraries]
     #AppolyDroid-Toolbox
-    appolydroid-toolbox-AppolyDroidBaseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroidBaseRepo", version.ref = "appolydroidToolbox" }
-    appolydroid-toolbox-AppolyDroidBaseRepoS3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroidBaseRepoS3", version.ref = "appolydroidToolbox" }
-    appolydroid-toolbox-AppolyDroidBaseRepoPaging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroidBaseRepoPaging", version.ref = "appolydroidToolbox" }
+    appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo", version.ref = "appolydroidToolbox" }
+    appolydroid-toolbox-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader", version.ref = "appolydroidToolbox" }
+    appolydroid-toolbox-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-Paging", version.ref = "appolydroidToolbox" }
 ```
 ```gradle.kts
     dependencies {
-        implementation(libs.appolydroid.toolbox.AppolyDroidBaseRepo)
-        implementation(libs.appolydroid.toolbox.AppolyDroidBaseRepoS3)
-        implementation(libs.appolydroid.toolbox.AppolyDroidBaseRepoPaging)
+        implementation(libs.appolydroid.toolbox.baseRepo)
+        implementation(libs.appolydroid.toolbox.baseRepo.s3)
+        implementation(libs.appolydroid.toolbox.baseRepo.paging)
     }
 ```
 or just gradle.kts as:
 ```gradle.kts
 dependencies {
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepo:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepoS3:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppolyDroidBaseRepoPaging:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:Tag")
 }
 ```
