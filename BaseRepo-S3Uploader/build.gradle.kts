@@ -40,9 +40,9 @@ android {
 
 dependencies {
 	implementation(libs.androidx.core.ktx)
-	implementation(project(":BaseRepo"))
 
 	//AppolyDroidBaseRepo
+	implementation(project(":BaseRepo"))
 
 	//s3Uploader
 	api(libs.s3Uploader)

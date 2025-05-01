@@ -43,9 +43,9 @@ android {
 dependencies {
 
 	implementation(libs.androidx.core.ktx)
-	implementation(project(":BaseRepo"))
 
 	//AppolyDroidBaseRepo
+	implementation(project(":BaseRepo"))
 
 	//Paging
 	api(libs.paging.runtime)
