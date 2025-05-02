@@ -62,7 +62,10 @@ dependencies {
     implementation(libs.appolydroid.toolbox.DateHelper.serialization)
 }
 ```
-or just gradle.kts as:
+
+or without version catalog:
+
+`build.gradle.kts`
 ```gradle.kts
 dependencies {
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:Tag")
