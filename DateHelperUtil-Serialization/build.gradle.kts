@@ -1,13 +1,15 @@
 plugins {
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.kotlin.android)
+	alias(libs.plugins.kotlinKSP)
+	alias(libs.plugins.kotlinxSerialization)
 	`maven-publish`
 }
 
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid.baserepo.s3"
+	namespace = "uk.co.appoly.droid.datehelper.serialization"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	publishing {
@@ -17,7 +19,7 @@ android {
 	}
 
 	defaultConfig {
-		minSdk = libs.versions.baseRepoMinSdk.get().toInt()
+		minSdk = libs.versions.dateHelperMinSdk.get().toInt()
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		consumerProguardFiles("consumer-rules.pro")
@@ -39,13 +41,14 @@ android {
 }
 
 dependencies {
+
 	implementation(libs.androidx.core.ktx)
+	implementation(libs.androidx.appcompat)
 
-	//AppolyDroidBaseRepo
-	implementation(project(":BaseRepo"))
+	api(project(":DateHelperUtil"))
 
-	//s3Uploader
-	api(libs.s3Uploader)
+	//kotlinx serialization
+	api(libs.kotlinx.serialization)
 
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
