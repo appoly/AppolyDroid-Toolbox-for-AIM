@@ -32,11 +32,12 @@ allprojects {
 ```
 
 and: in your module with version catalog:
-##`[versions]`
+`[versions]`
 ```toml
 appolydroidToolbox = "Tag"
 ```
-##`[libraries]`
+
+`[libraries]`
 ```toml
 #AppolyDroid-Toolbox
 appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo", version.ref = "appolydroidToolbox" }
