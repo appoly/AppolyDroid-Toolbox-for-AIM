@@ -35,7 +35,8 @@ and: in your module with version catalog:
 ```toml
 [versions]
 appolydroidToolbox = "Tag"
-
+```
+```toml
 [libraries]
 #AppolyDroid-Toolbox
 appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo", version.ref = "appolydroidToolbox" }
