@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import uk.co.appoly.droid.LibLog
+import uk.co.appoly.droid.BaseRepoLogger
 import uk.co.appoly.droid.data.remote.BaseService
 import uk.co.appoly.droid.data.remote.BaseRetrofitClient
 import uk.co.appoly.droid.data.remote.ServiceManager
@@ -33,7 +33,7 @@ import kotlin.contracts.contract
 abstract class AppolyBaseRepo(
 	val getRetrofitClient: () -> BaseRetrofitClient
 ) {
-	open val logger: FlexiLog = LibLog
+	open val logger: FlexiLog = BaseRepoLogger
 
 	fun getServiceManager(): ServiceManager {
 		return ServiceManager.getInstance(

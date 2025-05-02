@@ -1,13 +1,14 @@
 plugins {
 	alias(libs.plugins.android.library)
 	alias(libs.plugins.kotlin.android)
+	alias(libs.plugins.kotlinKSP)
 	`maven-publish`
 }
 
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid.baserepo.s3"
+	namespace = "uk.co.appoly.droid.datehelper"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	publishing {
@@ -17,7 +18,7 @@ android {
 	}
 
 	defaultConfig {
-		minSdk = libs.versions.baseRepoMinSdk.get().toInt()
+		minSdk = libs.versions.dateHelperMinSdk.get().toInt()
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		consumerProguardFiles("consumer-rules.pro")
@@ -39,13 +40,12 @@ android {
 }
 
 dependencies {
+
 	implementation(libs.androidx.core.ktx)
+	implementation(libs.androidx.appcompat)
 
-	//AppolyDroidBaseRepo
-	implementation(project(":BaseRepo"))
-
-	//s3Uploader
-	api(libs.s3Uploader)
+	//FlexiLog
+	api(libs.flexiLogger)
 
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)

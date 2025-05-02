@@ -4,12 +4,12 @@ import com.duck.flexilogger.FlexiLog
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import uk.co.appoly.droid.LibLog
+import uk.co.appoly.droid.BaseRepoLogger
 import java.io.IOException
 
 class NetworkConnectionInterceptor(
 	private val isInternetAvailable: () -> Boolean,
-	private val logger: FlexiLog = LibLog
+	private val logger: FlexiLog = BaseRepoLogger
 ) : Interceptor {
 
 	@Throws(IOException::class)

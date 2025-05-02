@@ -2,7 +2,7 @@ package uk.co.appoly.droid.data.remote
 
 import com.duck.flexilogger.FlexiLog
 import kotlinx.serialization.json.Json
-import uk.co.appoly.droid.LibLog
+import uk.co.appoly.droid.BaseRepoLogger
 import kotlin.reflect.KClass
 
 class ServiceManager private constructor(
@@ -58,7 +58,7 @@ class ServiceManager private constructor(
 		}
 
 		fun getLogger(): FlexiLog {
-			return instance?.getLogger() ?: LibLog
+			return instance?.getLogger() ?: BaseRepoLogger
 		}
 	}
 }

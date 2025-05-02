@@ -10,7 +10,7 @@ android {
 
 	defaultConfig {
 		applicationId = "uk.co.appoly.droid"
-		minSdk = libs.versions.minSdk.get().toInt()
+		minSdk = 26
 		targetSdk = libs.versions.targetSdk.get().toInt()
 		versionCode = 1
 		versionName = libs.versions.toolboxVersion.get()
@@ -52,6 +52,9 @@ dependencies {
 	implementation(project(":BaseRepo-S3Uploader"))
 	implementation(project(":BaseRepo-Paging"))
 	implementation(project(":UiState"))
+	implementation(project(":DateHelperUtil"))
+	implementation(project(":DateHelperUtil-Room"))
+	implementation(project(":DateHelperUtil-Serialization"))
 
 	//Paging
 	implementation(libs.paging.runtime)

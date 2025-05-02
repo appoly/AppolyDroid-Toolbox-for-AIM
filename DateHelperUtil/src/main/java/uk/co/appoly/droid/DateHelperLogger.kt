@@ -3,7 +3,7 @@ package uk.co.appoly.droid
 import com.duck.flexilogger.FlexiLog
 import com.duck.flexilogger.LogType
 
-object LibLog : FlexiLog() {
+internal object DateHelperLogger : FlexiLog() {
 	/**
 	 * Used to determine if we should Lod to the console or not.
 	 */
