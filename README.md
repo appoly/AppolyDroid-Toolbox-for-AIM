@@ -49,6 +49,8 @@ appolydroid-toolbox-DateHelper = { group = "com.github.appoly.AppolyDroid-Toolbo
 appolydroid-toolbox-DateHelper-Room = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Room", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-DateHelper-Serialization = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Serialization", version.ref = "appolydroidToolbox" }
 ```
+
+`build.gradle.kts`
 ```gradle.kts
 dependencies {
     implementation(libs.appolydroid.toolbox.baseRepo)
