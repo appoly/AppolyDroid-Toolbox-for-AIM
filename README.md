@@ -32,6 +32,7 @@ allprojects {
 ```
 
 and: in your module with version catalog:
+
 `[versions]`
 ```toml
 appolydroidToolbox = "Tag"
