@@ -51,10 +51,12 @@ dependencies {
 	implementation(project(":BaseRepo"))
 	implementation(project(":BaseRepo-S3Uploader"))
 	implementation(project(":BaseRepo-Paging"))
-	implementation(project(":UiState"))
 	implementation(project(":DateHelperUtil"))
 	implementation(project(":DateHelperUtil-Room"))
 	implementation(project(":DateHelperUtil-Serialization"))
+	implementation(project(":UiState"))
+	implementation(project(":AppSnackBar"))
+	implementation(project(":AppSnackBar-UiState"))
 
 	//Paging
 	implementation(libs.paging.runtime)

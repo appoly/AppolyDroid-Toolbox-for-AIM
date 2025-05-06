@@ -44,22 +44,27 @@ appolydroidToolbox = "Tag"
 appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-Paging", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-dateHelper = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-dateHelper-room = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Room", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-dateHelper-serialization = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Serialization", version.ref = "appolydroidToolbox" }
+appolydroid-toolbox-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState", version.ref = "appolydroidToolbox" }
+appolydroid-toolbox-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar", version.ref = "appolydroidToolbox" }
+appolydroid-toolbox-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar-UiState", version.ref = "appolydroidToolbox" }
 ```
 
 `build.gradle.kts`
 ```gradle.kts
 dependencies {
+    //AppolyDroid-Toolbox
     implementation(libs.appolydroid.toolbox.baseRepo)
     implementation(libs.appolydroid.toolbox.baseRepo.s3)
     implementation(libs.appolydroid.toolbox.baseRepo.paging)
-    implementation(libs.appolydroid.toolbox.uiState)
     implementation(libs.appolydroid.toolbox.dateHelper)
     implementation(libs.appolydroid.toolbox.dateHelper.room)
     implementation(libs.appolydroid.toolbox.dateHelper.serialization)
+    implementation(libs.appolydroid.toolbox.uiState)
+    implementation(libs.appolydroid.toolbox.appSnackBar)
+    implementation(libs.appolydroid.toolbox.appSnackBar.uiState)
 }
 ```
 
@@ -68,12 +73,15 @@ or without version catalog:
 `build.gradle.kts`
 ```gradle.kts
 dependencies {
+    //AppolyDroid-Toolbox
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:Tag")
 }
 ```
