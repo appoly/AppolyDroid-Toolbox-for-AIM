@@ -21,3 +21,5 @@
 /kotlinc.xml
 /inspectionProfiles
 /gradle.xml
+/compiler.xml
+/artifacts
