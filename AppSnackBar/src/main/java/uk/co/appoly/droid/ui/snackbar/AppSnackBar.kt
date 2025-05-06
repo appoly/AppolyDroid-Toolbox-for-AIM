@@ -1,6 +1,5 @@
 package uk.co.appoly.droid.ui.snackbar
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
