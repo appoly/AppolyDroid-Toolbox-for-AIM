@@ -9,7 +9,7 @@ plugins {
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid.appsnackbar"
+	namespace = "uk.co.appoly.droid.appsnackbar.uistate"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
 	publishing {
