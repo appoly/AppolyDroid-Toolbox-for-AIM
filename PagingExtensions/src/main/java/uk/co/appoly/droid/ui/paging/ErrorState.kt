@@ -19,51 +19,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import uk.co.appoly.droid.pagingextensions.R
 
-/**
- * Local composition for providing error state Composable.
- *
- * This is used to display an error message when there is an issue with data fetching or processing.
- * It provides a default implementation that can be overridden by the user.
- *
- * @see ErrorStateProvider
- */
-val LocalErrorState = compositionLocalOf<ErrorStateProvider> {
-	object : ErrorStateProvider {
-		@Composable
-		override fun ErrorState(
-			modifier: Modifier,
-			text: @Composable () -> Unit,
-			onRetry: (() -> Unit)?
+internal val defaultErrorStateProvider = DefaultErrorStateProvider()
+
+internal class DefaultErrorStateProvider: ErrorStateProvider() {
+	@Composable
+	override fun ErrorState(
+		modifier: Modifier,
+		text: @Composable () -> Unit,
+		onRetry: (() -> Unit)?
+	) {
+		Column(
+			modifier = modifier
+				.then(
+					Modifier
+						.background(
+							color = MaterialTheme.colorScheme.surfaceContainer,
+							RoundedCornerShape(10.dp)
+						)
+						.padding(16.dp)
+				),
+			verticalArrangement = Arrangement.Center,
+			horizontalAlignment = Alignment.CenterHorizontally
 		) {
-			Column(
-				modifier = modifier
-					.then(
-						Modifier
-							.background(
-								color = MaterialTheme.colorScheme.surfaceContainer,
-								RoundedCornerShape(10.dp)
-							)
-							.padding(16.dp)
-					),
-				verticalArrangement = Arrangement.Center,
-				horizontalAlignment = Alignment.CenterHorizontally
-			) {
-				val mergedTextStyle = LocalTextStyle.current.merge(
-					MaterialTheme.typography.bodyMedium.copy(
-						color = MaterialTheme.colorScheme.onSurface,
-						fontWeight = FontWeight.SemiBold
-					)
+			val mergedTextStyle = LocalTextStyle.current.merge(
+				MaterialTheme.typography.bodyMedium.copy(
+					color = MaterialTheme.colorScheme.onSurface,
+					fontWeight = FontWeight.SemiBold
 				)
-				CompositionLocalProvider(LocalTextStyle provides mergedTextStyle) {
-					text()
-				}
-				if (onRetry != null) {
-					Button(
-						modifier = Modifier.padding(top = 16.dp),
-						onClick = onRetry
-					) {
-						Text(text = stringResource(R.string.retry))
-					}
+			)
+			CompositionLocalProvider(LocalTextStyle provides mergedTextStyle) {
+				text()
+			}
+			if (onRetry != null) {
+				Button(
+					modifier = Modifier.padding(top = 16.dp),
+					onClick = onRetry
+				) {
+					Text(text = stringResource(R.string.retry))
 				}
 			}
 		}
@@ -74,8 +66,18 @@ val LocalErrorState = compositionLocalOf<ErrorStateProvider> {
  * Local composition for providing error state Composable.
  *
  * This is used to display an error message when there is an issue with data fetching or processing.
+ * It provides a default implementation that can be overridden by the user.
+ *
+ * @see ErrorStateProvider
  */
-interface ErrorStateProvider {
+val LocalErrorState = compositionLocalOf<ErrorStateProvider> { defaultErrorStateProvider }
+
+/**
+ * Local composition for providing error state Composable.
+ *
+ * This is used to display an error message when there is an issue with data fetching or processing.
+ */
+abstract class ErrorStateProvider {
 	/**
 	 * Composable function to display an error state.
 	 *
@@ -87,9 +89,9 @@ interface ErrorStateProvider {
 	 */
 	@Composable
 	fun ErrorState(
-		modifier: Modifier,
+		modifier: Modifier = Modifier,
 		text: String,
-		onRetry: (() -> Unit)?
+		onRetry: (() -> Unit)? = null
 	) = ErrorState(
 		modifier = modifier,
 		text = { Text(text = text) },
@@ -104,7 +106,7 @@ interface ErrorStateProvider {
 	 * @param onRetry Optional callback function to be invoked when the retry button is clicked.
 	 */
 	@Composable
-	fun ErrorState(
+	abstract fun ErrorState(
 		modifier: Modifier = Modifier,
 		text: @Composable () -> Unit,
 		onRetry: (() -> Unit)? = null

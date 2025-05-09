@@ -16,6 +16,37 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+internal val defaultEmptyStateTextProvider = DefaultEmptyStateTextProvider()
+
+internal class DefaultEmptyStateTextProvider: EmptyStateTextProvider() {
+	@Composable
+	override fun EmptyStateText(
+		modifier: Modifier,
+		text: String
+	) {
+		Row(
+			modifier = modifier
+				.then(
+					Modifier
+						.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(10.dp))
+						.padding(16.dp)
+				),
+			verticalAlignment = Alignment.CenterVertically,
+			horizontalArrangement = Arrangement.Center
+		) {
+			val mergedTextStyle = LocalTextStyle.current.merge(
+				MaterialTheme.typography.bodyMedium.copy(
+					color = MaterialTheme.colorScheme.onSurface,
+					fontWeight = FontWeight.SemiBold
+				)
+			)
+			CompositionLocalProvider(LocalTextStyle provides mergedTextStyle) {
+				Text(text = text)
+			}
+		}
+	}
+}
+
 /**
  * Local composition for providing empty state text.
  *
@@ -24,43 +55,14 @@ import androidx.compose.ui.unit.dp
  *
  * @see EmptyStateTextProvider
  */
-val LocalEmptyState = compositionLocalOf<EmptyStateTextProvider> {
-	object : EmptyStateTextProvider {
-		@Composable
-		override fun EmptyStateText(
-			modifier: Modifier,
-			text: String
-		) {
-			Row(
-				modifier = modifier
-					.then(
-						Modifier
-							.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(10.dp))
-							.padding(16.dp)
-					),
-				verticalAlignment = Alignment.CenterVertically,
-				horizontalArrangement = Arrangement.Center
-			) {
-				val mergedTextStyle = LocalTextStyle.current.merge(
-					MaterialTheme.typography.bodyMedium.copy(
-						color = MaterialTheme.colorScheme.onSurface,
-						fontWeight = FontWeight.SemiBold
-					)
-				)
-				CompositionLocalProvider(LocalTextStyle provides mergedTextStyle) {
-					Text(text = text)
-				}
-			}
-		}
-	}
-}
+val LocalEmptyState = compositionLocalOf<EmptyStateTextProvider> { defaultEmptyStateTextProvider }
 
 /**
  * Interface for providing empty state text Composable.
  *
  * This is used to display a message when there is no data available in a list or grid.
  */
-interface EmptyStateTextProvider {
+abstract class EmptyStateTextProvider {
 	/**
 	 * Composable function to display empty state text.
 	 *
@@ -68,7 +70,7 @@ interface EmptyStateTextProvider {
 	 * @param text The text to be displayed in the empty state.
 	 */
 	@Composable
-	fun EmptyStateText(
+	abstract fun EmptyStateText(
 		modifier: Modifier = Modifier,
 		text: String
 	)
