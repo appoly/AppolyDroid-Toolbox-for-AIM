@@ -9,17 +9,11 @@ plugins {
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid.appsnackbar.uistate"
+	namespace = "uk.co.appoly.droid.pagingextensions"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
-	publishing {
-		singleVariant("release") {
-			withSourcesJar()
-		}
-	}
-
 	defaultConfig {
-		minSdk = libs.versions.appSnackBarMinSdk.get().toInt()
+		minSdk = libs.versions.lazyPagingMinSdk.get().toInt()
 
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		consumerProguardFiles("consumer-rules.pro")
@@ -48,13 +42,13 @@ dependencies {
 	implementation(libs.androidx.core.ktx)
 	implementation(libs.androidx.appcompat)
 
-	api(project(":AppSnackBar"))
-	api(project(":UiState"))
-
 	//Compose
 	implementation(platform(libs.androidx.compose.bom))
 	implementation(libs.androidx.ui)
 	implementation(libs.androidx.material3)
+
+	//Paging
+	implementation(libs.paging.runtime)
 
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)
