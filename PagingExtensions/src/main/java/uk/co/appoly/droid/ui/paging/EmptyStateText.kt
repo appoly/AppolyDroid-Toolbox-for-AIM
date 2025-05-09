@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 
 internal val defaultEmptyStateTextProvider = DefaultEmptyStateTextProvider()
 
-internal class DefaultEmptyStateTextProvider: EmptyStateTextProvider() {
+internal class DefaultEmptyStateTextProvider: EmptyStateTextProvider {
 	@Composable
 	override fun EmptyStateText(
 		modifier: Modifier,
@@ -62,7 +62,7 @@ val LocalEmptyState = compositionLocalOf<EmptyStateTextProvider> { defaultEmptyS
  *
  * This is used to display a message when there is no data available in a list or grid.
  */
-abstract class EmptyStateTextProvider {
+interface EmptyStateTextProvider {
 	/**
 	 * Composable function to display empty state text.
 	 *
@@ -70,8 +70,8 @@ abstract class EmptyStateTextProvider {
 	 * @param text The text to be displayed in the empty state.
 	 */
 	@Composable
-	abstract fun EmptyStateText(
-		modifier: Modifier = Modifier,
+	fun EmptyStateText(
+		modifier: Modifier,
 		text: String
 	)
 }

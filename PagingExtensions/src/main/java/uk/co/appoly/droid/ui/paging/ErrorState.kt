@@ -21,7 +21,7 @@ import uk.co.appoly.droid.pagingextensions.R
 
 internal val defaultErrorStateProvider = DefaultErrorStateProvider()
 
-internal class DefaultErrorStateProvider: ErrorStateProvider() {
+internal class DefaultErrorStateProvider: ErrorStateProvider {
 	@Composable
 	override fun ErrorState(
 		modifier: Modifier,
@@ -77,7 +77,7 @@ val LocalErrorState = compositionLocalOf<ErrorStateProvider> { defaultErrorState
  *
  * This is used to display an error message when there is an issue with data fetching or processing.
  */
-abstract class ErrorStateProvider {
+interface ErrorStateProvider {
 	/**
 	 * Composable function to display an error state.
 	 *
@@ -89,9 +89,9 @@ abstract class ErrorStateProvider {
 	 */
 	@Composable
 	fun ErrorState(
-		modifier: Modifier = Modifier,
+		modifier: Modifier,
 		text: String,
-		onRetry: (() -> Unit)? = null
+		onRetry: (() -> Unit)?
 	) = ErrorState(
 		modifier = modifier,
 		text = { Text(text = text) },
@@ -107,8 +107,8 @@ abstract class ErrorStateProvider {
 	 */
 	@Composable
 	abstract fun ErrorState(
-		modifier: Modifier = Modifier,
+		modifier: Modifier,
 		text: @Composable () -> Unit,
-		onRetry: (() -> Unit)? = null
+		onRetry: (() -> Unit)?
 	)
 }

@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 
 internal val defaultLoadingStateProvider = DefaultLoadingStateProvider()
 
-internal class DefaultLoadingStateProvider: LoadingStateProvider() {
+internal class DefaultLoadingStateProvider: LoadingStateProvider {
 	@Composable
 	override fun LoadingState(modifier: Modifier) {
 		Column(
@@ -42,12 +42,12 @@ val LocalLoadingState = compositionLocalOf<LoadingStateProvider> { defaultLoadin
  *
  * This is used to display a loading indicator when data is being fetched or processed.
  */
-abstract class LoadingStateProvider {
+interface LoadingStateProvider {
 	/**
 	 * Composable function to display a loading state.
 	 *
 	 * @param modifier Modifier to be applied to the loading state.
 	 */
 	@Composable
-	abstract fun LoadingState(modifier: Modifier = Modifier)
+	fun LoadingState(modifier: Modifier)
 }
