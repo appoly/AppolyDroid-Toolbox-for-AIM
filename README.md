@@ -50,6 +50,8 @@ appolydroid-toolbox-dateHelper-serialization = { group = "com.github.appoly.Appo
 appolydroid-toolbox-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar-UiState", version.ref = "appolydroidToolbox" }
+appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyListPagingExtensions", version.ref = "appolydroidToolbox" }
+appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyGridPagingExtensions", version.ref = "appolydroidToolbox" }
 ```
 
 `build.gradle.kts`
@@ -65,6 +67,8 @@ dependencies {
     implementation(libs.appolydroid.toolbox.uiState)
     implementation(libs.appolydroid.toolbox.appSnackBar)
     implementation(libs.appolydroid.toolbox.appSnackBar.uiState)
+    implementation(libs.appolydroid.toolbox.lazyListPagingExtensions)
+    implementation(libs.appolydroid.toolbox.lazyGridPagingExtensions)
 }
 ```
 
@@ -83,5 +87,7 @@ dependencies {
     implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:Tag")
 }
 ```

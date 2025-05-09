@@ -41,6 +41,8 @@ dependencies {
 	implementation(libs.androidx.core.ktx)
 	implementation(libs.androidx.lifecycle.runtime.ktx)
 	implementation(libs.androidx.activity.compose)
+
+	//Compose
 	implementation(platform(libs.androidx.compose.bom))
 	implementation(libs.androidx.ui)
 	implementation(libs.androidx.ui.graphics)
@@ -57,6 +59,8 @@ dependencies {
 	implementation(project(":UiState"))
 	implementation(project(":AppSnackBar"))
 	implementation(project(":AppSnackBar-UiState"))
+	implementation(project(":LazyListPagingExtensions"))
+	implementation(project(":LazyGridPagingExtensions"))
 
 	//Paging
 	implementation(libs.paging.runtime)
