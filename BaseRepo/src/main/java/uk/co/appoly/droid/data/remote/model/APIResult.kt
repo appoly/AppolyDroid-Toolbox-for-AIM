@@ -124,6 +124,19 @@ inline fun <T : Any> APIResult<T>.onError(action: (APIResult.Error) -> APIResult
 }
 
 /**
+ * Maps a [T] type of the [APIResult] to a [R] type of the [APIResult].
+ *
+ * @param transform A transformer that receives [APIResult] and returns [APIResult].
+ *
+ * @return A [R] type of the [APIResult].
+ */
+@OptIn(ExperimentalContracts::class)
+inline fun <T : Any, R : Any> APIResult<T>.map(transform: (APIResult<T>) -> APIResult<R>): APIResult<R> {
+	contract { callsInPlace(transform, InvocationKind.AT_MOST_ONCE) }
+	return transform(this)
+}
+
+/**
  * Maps a [T] type of the [APIResult] to a [V] type of the [APIResult] if the [APIResult] is [APIResult.Success].
  *
  * @param transformer A transformer that receives [T] and returns [V].
