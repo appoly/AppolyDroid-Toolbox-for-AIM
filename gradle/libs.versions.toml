@@ -6,7 +6,7 @@ uiStateMinSdk = "21"
 appSnackBarMinSdk = "21"
 dateHelperMinSdk = "26"
 lazyPagingMinSdk = "21"
-toolboxVersion = "1.0.9"
+toolboxVersion = "1.0.10"
 agp = "8.10.0"
 kotlin = "2.1.20"
 ksp = "2.1.20-2.0.0"
@@ -21,9 +21,8 @@ composeBom = "2025.05.00"
 flexiLoggerVersion = "1.34"
 sandwichVersion = "2.1.1"
 kotlinxSerialization = "1.8.1"
-s3UploaderVersion = "1.0.16"
+s3UploaderVersion = "1.0.17"
 paging = "3.3.6"
-material = "1.12.0"
 roomVersion = "2.7.1"
 
 [libraries]
@@ -33,7 +32,6 @@ androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "j
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 #Compose
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

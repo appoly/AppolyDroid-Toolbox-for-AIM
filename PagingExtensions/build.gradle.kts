@@ -12,6 +12,12 @@ android {
 	namespace = "uk.co.appoly.droid.pagingextensions"
 	compileSdk = libs.versions.compileSdk.get().toInt()
 
+	publishing {
+		singleVariant("release") {
+			withSourcesJar()
+		}
+	}
+
 	defaultConfig {
 		minSdk = libs.versions.lazyPagingMinSdk.get().toInt()
 
