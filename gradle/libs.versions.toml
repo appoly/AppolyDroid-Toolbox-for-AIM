@@ -6,10 +6,10 @@ uiStateMinSdk = "21"
 appSnackBarMinSdk = "21"
 dateHelperMinSdk = "26"
 lazyPagingMinSdk = "21"
-toolboxVersion = "1.0.10"
+toolboxVersion = "1.0.11"
 agp = "8.10.0"
-kotlin = "2.1.20"
-ksp = "2.1.20-2.0.0"
+kotlin = "2.1.21"
+ksp = "2.1.21-2.0.1"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -17,11 +17,11 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.0"
 appcompat = "1.7.0"
 activityCompose = "1.10.1"
-composeBom = "2025.05.00"
-flexiLoggerVersion = "1.34"
+composeBom = "2025.05.01"
+flexiLoggerVersion = "1.36"
 sandwichVersion = "2.1.1"
 kotlinxSerialization = "1.8.1"
-s3UploaderVersion = "1.0.17"
+s3UploaderVersion = "1.0.18"
 paging = "3.3.6"
 roomVersion = "2.7.1"
 
@@ -46,7 +46,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 
 #FlexiLogger
 flexiLogger = { group = "com.github.projectdelta6", name = "FlexiLogger", version.ref = "flexiLoggerVersion" }
-flexiLogger-httpLogger = { group = "com.github.projectdelta6", name = "FlexiHttpLogger", version.ref = "flexiLoggerVersion" }
+flexiLogger-httpLogger = { group = "com.github.projectdelta6.FlexiLogger", name = "FlexiHttpLogger", version.ref = "flexiLoggerVersion" }
 
 #sandwich
 sandwich = { group = "com.github.skydoves", name = "sandwich", version.ref = "sandwichVersion" }
@@ -71,8 +71,8 @@ androidx-room-testing = { group = "androidx.room", name = "room-testing", versio
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinKSP = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-android-library = { id = "com.android.library", version.ref = "agp" }
