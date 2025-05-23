@@ -6,7 +6,7 @@ import uk.co.appoly.s3imageupload.S3Uploader
 
 internal object Log : FlexiLog() {
 	/**
-	 * Used to determine if we should Lod to the console or not.
+	 * Used to determine if we should log to the console or not.
 	 */
 	override fun canLogToConsole(type: LogType): Boolean = S3Uploader.canLog(type)
 
