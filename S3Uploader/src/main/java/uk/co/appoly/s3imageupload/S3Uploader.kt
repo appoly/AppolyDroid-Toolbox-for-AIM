@@ -57,7 +57,7 @@ object S3Uploader {
 	}
 
 	private fun getMimeType(file: File): String? {
-		var mimeType: String? = ""
+		var mimeType: String? = null
 		val extension: String = file.name.split(".").last()
 		if (MimeTypeMap.getSingleton().hasExtension(extension)) {
 			mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
