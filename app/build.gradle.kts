@@ -59,8 +59,10 @@ dependencies {
 	implementation(project(":UiState"))
 	implementation(project(":AppSnackBar"))
 	implementation(project(":AppSnackBar-UiState"))
+	implementation(project(":PagingExtensions"))
 	implementation(project(":LazyListPagingExtensions"))
 	implementation(project(":LazyGridPagingExtensions"))
+	implementation(project(":S3Uploader"))
 
 	//Paging
 	implementation(libs.paging.runtime)

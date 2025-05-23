@@ -43,9 +43,9 @@ dependencies {
 
 	//AppolyDroidBaseRepo
 	implementation(project(":BaseRepo"))
+	api(project(":S3Uploader"))
 
 	//s3Uploader
-	api(libs.s3Uploader)
 
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)

@@ -6,8 +6,6 @@ Appoly's Android startup toolbox
 
 https://jitpack.io/#appoly/AppolyDroid-Toolbox
 
-see https://jitpack.io/private#auth for information on how to set up authentication
-
 Add it to your `build.gradle.kts` with:
 ```gradle.kts
 dependencyResolutionManagement {
@@ -15,7 +13,6 @@ dependencyResolutionManagement {
 		...
 		maven {
 			url = uri("https://jitpack.io")
-			credentials.username = providers.gradleProperty("authToken").get()
 		}
 	}
 }
@@ -26,20 +23,17 @@ allprojects {
     repositories {
         ...
         maven { url "https://jitpack.io" }
-        credentials { username authToken }
     }
 }
 ```
 
 and: in your module with version catalog:
 
-`[versions]`
 ```toml
+[versions]
 appolydroidToolbox = "Tag"
-```
 
-`[libraries]`
-```toml
+[libraries]
 #AppolyDroid-Toolbox
 appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader", version.ref = "appolydroidToolbox" }
@@ -52,6 +46,7 @@ appolydroid-toolbox-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolb
 appolydroid-toolbox-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar-UiState", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyListPagingExtensions", version.ref = "appolydroidToolbox" }
 appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyGridPagingExtensions", version.ref = "appolydroidToolbox" }
+appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "S3Uploader", version.ref = "appolydroidToolbox" }
 ```
 
 `build.gradle.kts`
@@ -69,6 +64,7 @@ dependencies {
     implementation(libs.appolydroid.toolbox.appSnackBar.uiState)
     implementation(libs.appolydroid.toolbox.lazyListPagingExtensions)
     implementation(libs.appolydroid.toolbox.lazyGridPagingExtensions)
+    implementation(libs.appolydroid.toolbox.s3Uploader)
 }
 ```
 
@@ -89,5 +85,6 @@ dependencies {
     implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:Tag")
     implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:Tag")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:Tag")
 }
 ```
