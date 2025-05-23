@@ -6,7 +6,8 @@ uiStateMinSdk = "21"
 appSnackBarMinSdk = "21"
 dateHelperMinSdk = "26"
 lazyPagingMinSdk = "21"
-toolboxVersion = "1.0.11"
+s3UploaderMinSdk = "21"
+toolboxVersion = "1.0.12"
 agp = "8.10.0"
 kotlin = "2.1.21"
 ksp = "2.1.21-2.0.1"
@@ -19,9 +20,10 @@ appcompat = "1.7.0"
 activityCompose = "1.10.1"
 composeBom = "2025.05.01"
 flexiLoggerVersion = "1.36"
+okhttp = "4.12.0"
+retrofit = "3.0.0"
 sandwichVersion = "2.1.1"
 kotlinxSerialization = "1.8.1"
-s3UploaderVersion = "1.0.18"
 paging = "3.3.6"
 roomVersion = "2.7.1"
 
@@ -48,15 +50,21 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 flexiLogger = { group = "com.github.projectdelta6", name = "FlexiLogger", version.ref = "flexiLoggerVersion" }
 flexiLogger-httpLogger = { group = "com.github.projectdelta6.FlexiLogger", name = "FlexiHttpLogger", version.ref = "flexiLoggerVersion" }
 
+#OkHttp
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+okhttp-urlconnection = { module = "com.squareup.okhttp3:okhttp-urlconnection", version.ref = "okhttp" }
+
+#Retrofit
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-serializationConverter = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofit" }
+
 #sandwich
 sandwich = { group = "com.github.skydoves", name = "sandwich", version.ref = "sandwichVersion" }
 sandwich-retrofit = { group = "com.github.skydoves", name = "sandwich-retrofit", version.ref = "sandwichVersion" }
 
 #kotlinx serialization
 kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
-
-#S3Uploader
-s3Uploader = { group = "com.github.appoly", name = "Android-S3ImageUploader", version.ref = "s3UploaderVersion" }
 
 #Paging
 paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging" }

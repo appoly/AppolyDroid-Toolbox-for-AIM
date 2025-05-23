@@ -45,7 +45,7 @@ dependencies {
 	implementation(project(":BaseRepo"))
 
 	//s3Uploader
-	api(libs.s3Uploader)
+	api(project(":S3Uploader"))
 
 	testImplementation(libs.junit)
 	androidTestImplementation(libs.androidx.junit)

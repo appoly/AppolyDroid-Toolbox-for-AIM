@@ -2,8 +2,8 @@ package uk.co.appoly.droid.data.repo
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import uk.co.appoly.droid.data.remote.model.APIResult
-import uk.co.appoly.s3imageupload.S3Uploader
-import uk.co.appoly.s3imageupload.UploadResult
+import uk.co.appoly.droid.s3upload.S3Uploader
+import uk.co.appoly.droid.s3upload.UploadResult
 import java.io.File
 
 suspend inline fun AppolyBaseRepo.uploadFileToS3(
