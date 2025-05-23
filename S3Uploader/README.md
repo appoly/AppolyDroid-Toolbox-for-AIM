@@ -11,12 +11,12 @@ Add the JitPack Maven repository to your build file
 Add it to your `build.gradle.kts` with:
 ```gradle.kts
 dependencyResolutionManagement {
-	repositories {
-		...
-		maven {
-			url = uri("https://jitpack.io")
-		}
-	}
+    repositories {
+        ...
+        maven {
+            url = uri("https://jitpack.io")
+        }
+    }
 }
 ```
 or in your `settings.gradle` with:
