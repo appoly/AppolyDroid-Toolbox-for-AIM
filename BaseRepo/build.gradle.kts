@@ -10,13 +10,9 @@ plugins {
 group = "com.github.appoly"
 
 android {
-	namespace = "uk.co.appoly.droid.baserepo"
-	compileSdk = libs.versions.compileSdk.get().toInt()
-
 	publishing {
 		singleVariant("release") {
 			withSourcesJar()
-			withJavadocJar()
 		}
 	}
 
@@ -80,3 +76,4 @@ publishing {
 		}
 	}
 }
+
