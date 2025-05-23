@@ -1,4 +1,4 @@
-package uk.co.appoly.s3imageupload.network
+package uk.co.appoly.droid.s3upload.network
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

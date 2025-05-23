@@ -1,9 +1,9 @@
-package uk.co.appoly.s3imageupload.network
+package uk.co.appoly.droid.s3upload.network
 
 import com.skydoves.sandwich.ApiResponse
 import okhttp3.RequestBody
-import uk.co.appoly.s3imageupload.S3Uploader
-import uk.co.appoly.s3imageupload.network.api.APIs
+import uk.co.appoly.droid.s3upload.S3Uploader
+import uk.co.appoly.droid.s3upload.network.api.APIs
 
 internal class APIService {
 	private var internalClient: APIs? = null

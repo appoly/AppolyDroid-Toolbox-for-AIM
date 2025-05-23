@@ -1,4 +1,4 @@
-package uk.co.appoly.s3imageupload.network.api
+package uk.co.appoly.droid.s3upload.network.api
 
 import com.skydoves.sandwich.ApiResponse
 import okhttp3.RequestBody
@@ -8,8 +8,8 @@ import retrofit2.http.HeaderMap
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Url
-import uk.co.appoly.s3imageupload.network.GetPreSignedUrlBody
-import uk.co.appoly.s3imageupload.network.GetPreSignedUrlResponse
+import uk.co.appoly.droid.s3upload.network.GetPreSignedUrlBody
+import uk.co.appoly.droid.s3upload.network.GetPreSignedUrlResponse
 
 internal interface APIs {
 	@POST

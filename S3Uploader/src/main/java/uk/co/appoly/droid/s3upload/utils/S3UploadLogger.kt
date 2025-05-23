@@ -1,10 +1,10 @@
-package uk.co.appoly.s3imageupload.utils
+package uk.co.appoly.droid.s3upload.utils
 
 import com.duck.flexilogger.FlexiLog
 import com.duck.flexilogger.LogType
-import uk.co.appoly.s3imageupload.S3Uploader
+import uk.co.appoly.droid.s3upload.S3Uploader
 
-internal object Log : FlexiLog() {
+internal object S3UploadLogger : FlexiLog() {
 	/**
 	 * Used to determine if we should log to the console or not.
 	 */

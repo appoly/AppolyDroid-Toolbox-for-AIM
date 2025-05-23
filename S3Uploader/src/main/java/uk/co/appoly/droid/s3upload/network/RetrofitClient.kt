@@ -1,4 +1,4 @@
-package uk.co.appoly.s3imageupload.network
+package uk.co.appoly.droid.s3upload.network
 
 import com.duck.flexilogger.LoggingLevel
 import com.duck.flexilogger.flexihttplogger.FlexiLogHttpLoggingInterceptorLogger
@@ -9,7 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
-import uk.co.appoly.s3imageupload.S3Uploader
+import uk.co.appoly.droid.s3upload.S3Uploader
 import java.util.concurrent.TimeUnit
 
 internal object RetrofitClient {

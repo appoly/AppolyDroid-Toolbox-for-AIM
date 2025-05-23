@@ -1,8 +1,8 @@
-package uk.co.appoly.s3imageupload.utils
+package uk.co.appoly.droid.s3upload.utils
 
 import androidx.annotation.WorkerThread
 import okhttp3.ResponseBody
-import uk.co.appoly.s3imageupload.network.RetrofitClient
+import uk.co.appoly.droid.s3upload.network.RetrofitClient
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 
@@ -11,7 +11,7 @@ internal fun <C : CharSequence> firstNotNullOrBlank(vararg options: () -> C?, fa
 		val value = try {
 			option()
 		} catch (e: Exception) {
-			Log.w("firstNotNullOrBlank", "Exception thrown in option", e)
+			S3UploadLogger.w("firstNotNullOrBlank", "Exception thrown in option", e)
 			null
 		}
 		if (!value.isNullOrBlank()) {

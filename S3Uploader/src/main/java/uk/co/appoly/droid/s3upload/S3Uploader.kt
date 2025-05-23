@@ -1,4 +1,4 @@
-package uk.co.appoly.s3imageupload
+package uk.co.appoly.droid.s3upload
 
 import android.webkit.MimeTypeMap
 import com.duck.flexilogger.FlexiLog
@@ -18,14 +18,15 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
-import uk.co.appoly.s3imageupload.interfaces.AuthTokenProvider
-import uk.co.appoly.s3imageupload.network.ErrorBody
-import uk.co.appoly.s3imageupload.network.GetPreSignedUrlResponse
-import uk.co.appoly.s3imageupload.network.PreSignedURLData
-import uk.co.appoly.s3imageupload.network.ProgressRequestBody
-import uk.co.appoly.s3imageupload.network.RetrofitClient
-import uk.co.appoly.s3imageupload.utils.firstNotNullOrBlank
-import uk.co.appoly.s3imageupload.utils.parseBody
+import uk.co.appoly.droid.s3upload.interfaces.AuthTokenProvider
+import uk.co.appoly.droid.s3upload.network.ErrorBody
+import uk.co.appoly.droid.s3upload.network.GetPreSignedUrlResponse
+import uk.co.appoly.droid.s3upload.network.PreSignedURLData
+import uk.co.appoly.droid.s3upload.network.ProgressRequestBody
+import uk.co.appoly.droid.s3upload.network.RetrofitClient
+import uk.co.appoly.droid.s3upload.utils.S3UploadLogger
+import uk.co.appoly.droid.s3upload.utils.firstNotNullOrBlank
+import uk.co.appoly.droid.s3upload.utils.parseBody
 import java.io.File
 import java.io.IOException
 import java.net.ConnectException
@@ -36,8 +37,8 @@ import java.net.UnknownHostException
 object S3Uploader {
 	private lateinit var tokenProvider: AuthTokenProvider
 	internal var loggingLevel: LoggingLevel = LoggingLevel.NONE
-	internal var Log: FlexiLog = uk.co.appoly.s3imageupload.utils.Log
-	internal var LoggerWithLevel: LoggerWithLevel = uk.co.appoly.s3imageupload.utils.Log.withLevel(loggingLevel)
+	internal var Log: FlexiLog = S3UploadLogger
+	internal var LoggerWithLevel: LoggerWithLevel = Log.withLevel(loggingLevel)
 
 	internal fun canLog(type: LogType): Boolean = loggingLevel.canLog(type)
 
@@ -48,7 +49,7 @@ object S3Uploader {
 	fun initS3Uploader(
 		tokenProvider: AuthTokenProvider,
 		loggingLevel: LoggingLevel = LoggingLevel.NONE,
-		logger: FlexiLog = uk.co.appoly.s3imageupload.utils.Log
+		logger: FlexiLog = Log
 	) {
 		this.tokenProvider = tokenProvider
 		this.loggingLevel = loggingLevel

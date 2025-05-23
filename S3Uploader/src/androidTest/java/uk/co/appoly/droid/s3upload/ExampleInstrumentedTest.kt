@@ -1,4 +1,4 @@
-package uk.co.appoly.s3imageupload
+package uk.co.appoly.droid.s3upload
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

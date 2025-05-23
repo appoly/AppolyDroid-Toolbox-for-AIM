@@ -1,4 +1,4 @@
-package uk.co.appoly.s3imageupload.interfaces
+package uk.co.appoly.droid.s3upload.interfaces
 
 fun interface AuthTokenProvider {
 	fun provideToken(): String?

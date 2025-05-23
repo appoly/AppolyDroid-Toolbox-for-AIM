@@ -1,4 +1,4 @@
-package uk.co.appoly.s3imageupload
+package uk.co.appoly.droid.s3upload
 
 import org.junit.Test
 
