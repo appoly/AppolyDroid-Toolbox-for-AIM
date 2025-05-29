@@ -23,25 +23,31 @@ implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.12")
 Create a base repository class that extends `AppolyBaseRepo`:
 
 ```kotlin
-abstract class BaseRepo : AppolyBaseRepo({ RetrofitClient }), KoinComponent {
-    override val logger: FlexiLog = Log
-    protected val prefsHelper: PrefsHelper by inject()
-    protected val db: AppDatabase by inject()
-
-    companion object {
-        const val DEFAULT_PAGE_SIZE = 20
-        const val SEARCH_DEBOUNCE = 300L
-    }
+abstract class BaseRepo : AppolyBaseRepo({ RetrofitClient }) {
+    override val logger: FlexiLog = Log//Your Implementation of FlexiLogger
 }
 ```
 
 ### Making API Calls
 
+Define your API service interface using Sandwich for response handling:
+
+```kotlin
+interface UserAPI : BaseService.API {
+	@GET("/api/user")
+	suspend fun fetchUser(): ApiResponse<GenericResponse<UserData>>
+}
+```
+
 Use the `doAPICall` method for standardized API request handling:
 
 ```kotlin
-suspend fun fetchUser(userId: Int): APIResult<UserData> = doAPICall("fetchUser") {
-    userService.api.getUser(userId)
+abstract class UserRepo: BaseRepo() {
+	private val userService by lazyService<UserAPI>()
+
+	suspend fun fetchUser(userId: Int): APIResult<UserData> = doAPICall("fetchUser") {
+		userService.api.getUser(userId)
+	}
 }
 ```
 
