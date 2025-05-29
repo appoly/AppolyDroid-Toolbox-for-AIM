@@ -1,5 +1,4 @@
 import org.gradle.api.DefaultTask
-import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
@@ -8,6 +7,8 @@ import java.util.regex.Pattern
 
 /**
  * Gradle task to update version numbers in README.md files based on the toolboxVersion in libs.versions.toml
+ *
+ * In this project this task is connected to run with the gradle sync task.
  */
 abstract class UpdateReadmeVersions : DefaultTask() {
 
