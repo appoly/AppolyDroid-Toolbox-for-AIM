@@ -1,12 +1,25 @@
-# AppolyDroid
+# AppolyDroid Toolbox
 
-Appoly's Android startup toolbox
+Appoly's Android development toolbox - a collection of utilities and components to accelerate Android app development
 
 [![Release](https://jitpack.io/v/appoly/AppolyDroid-Toolbox.svg)](https://jitpack.io/#appoly/AppolyDroid-Toolbox)
 
-https://jitpack.io/#appoly/AppolyDroid-Toolbox
+## Overview
 
-Add it to your `build.gradle.kts` with:
+AppolyDroid Toolbox is a comprehensive collection of Android utility modules that simplify common development tasks. The library provides ready-to-use solutions for:
+
+- API data handling with `BaseRepo`
+- AWS S3 file uploading
+- Date/time operations
+- UI state management
+- Snackbar notifications
+- Jetpack Compose pagination utilities
+- And more!
+
+## Installation
+
+Add the JitPack repository to your project build file:
+
 ```gradle.kts
 dependencyResolutionManagement {
     repositories {
@@ -27,11 +40,13 @@ allprojects {
 }
 ```
 
-and: in your module with version catalog:
+### Using Version Catalog
+
+In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "Tag"
+appolydroidToolbox = "1.0.12" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox
@@ -49,10 +64,11 @@ appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.Appo
 appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "S3Uploader", version.ref = "appolydroidToolbox" }
 ```
 
-`build.gradle.kts`
+Then in your module's `build.gradle.kts`:
+
 ```gradle.kts
 dependencies {
-    //AppolyDroid-Toolbox
+    // Add only the modules you need
     implementation(libs.appolydroid.toolbox.baseRepo)
     implementation(libs.appolydroid.toolbox.baseRepo.s3)
     implementation(libs.appolydroid.toolbox.baseRepo.paging)
@@ -68,23 +84,105 @@ dependencies {
 }
 ```
 
-or without version catalog:
+### Without Version Catalog
 
-`build.gradle.kts`
+In your module's `build.gradle.kts`:
+
 ```gradle.kts
 dependencies {
-    //AppolyDroid-Toolbox
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:Tag")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:Tag")
+    // Add only the modules you need
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.12") 
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.12")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.12")
 }
 ```
+
+## Modules
+
+### BaseRepo
+Foundation for repository pattern implementation with API call handling.
+[Learn more](BaseRepo/README.md)
+
+### BaseRepo-S3Uploader
+Extension to BaseRepo adding S3 upload capabilities.
+[Learn more](BaseRepo-S3Uploader/README.md)
+
+### BaseRepo-Paging
+Extends BaseRepo with Jetpack Paging capabilities.
+[Learn more](BaseRepo-Paging/README.md)
+
+### DateHelperUtil
+Utilities for date and time operations.
+[Learn more](DateHelperUtil/README.md)
+
+### DateHelperUtil-Room
+Room database integration for DateHelperUtil.
+[Learn more](DateHelperUtil-Room/README.md)
+
+### DateHelperUtil-Serialization
+Kotlinx Serialization support for DateHelperUtil.
+[Learn more](DateHelperUtil-Serialization/README.md)
+
+### UiState
+Simplified UI state management.
+[Learn more](UiState/README.md)
+
+### AppSnackBar
+Enhanced Snackbar implementation.
+[Learn more](AppSnackBar/README.md)
+
+### AppSnackBar-UiState
+Integration of AppSnackBar with UiState.
+[Learn more](AppSnackBar-UiState/README.md)
+
+### LazyListPagingExtensions
+Extensions for Jetpack Compose LazyList with paging support.
+[Learn more](LazyListPagingExtensions/README.md)
+
+### LazyGridPagingExtensions
+Extensions for Jetpack Compose LazyGrid with paging support.
+[Learn more](LazyGridPagingExtensions/README.md)
+
+### S3Uploader
+Standalone S3 file upload utility.
+[Learn more](S3Uploader/README.md)
+
+## Dependencies
+
+Some modules depend on [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) for logging capabilities.
+
+## License
+
+```
+MIT License
+
+Copyright (c) 2025 Appoly Ltd
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
