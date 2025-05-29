@@ -20,6 +20,29 @@ implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.12
 
 ## Usage
 
+### Initializing the S3Uploader
+
+Before using the S3Uploader functionality, you need to initialize it in your Application class:
+
+```kotlin
+class MyApp: Application() {
+    override fun onCreate() {
+        super.onCreate()
+        initS3Uploader()
+    }
+
+    private fun initS3Uploader() {
+        S3Uploader.initS3Uploader(
+            tokenProvider = {
+                // Provide your API auth token if needed
+            },
+            loggingLevel = // Set desired LoggingLevel. e.g: if (isDebug) LoggingLevel.W else LoggingLevel.NONE,
+            logger = // Your implementation of FlexiLogger
+        )
+    }
+}
+```
+
 ### Uploading a File to S3
 
 ```kotlin
