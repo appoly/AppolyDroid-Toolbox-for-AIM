@@ -8,7 +8,7 @@ A lightweight UI state management module for Android applications built with Jet
 - Type-safe state management
 - Loading, Error, Success, and Idle states
 - Easy integration with ViewModels and Compose
-- Smooth integration with [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) for debug logging
+- Support for state identification with keys
 
 ## Installation
 
@@ -31,9 +31,45 @@ class MyViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val result = repository.fetchData()
-                _uiState.value = UiState.Success(result)
+                _uiState.value = UiState.Success()
             } catch (e: Exception) {
                 _uiState.value = UiState.Error("Failed to load data: ${e.message}")
+            }
+        }
+    }
+}
+```
+
+### Using with Keys
+
+Keys allow you to identify specific states when handling multiple operations:
+
+```kotlin
+// In your ViewModel with multiple operations
+class ProductsViewModel : ViewModel() {
+    private var _uiState = mutableStateOf<UiState>(UiState.Idle())
+    val uiState: State<UiState> = _uiState
+
+    fun loadProducts() {
+        _uiState.value = UiState.Loading(key = "products")
+        viewModelScope.launch {
+            try {
+                repository.getProducts()
+                _uiState.value = UiState.Success(key = "products")
+            } catch (e: Exception) {
+                _uiState.value = UiState.Error("Failed to load products", key = "products")
+            }
+        }
+    }
+    
+    fun deleteProduct(id: String) {
+        _uiState.value = UiState.Loading(key = "delete_$id")
+        viewModelScope.launch {
+            try {
+                repository.deleteProduct(id)
+                _uiState.value = UiState.Success(key = "delete_$id")
+            } catch (e: Exception) {
+                _uiState.value = UiState.Error("Failed to delete product", key = "delete_$id")
             }
         }
     }
@@ -50,19 +86,15 @@ fun MyScreen(viewModel: MyViewModel) {
     when (uiState) {
         is UiState.Loading -> LoadingIndicator()
         is UiState.Error -> ErrorMessage(uiState.message)
-        is UiState.Success -> {
-            val data = uiState.data
-            SuccessContent(data)
-        }
-        is UiState.Idle -> {
-            // Show initial state
-            InitialContent()
-        }
+        is UiState.Success -> SuccessContent()
+        is UiState.Idle -> InitialContent()
     }
 }
 ```
 
 ### Using Extension Functions
+
+The library provides useful extension functions with Kotlin contracts for type safety:
 
 ```kotlin
 @Composable
@@ -74,14 +106,29 @@ fun MyScreen(viewModel: MyViewModel) {
         LoadingIndicator()
     }
     
-    // Show error if error
-    uiState.errorMessage()?.let { message ->
-        ErrorMessage(message)
+    // Show content when not loading
+    if (uiState.isNotLoading()) {
+        SomeContent()
     }
     
-    // Access success data safely
-    uiState.successDataOrNull<MyData>()?.let { data ->
-        SuccessContent(data)
+    // Show error if error
+    if (uiState.isError()) {
+        ErrorMessage((uiState as UiState.Error).message)
+    }
+    
+    // Show success content if success
+    if (uiState.isSuccess()) {
+        SuccessContent()
+    }
+    
+    // Check if state is idle
+    if (uiState.isIdle()) {
+        IdleContent()
+    }
+    
+    // Check if state is not an error
+    if (uiState.isNotError()) {
+        NonErrorContent()
     }
 }
 ```
@@ -102,8 +149,8 @@ class MyViewModel : ViewModel() {
         uiState = uiState.copy(state = UiState.Loading())
         viewModelScope.launch {
             try {
-                val result = repository.fetchData()
-                uiState = uiState.copy(state = UiState.Success(result))
+                repository.fetchData()
+                uiState = uiState.copy(state = UiState.Success())
             } catch (e: Exception) {
                 uiState = uiState.copy(state = UiState.Error("Failed to load: ${e.message}"))
             }
@@ -130,8 +177,8 @@ class UserProfileViewModel : ViewModel() {
         userState = UiState.Loading()
         viewModelScope.launch {
             try {
-                val user = userRepository.getUser(userId)
-                userState = UiState.Success(user)
+                userRepository.getUser(userId)
+                userState = UiState.Success()
                 loadUserPosts(userId)
             } catch (e: Exception) {
                 userState = UiState.Error("Failed to load user: ${e.message}")
@@ -143,8 +190,8 @@ class UserProfileViewModel : ViewModel() {
         postsState = UiState.Loading()
         viewModelScope.launch {
             try {
-                val posts = postsRepository.getPosts(userId)
-                postsState = UiState.Success(posts)
+                postsRepository.getPosts(userId)
+                postsState = UiState.Success()
             } catch (e: Exception) {
                 postsState = UiState.Error("Failed to load posts: ${e.message}")
             }
@@ -161,43 +208,33 @@ The core sealed class representing UI state:
 
 ```kotlin
 sealed class UiState {
-    data class Idle(val message: String? = null) : UiState()
-    data class Loading(val message: String? = null) : UiState()
-    data class Error(val message: String? = null) : UiState()
-    data class Success(val data: Any? = null) : UiState()
+    abstract val key: Any?
+    
+    data class Idle(override val key: Any? = null) : UiState()
+    data class Loading(override val key: Any? = null) : UiState()
+    data class Success(override val key: Any? = null) : UiState()
+    data class Error(val message: String, override val key: Any? = null) : UiState()
 }
 ```
 
 ### Extension Functions
 
 ```kotlin
-fun UiState.isLoading(): Boolean
-fun UiState.isError(): Boolean 
-fun UiState.isSuccess(): Boolean
-fun UiState.isIdle(): Boolean
-fun UiState.errorMessage(): String?
-fun <T> UiState.successDataOrNull(): T?
-```
-
-### Usage with APIFlowState
-
-The UiState module pairs well with APIFlowState from the BaseRepo module:
-
-```kotlin
-fun mapAPIFlowStateToUiState(apiFlowState: APIFlowState<*>): UiState {
-    return when (apiFlowState) {
-        is APIFlowState.Loading -> UiState.Loading()
-        is APIFlowState.Error -> UiState.Error(apiFlowState.message)
-        is APIFlowState.Success -> UiState.Success(apiFlowState.data)
-    }
-}
+// State type checking with Kotlin contracts for type safety
+fun UiState?.isIdle(): Boolean
+fun UiState?.isLoading(): Boolean
+fun UiState?.isNotLoading(): Boolean
+fun UiState?.isError(): Boolean
+fun UiState?.isNotError(): Boolean
+fun UiState?.isSuccess(): Boolean
 ```
 
 ## Dependencies
 
 - Kotlin Coroutines
-- Optional integration with [FlexiLogger](https://github.com/projectdelta6/FlexiLogger)
+- Kotlin Contracts (for type-safe extension functions)
 
 ## See Also
 
 - [AppSnackBar-UiState](../AppSnackBar-UiState/README.md) for integration with AppSnackBar module
+

@@ -37,10 +37,28 @@ val json = Json {
 data class UserDto(
     val id: Int,
     val name: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
+    @Serializable(with = DateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = ZonedDateTimeSerializer::class)
     val lastLogin: ZonedDateTime?
+)
+```
+
+### Using Nullable Serializers
+
+For nullable date types, use the nullable serializers:
+
+```kotlin
+@Serializable
+data class EventDto(
+    val id: Long,
+    val title: String,
+    @Serializable(with = DateTimeSerializer::class)
+    val startTime: LocalDateTime,
+    @Serializable(with = NullableDateTimeSerializer::class)
+    val endTime: LocalDateTime?,
+    @Serializable(with = NullableZonedDateTimeSerializer::class)
+    val reminderTime: ZonedDateTime?
 )
 ```
 
@@ -64,7 +82,7 @@ Retrofit.Builder()
 @Serializable
 data class EventRequest(
     val title: String,
-    @Serializable(with = LocalDateTimeSerializer::class)
+    @Serializable(with = DateTimeSerializer::class)
     val startTime: LocalDateTime,
     @Serializable(with = ZonedDateTimeSerializer::class)
     val endTime: ZonedDateTime
@@ -100,18 +118,15 @@ val parsedEvent = json.decodeFromString(EventDto.serializer(), jsonString)
 ### Serializer Classes
 
 ```kotlin
-object LocalDateTimeSerializer : KSerializer<LocalDateTime>
-object ZonedDateTimeSerializer : KSerializer<ZonedDateTime>
+// Non-nullable serializers
+object DateTimeSerializer : KSerializer<LocalDateTime>
 object LocalDateSerializer : KSerializer<LocalDate>
-object LocalTimeSerializer : KSerializer<LocalTime>
-```
+object ZonedDateTimeSerializer : KSerializer<ZonedDateTime>
 
-### Extension Methods
-
-```kotlin
-// Extensions to help with JSON encoding/decoding
-fun Json.encodeToJsonElement(serializer: SerializationStrategy<*>, value: Any): JsonElement
-inline fun <reified T> Json.decodeFromJsonElement(element: JsonElement): T
+// Nullable serializers
+object NullableDateTimeSerializer : KSerializer<LocalDateTime?>
+object NullableLocalDateSerializer : KSerializer<LocalDate?>
+object NullableZonedDateTimeSerializer : KSerializer<ZonedDateTime?>
 ```
 
 ## Dependencies

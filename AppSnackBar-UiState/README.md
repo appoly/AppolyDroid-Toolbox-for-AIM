@@ -6,7 +6,7 @@ Integration module that combines the AppSnackBar module with UiState for a seaml
 
 - Automatic Snackbar display based on UiState changes
 - Handles error states automatically with styled error Snackbars
-- Support for different message types (Info, Success, Warning, Error)
+- Support for different message types (Info, Success, Error)
 - Easy integration with existing UiState and AppSnackBar implementations
 - Clean separation of UI state and notification display logic
 
@@ -197,6 +197,15 @@ data class UiScreenState(
 ### Core Extensions
 
 ```kotlin
+// Extension property to convert UiState to appropriate SnackBarType
+val UiState?.snackBarType: SnackBarType
+    get() = when (this) {
+        is UiState.Success -> SnackBarType.Success
+        is UiState.Error -> SnackBarType.Error
+        else -> SnackBarType.Info
+    }
+
+// Helper function to show snackbar based on UiState
 suspend fun SnackbarHostState.showSnackbarForUiState(
     uiState: UiState,
     resetState: () -> Unit

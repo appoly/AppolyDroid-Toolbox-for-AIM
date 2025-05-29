@@ -61,6 +61,12 @@ fun getUserFlow(userId: Int): Flow<APIFlowState<UserData>> = flow {
     emit(fetchUser(userId).asApiFlowState())
 }
 ```
+or
+```kotlin
+fun getUserFlow(userId: Int): Flow<APIFlowState<UserData>> = callApiAsFlow {
+    fetchUser(userId).asApiFlowState()
+}
+```
 
 ### Creating Refreshable API Flows
 

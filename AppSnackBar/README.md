@@ -1,15 +1,14 @@
 # AppSnackBar
 
-Enhanced Snackbar implementation for Android applications with Jetpack Compose, providing styled notifications with different types and customization options.
+Enhanced Snackbar implementation for Android applications with Jetpack Compose, providing styled notifications with different types.
 
 ## Features
 
-- Pre-styled Snackbars for different message types (Info, Success, Warning, Error)
-- Custom icons and colors for each Snackbar type
+- Pre-styled Snackbars for different message types (Info, Success, Error)
+- Custom colors for each Snackbar type
 - Support for action buttons
 - Easy integration with Jetpack Compose
 - Customizable appearance
-- Accessible design
 
 ## Installation
 
@@ -25,6 +24,7 @@ implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.12")
 @Composable
 fun MyScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     
     Scaffold(
         snackbarHost = {
@@ -35,18 +35,20 @@ fun MyScreen() {
                 AppSnackBar(snackbarData = snackbarData)
             }
         }
-    ) {
+    ) { contentPadding ->
         // Your content
-        Button(onClick = {
-            // Launch a coroutine to show snackbar
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = "Action performed successfully!",
-                    duration = SnackbarDuration.Short
-                )
+        Column(modifier = Modifier.padding(contentPadding)) {
+            Button(onClick = {
+                // Launch a coroutine to show snackbar
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Action performed successfully!",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }) {
+                Text("Show Basic Snackbar")
             }
-        }) {
-            Text("Show Basic Snackbar")
         }
     }
 }
@@ -63,16 +65,12 @@ fun MyScreen() {
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { snackbarData ->
-                AppSnackBar(
-                    snackbarData = snackbarData,
-                    // Get type from snackbarData extras if available
-                    type = snackbarData.visuals.extras?.get("type") as? SnackBarType
-                        ?: SnackBarType.Info
-                )
+                // AppSnackBar automatically handles the snackbar type from the visuals
+                AppSnackBar(snackbarData = snackbarData)
             }
         }
-    ) {
-        Column {
+    ) { contentPadding ->
+        Column(modifier = Modifier.padding(contentPadding)) {
             Button(onClick = {
                 coroutineScope.launch {
                     snackbarHostState.showSnackbar(
@@ -95,18 +93,6 @@ fun MyScreen() {
                 }
             }) {
                 Text("Show Success Snackbar")
-            }
-            
-            Button(onClick = {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = "Warning: This action has consequences",
-                        duration = SnackbarDuration.Long,
-                        type = SnackBarType.Warning
-                    )
-                }
-            }) {
-                Text("Show Warning Snackbar")
             }
             
             Button(onClick = {
@@ -139,85 +125,54 @@ fun MyScreen() {
                 AppSnackBar(snackbarData = snackbarData)
             }
         }
-    ) {
-        Button(onClick = {
-            coroutineScope.launch {
-                val result = snackbarHostState.showSnackbar(
-                    message = "Item deleted",
-                    actionLabel = "UNDO",
-                    duration = SnackbarDuration.Long,
-                    type = SnackBarType.Warning
-                )
-                
-                when (result) {
-                    SnackbarResult.ActionPerformed -> {
-                        // Handle undo action
-                        println("Undo action performed")
-                    }
-                    SnackbarResult.Dismissed -> {
-                        // Handle dismissal
-                        println("Snackbar dismissed")
+    ) { contentPadding ->
+        Column(modifier = Modifier.padding(contentPadding)) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    val result = snackbarHostState.showSnackbar(
+                        message = "Item deleted",
+                        actionLabel = "UNDO",
+                        duration = SnackbarDuration.Long,
+                        type = SnackBarType.Error
+                    )
+                    
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            // Handle undo action
+                            println("Undo action performed")
+                        }
+                        SnackbarResult.Dismissed -> {
+                            // Handle dismissal
+                            println("Snackbar dismissed")
+                        }
                     }
                 }
+            }) {
+                Text("Delete Item")
             }
-        }) {
-            Text("Delete Item")
         }
     }
 }
 ```
 
-### Extension Function for Easy Access
+### Using Custom Colors
 
-```kotlin
-// Extension function to show snackbar with type
-suspend fun SnackbarHostState.showSnackbar(
-    message: String,
-    actionLabel: String? = null,
-    duration: SnackbarDuration = SnackbarDuration.Short,
-    type: SnackBarType = SnackBarType.Info
-): SnackbarResult {
-    return showSnackbar(
-        message = message,
-        actionLabel = actionLabel,
-        duration = duration,
-        withDismissAction = false,
-        SnackbarVisuals(
-            message = message,
-            actionLabel = actionLabel,
-            duration = duration,
-            extras = mapOf("type" to type)
-        )
-    )
-}
-```
-
-### Customizing AppSnackBar
+You can provide custom colors through the `LocalAppSnackBarColors` composition local:
 
 ```kotlin
 @Composable
-fun MyScreen() {
-    val snackbarHostState = remember { SnackbarHostState() }
+fun MyApp() {
+    val customColors = AppSnackBarColors(
+        info = Color(0xFF2196F3),    // Custom blue
+        success = Color(0xFF4CAF50), // Custom green
+        error = Color(0xFFE91E63)    // Custom red
+    )
     
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.padding(16.dp)
-            ) { snackbarData ->
-                AppSnackBar(
-                    snackbarData = snackbarData,
-                    modifier = Modifier.padding(8.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    actionColor = MaterialTheme.colorScheme.primary,
-                    iconSize = 20.dp
-                )
-            }
-        }
+    CompositionLocalProvider(
+        LocalAppSnackBarColors provides customColors
     ) {
-        // Your content
+        // Your app content
+        MyScreen()
     }
 }
 ```
@@ -229,16 +184,7 @@ fun MyScreen() {
 ```kotlin
 @Composable
 fun AppSnackBar(
-    snackbarData: SnackbarData,
-    modifier: Modifier = Modifier,
-    type: SnackBarType = SnackBarType.Info,
-    dismissAction: @Composable (() -> Unit)? = null,
-    actionOnNewLine: Boolean = false,
-    shape: Shape = SnackbarDefaults.shape,
-    containerColor: Color = SnackbarDefaults.color,
-    contentColor: Color = SnackbarDefaults.contentColor,
-    actionColor: Color = SnackbarDefaults.actionColor,
-    iconSize: Dp = 24.dp
+    snackbarData: SnackbarData
 )
 ```
 
@@ -248,9 +194,18 @@ fun AppSnackBar(
 enum class SnackBarType {
     Info,
     Success,
-    Warning,
     Error
 }
+```
+
+### AppSnackBarColors
+
+```kotlin
+data class AppSnackBarColors(
+    val info: Color,
+    val success: Color,
+    val error: Color
+)
 ```
 
 ### Extension Functions
@@ -259,7 +214,8 @@ enum class SnackBarType {
 suspend fun SnackbarHostState.showSnackbar(
     message: String,
     actionLabel: String? = null,
-    duration: SnackbarDuration = SnackbarDuration.Short,
+    withDismissAction: Boolean = false,
+    duration: SnackbarDuration = if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Indefinite,
     type: SnackBarType = SnackBarType.Info
 ): SnackbarResult
 ```
@@ -267,7 +223,6 @@ suspend fun SnackbarHostState.showSnackbar(
 ## Dependencies
 
 - Jetpack Compose Material3
-- [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) (optional for logging)
 
 ## See Also
 

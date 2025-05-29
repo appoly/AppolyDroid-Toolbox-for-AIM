@@ -47,12 +47,10 @@ class MyApp: Application() {
 
 ```kotlin
 class DataRepo : BaseRepo() {
-    suspend fun uploadProfileImage(imageFile: File): APIResult<String> {
-        return uploadFileToS3(
-            generatePresignedURL = RetrofitClient.getGeneratePresignedURL(),
-            file = imageFile
-        )
-    }
+	suspend fun uploadFile(file: File) = uploadFileToS3(
+		generatePresignedURL = RetrofitClient.getGeneratePresignedURL(),
+		file = file
+	)
 }
 ```
 
@@ -61,13 +59,11 @@ class DataRepo : BaseRepo() {
 ```kotlin
 val progressFlow = MutableStateFlow(0f)
 
-suspend fun uploadVideo(videoFile: File): APIResult<String> {
-    return uploadFileToS3(
-        generatePresignedURL = RetrofitClient.getGeneratePresignedURL(),
-        file = videoFile,
-        progressMutableFlow = progressFlow
-    )
-}
+suspend fun uploadVideo(videoFile: File): APIResult<String> = uploadFileToS3(
+    generatePresignedURL = RetrofitClient.getGeneratePresignedURL(),
+    file = videoFile,
+    progressMutableFlow = progressFlow
+)
 
 // In your UI:
 val uploadProgress by progressFlow.collectAsState()

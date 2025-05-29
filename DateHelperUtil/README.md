@@ -21,106 +21,126 @@ implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.12")
 ### Basic Date Formatting
 
 ```kotlin
-// Format a date to standard string format
-val dateString = DateHelper.formatDate(date)
+// Format local date time
+val dateString = DateHelper.formatLocalDateTime(localDateTime)
 
-// Format with specific pattern
-val customFormatted = DateHelper.formatDate(date, "yyyy-MM-dd HH:mm")
+// Format local date
+val dateString = DateHelper.formatLocalDate(localDate)
 
-// Format with localization
-val localizedDate = DateHelper.formatDateLocalized(date, DateFormat.MEDIUM)
+// Format using extensions
+val jsonString = localDateTime.toJsonString()
+val fileString = localDateTime.toFileString()
 ```
 
 ### Parsing Date Strings
 
 ```kotlin
-// Parse ISO date string
-val date = DateHelper.parseIsoDate("2025-05-29T12:30:00Z")
+// Parse standard datetime format
+val localDateTime = DateHelper.parseLocalDateTime("2025-05-29T10:38:29.000000Z")
 
-// Parse with custom format
-val customDate = DateHelper.parseDate("29/05/2025 12:30", "dd/MM/yyyy HH:mm")
+// Parse standard date format
+val localDate = DateHelper.parseLocalDate("2025-05-29")
 
-// Safe parsing with fallback
-val safeDate = DateHelper.parseDateSafe("invalid date", "yyyy-MM-dd") ?: LocalDateTime.now()
-```
-
-### Date Calculations
-
-```kotlin
-// Add days to a date
-val tomorrow = DateHelper.addDays(today, 1)
-
-// Check if a date is in the past
-val isPast = DateHelper.isPast(date)
-
-// Get time difference
-val daysBetween = DateHelper.daysBetween(startDate, endDate)
+// Parse using extensions
+val localDateTime = "2025-05-29T10:38:29.000000Z".parseJsonDateTime()
+val localDate = "2025-05-29".parseJsonDate()
 ```
 
 ### Time Zone Handling
 
 ```kotlin
+// Get current time in UTC
+val nowUtc = DateHelper.nowAsUTC()
+
 // Convert to UTC
-val utcDate = DateHelper.toUtc(localDate)
+val utcDateTime = zonedDateTime.toUTC()
 
-// Convert from UTC to local time zone
-val localDate = DateHelper.fromUtc(utcDate)
+// Convert local datetime to UTC
+val utcDateTime = localDateTime.deviceToUTC()
 
-// Format with specific time zone
-val formattedDate = DateHelper.formatDateWithTimeZone(date, "Europe/London", "yyyy-MM-dd HH:mm z")
+// Convert to device time zone
+val deviceTimeZone = zonedDateTime.toDeviceZone()
 ```
 
-### Date Comparison
+### Date Calculations and Checks
 
 ```kotlin
-// Compare dates
-val isSameDay = DateHelper.isSameDay(date1, date2)
+// Check if date is in the future
+val isFuture = localDateTime.isFuture()
+val isFuture = zonedDateTime.isFuture()
 
-// Check if date is today
-val isToday = DateHelper.isToday(date)
+// Check if date is in the past
+val isPassed = localDateTime.isPassed()
+val isPassed = zonedDateTime.isPassed()
 
-// Check if date is between two other dates
-val isBetween = DateHelper.isBetween(date, startDate, endDate)
+// Convert to/from milliseconds
+val millis = localDateTime.toMillis()
+val localDateTime = millis.millisToLocalDateTime()
+val localDate = millis.millisToLocalDate()
 ```
 
 ## API Reference
 
-### Core Methods
-
-#### Formatting
+### Core Methods in DateHelper
 
 ```kotlin
-fun formatDate(date: LocalDateTime?, pattern: String = DEFAULT_DATE_FORMAT): String?
-fun formatDate(date: ZonedDateTime?, pattern: String = DEFAULT_DATE_FORMAT): String?
-fun formatDateLocalized(date: LocalDateTime?, dateStyle: Int = DateFormat.SHORT): String?
+// Configuration
+fun setLogger(logger: FlexiLog, loggingLevel: LoggingLevel = LoggingLevel.NONE)
+
+// Parsing
+fun parseLocalDateTime(dateTime: String?): LocalDateTime?
+fun parseLocalDate(dateTime: String?): LocalDate?
+
+// Formatting
+fun formatLocalDateTime(dateTime: LocalDateTime?): String?
+fun formatLocalDate(date: LocalDate?): String?
+
+// Utilities
+fun nowAsUTC(): ZonedDateTime
 ```
 
-#### Parsing
+### Extension Methods
 
 ```kotlin
-fun parseDate(dateString: String?, pattern: String = DEFAULT_DATE_FORMAT): LocalDateTime?
-fun parseIsoDate(isoDateString: String?): ZonedDateTime?
-fun parseDateSafe(dateString: String?, pattern: String = DEFAULT_DATE_FORMAT): LocalDateTime?
-```
+// Formatting extensions
+fun LocalDateTime?.toJsonString(): String?
+fun LocalDate?.toJsonString(): String?
+fun LocalDateTime.toFileString(): String
 
-#### Date Operations
+// Parsing extensions
+fun String?.parseJsonDateTime(): LocalDateTime?
+fun String?.parseJsonDate(): LocalDate?
 
-```kotlin
-fun addDays(date: LocalDateTime, days: Long): LocalDateTime
-fun isPast(date: LocalDateTime?): Boolean
-fun daysBetween(startDate: LocalDateTime?, endDate: LocalDateTime?): Long
+// Time zone handling
+fun ZonedDateTime.toUTC(): ZonedDateTime
+fun ZonedDateTime.toDeviceZone(): ZonedDateTime
+fun LocalDateTime.deviceToUTC(): LocalDateTime
+
+// Status checks
+fun LocalDateTime?.isFuture(): Boolean
+fun ZonedDateTime?.isFuture(): Boolean
+fun LocalDateTime?.isPassed(): Boolean
+fun ZonedDateTime?.isPassed(): Boolean
+
+// Time conversions
+fun LocalDateTime?.toMillis(zoneOffset: ZoneOffset? = ZoneOffset.UTC): Long?
+fun LocalDate?.toMillis(zoneOffset: ZoneOffset? = ZoneOffset.UTC): Long?
+fun Long.millisToLocalDateTime(zoneOffset: ZoneOffset? = ZoneOffset.UTC): LocalDateTime
+fun Long.millisToLocalDate(zoneOffset: ZoneOffset? = ZoneOffset.UTC): LocalDate
 ```
 
 ### Constants
 
 ```kotlin
-const val DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-const val ISO_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+const val SERVER_PATTERN_FULL = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+const val SERVER_PATTERN_SHORT = "yyyy-MM-dd HH:mm:ss"
+const val SERVER_PATTERN_DATE = "yyyy-MM-dd"
 ```
 
 ## Dependencies
 
 - Java 8 Time API
+- [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) for logging capabilities
 - Android Core KTX (for extension functions)
 
 ## See Also

@@ -24,10 +24,12 @@ Add the converters to your Room database:
 
 ```kotlin
 @Database(
-    entities = [UserEntity::class, PostEntity::class],
+    entities = [UserEntity::class],
     version = 1
 )
-@TypeConverters(DateTypeConverters::class)
+@TypeConverters(
+    DBDateConverters::class // Include the DBDateConverters class for date handling
+) 
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val postDao: PostDao
@@ -81,25 +83,29 @@ class UserRepository(private val userDao: UserDao) {
 
 ## API Reference
 
-### DateTypeConverters
+### DBDateConverters
 
 The main class containing type converters for Room:
 
 ```kotlin
-object DateTypeConverters {
+class DBDateConverters {
     @TypeConverter
-    fun fromLocalDateTime(value: LocalDateTime?): String?
+    fun localDateTimeToJson(date: LocalDateTime?): String?
     
     @TypeConverter
-    fun toLocalDateTime(value: String?): LocalDateTime?
+    fun jsonToLocalDateTime(json: String?): LocalDateTime?
     
     @TypeConverter
-    fun fromZonedDateTime(value: ZonedDateTime?): String?
+    fun localDateToJson(date: LocalDate?): String?
     
     @TypeConverter
-    fun toZonedDateTime(value: String?): ZonedDateTime?
+    fun jsonToLocalDate(json: String?): LocalDate?
     
-    // Additional converters for other date types
+    @TypeConverter
+    fun zonedDateTimeToJson(date: ZonedDateTime?): String?
+    
+    @TypeConverter
+    fun jsonToZonedDateTime(json: String?): ZonedDateTime?
 }
 ```
 
