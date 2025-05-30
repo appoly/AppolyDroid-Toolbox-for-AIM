@@ -4,16 +4,44 @@ import uk.co.appoly.droid.data.remote.model.APIResult
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+/**
+ * Represents the state of an API request flow.
+ *
+ * This sealed class is used to model the different states that an API request can be in:
+ * loading, success with data, or error with details.
+ *
+ * @param T The type of data expected in case of success
+ */
 sealed class APIFlowState<out T> {
+	/**
+	 * Represents the loading state of an API request.
+	 */
 	data object Loading : APIFlowState<Nothing>()
 
+	/**
+	 * Represents a successful API request that returned data.
+	 *
+	 * @property data The data returned by the API request
+	 */
 	data class Success<T>(val data: T) : APIFlowState<T>()
+
+	/**
+	 * Represents an error that occurred during an API request.
+	 *
+	 * @property responseCode The HTTP status code or error code
+	 * @property message The error message describing what went wrong
+	 */
 	data class Error(val responseCode: Int, val message: String) : APIFlowState<Nothing>() {
 		constructor(other: Error) : this(other.responseCode, other.message)
 		constructor(other: APIResult.Error) : this(other.responseCode, other.message)
 	}
 }
 
+/**
+ * Converts an [APIResult] to an [APIFlowState].
+ *
+ * @return An [APIFlowState] representing the same state as the original [APIResult]
+ */
 fun <T : Any> APIResult<T>.asApiFlowState(): APIFlowState<T> {
 	return when (this) {
 		is APIResult.Success -> APIFlowState.Success(data)
