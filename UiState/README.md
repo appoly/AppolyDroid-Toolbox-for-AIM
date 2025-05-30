@@ -1,38 +1,41 @@
 # UiState
 
-A lightweight UI state management module for Android applications built with Jetpack Compose.
+A standardized UI state management library for Android applications, providing consistent state representation for loading, success, and error scenarios.
 
 ## Features
 
-- Simple, consistent UI state representation
-- Type-safe state management
-- Loading, Error, Success, and Idle states
-- Easy integration with ViewModels and Compose
-- Support for state identification with keys
+- Simple sealed class design for UI state management
+- Support for tracking multiple operations with key identifiers
+- Null-safety with smart casting through Kotlin contracts
+- Type-safe extension functions for state checking
+- Lightweight with zero dependencies
 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.12")
+implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.13")
 ```
 
 ## Usage
 
-### Basic State Management
+### Basic UI State Management
 
 ```kotlin
-// In your ViewModel
 class MyViewModel : ViewModel() {
-    private var _uiState = mutableStateOf<UiState>(UiState.Idle())
-    val uiState: State<UiState> = _uiState
-
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle())
+    val uiState = _uiState.asStateFlow()
+    
     fun loadData() {
+        // Update state to Loading
         _uiState.value = UiState.Loading()
+        
         viewModelScope.launch {
             try {
                 val result = repository.fetchData()
+                // Update state to Success
                 _uiState.value = UiState.Success()
             } catch (e: Exception) {
+                // Update state to Error with message
                 _uiState.value = UiState.Error("Failed to load data: ${e.message}")
             }
         }
@@ -40,201 +43,87 @@ class MyViewModel : ViewModel() {
 }
 ```
 
-### Using with Keys
+### Using Smart Cast Extensions
 
-Keys allow you to identify specific states when handling multiple operations:
+The library includes extension functions that use Kotlin contracts to enable smart casting:
 
 ```kotlin
-// In your ViewModel with multiple operations
-class ProductsViewModel : ViewModel() {
-    private var _uiState = mutableStateOf<UiState>(UiState.Idle())
-    val uiState: State<UiState> = _uiState
+// In your Composable
+val uiState = viewModel.uiState.collectAsState().value
 
-    fun loadProducts() {
-        _uiState.value = UiState.Loading(key = "products")
-        viewModelScope.launch {
-            try {
-                repository.getProducts()
-                _uiState.value = UiState.Success(key = "products")
-            } catch (e: Exception) {
-                _uiState.value = UiState.Error("Failed to load products", key = "products")
-            }
-        }
-    }
-    
-    fun deleteProduct(id: String) {
-        _uiState.value = UiState.Loading(key = "delete_$id")
-        viewModelScope.launch {
-            try {
-                repository.deleteProduct(id)
-                _uiState.value = UiState.Success(key = "delete_$id")
-            } catch (e: Exception) {
-                _uiState.value = UiState.Error("Failed to delete product", key = "delete_$id")
-            }
-        }
-    }
+// Smart casting with extension functions
+if (uiState.isError()) {
+    // uiState is automatically cast to UiState.Error
+    Text("Error: ${uiState.message}")
+} else if (uiState.isLoading()) {
+    // uiState is automatically cast to UiState.Loading
+    CircularProgressIndicator()
+} else if (uiState.isSuccess()) {
+    // uiState is automatically cast to UiState.Success
+    Text("Data loaded successfully!")
 }
 ```
 
-### Integrating with Compose UI
+### Tracking Multiple Operations
+
+You can track multiple operations using the `key` property:
 
 ```kotlin
-@Composable
-fun MyScreen(viewModel: MyViewModel) {
-    val uiState = viewModel.uiState.value
-    
-    when (uiState) {
-        is UiState.Loading -> LoadingIndicator()
-        is UiState.Error -> ErrorMessage(uiState.message)
-        is UiState.Success -> SuccessContent()
-        is UiState.Idle -> InitialContent()
-    }
-}
-```
-
-### Using Extension Functions
-
-The library provides useful extension functions with Kotlin contracts for type safety:
-
-```kotlin
-@Composable
-fun MyScreen(viewModel: MyViewModel) {
-    val uiState = viewModel.uiState.value
-    
-    // Show loading indicator if loading
-    if (uiState.isLoading()) {
-        LoadingIndicator()
-    }
-    
-    // Show content when not loading
-    if (uiState.isNotLoading()) {
-        SomeContent()
-    }
-    
-    // Show error if error
-    if (uiState.isError()) {
-        ErrorMessage((uiState as UiState.Error).message)
-    }
-    
-    // Show success content if success
-    if (uiState.isSuccess()) {
-        SuccessContent()
-    }
-    
-    // Check if state is idle
-    if (uiState.isIdle()) {
-        IdleContent()
-    }
-    
-    // Check if state is not an error
-    if (uiState.isNotError()) {
-        NonErrorContent()
-    }
-}
-```
-
-### With State Hoisting Pattern
-
-```kotlin
-// In a ViewModel or other state holder
-data class MyScreenState(
-    val state: UiState = UiState.Idle()
-)
-
 class MyViewModel : ViewModel() {
-    var uiState by mutableStateOf(MyScreenState())
-        private set
-        
-    fun loadData() {
-        uiState = uiState.copy(state = UiState.Loading())
-        viewModelScope.launch {
-            try {
-                repository.fetchData()
-                uiState = uiState.copy(state = UiState.Success())
-            } catch (e: Exception) {
-                uiState = uiState.copy(state = UiState.Error("Failed to load: ${e.message}"))
-            }
-        }
-    }
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle())
+    val uiState = _uiState.asStateFlow()
     
-    fun resetState() {
-        uiState = uiState.copy(state = UiState.Idle())
-    }
-}
-```
-
-### Handling Multiple States
-
-```kotlin
-class UserProfileViewModel : ViewModel() {
-    var userState by mutableStateOf<UiState>(UiState.Idle())
-        private set
-        
-    var postsState by mutableStateOf<UiState>(UiState.Idle())
-        private set
-        
     fun loadUserProfile(userId: String) {
-        userState = UiState.Loading()
-        viewModelScope.launch {
-            try {
-                userRepository.getUser(userId)
-                userState = UiState.Success()
-                loadUserPosts(userId)
-            } catch (e: Exception) {
-                userState = UiState.Error("Failed to load user: ${e.message}")
-            }
-        }
+        _uiState.value = UiState.Loading(key = "profile")
+        // ...fetch profile...
     }
     
     fun loadUserPosts(userId: String) {
-        postsState = UiState.Loading()
-        viewModelScope.launch {
-            try {
-                postsRepository.getPosts(userId)
-                postsState = UiState.Success()
-            } catch (e: Exception) {
-                postsState = UiState.Error("Failed to load posts: ${e.message}")
-            }
-        }
+        _uiState.value = UiState.Loading(key = "posts")
+        // ...fetch posts...
+    }
+}
+
+// In your UI
+val uiState = viewModel.uiState.collectAsState().value
+
+// Check state for specific operation
+when {
+    uiState.isLoading() && uiState.key == "profile" -> {
+        // Show profile loading UI
+    }
+    uiState.isLoading() && uiState.key == "posts" -> {
+        // Show posts loading UI
+    }
+    uiState.isError() && uiState.key == "profile" -> {
+        // Show profile error UI
     }
 }
 ```
 
-## API Reference
+## Available States
 
-### UiState
+| State | Description | Properties |
+|-------|-------------|------------|
+| `Idle` | Initial state before any operation | `key: Any?` |
+| `Loading` | Operation in progress | `key: Any?` |
+| `Success` | Operation completed successfully | `key: Any?` |
+| `Error` | Operation failed | `message: String`, `key: Any?` |
 
-The core sealed class representing UI state:
+## Extension Functions
 
-```kotlin
-sealed class UiState {
-    abstract val key: Any?
-    
-    data class Idle(override val key: Any? = null) : UiState()
-    data class Loading(override val key: Any? = null) : UiState()
-    data class Success(override val key: Any? = null) : UiState()
-    data class Error(val message: String, override val key: Any? = null) : UiState()
-}
-```
+| Function | Description | Smart Cast |
+|----------|-------------|-----------|
+| `isIdle()` | Checks if state is Idle | Yes, to UiState.Idle |
+| `isLoading()` | Checks if state is Loading | Yes, to UiState.Loading |
+| `isNotLoading()` | Checks if state is not Loading | Yes |
+| `isSuccess()` | Checks if state is Success | Yes, to UiState.Success |
+| `isError()` | Checks if state is Error | Yes, to UiState.Error |
+| `isNotError()` | Checks if state is not Error | Yes |
 
-### Extension Functions
+## Integration with Other Modules
 
-```kotlin
-// State type checking with Kotlin contracts for type safety
-fun UiState?.isIdle(): Boolean
-fun UiState?.isLoading(): Boolean
-fun UiState?.isNotLoading(): Boolean
-fun UiState?.isError(): Boolean
-fun UiState?.isNotError(): Boolean
-fun UiState?.isSuccess(): Boolean
-```
+UiState works well with other Appoly modules:
 
-## Dependencies
-
-- Kotlin Coroutines
-- Kotlin Contracts (for type-safe extension functions)
-
-## See Also
-
-- [AppSnackBar-UiState](../AppSnackBar-UiState/README.md) for integration with AppSnackBar module
-
+- [AppSnackBar-UiState](../AppSnackBar-UiState/README.md) - For automatic Snackbar display based on UI state
+- [BaseRepo](../BaseRepo/README.md) - For connecting repository results with UI state

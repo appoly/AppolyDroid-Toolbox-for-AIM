@@ -1,141 +1,152 @@
 # DateHelperUtil-Serialization
 
-Extension module for DateHelperUtil that provides Kotlinx Serialization support for date and time types.
+Extension module for DateHelperUtil that provides kotlinx.serialization integration for Java 8 date and time types.
 
 ## Features
 
-- Custom serializers for LocalDateTime, ZonedDateTime, and other date types
-- Seamless integration with Kotlinx Serialization for API requests/responses
-- Consistent date/time serialization and deserialization across your app
+- Serializers for LocalDate, LocalDateTime, and ZonedDateTime
+- Support for both nullable and non-nullable date-time values
+- Standardized date/time formatting using ISO-8601 formats
+- Timezone preservation for ZonedDateTime values
+- Automatic UTC conversion for consistent serialization
+- Full compatibility with kotlinx.serialization
 
 ## Installation
 
 ```gradle.kts
 // Requires base DateHelperUtil module
-implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.12")
-implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.12")
+implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.13")
+implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.13")
+
+// Required kotlinx.serialization dependencies
+implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
+implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
 ```
 
 ## Usage
 
-### Setting Up JSON Configuration
+### 1. Enable Kotlin Serialization Plugin
 
-Configure your JSON serialization to use the date serializers:
+In your module's build.gradle.kts file:
+
+```kotlin
+plugins {
+    id("kotlin-android")
+    id("kotlinx-serialization")
+}
+```
+
+### 2. Use Serializers in Data Classes
+
+Add serializer annotations to date properties:
+
+```kotlin
+import kotlinx.serialization.Serializable
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+
+@Serializable
+data class Event(
+    val id: Int,
+    val title: String,
+    
+    // Non-nullable LocalDate
+    @Serializable(with = LocalDateSerializer::class)
+    val eventDate: LocalDate,
+    
+    // Nullable LocalDateTime
+    @Serializable(with = NullableDateTimeSerializer::class)
+    val startTime: LocalDateTime?,
+    
+    // ZonedDateTime (with timezone preservation)
+    @Serializable(with = ZonedDateTimeSerializer::class)
+    val createdAt: ZonedDateTime
+)
+```
+
+### 3. Serializing to JSON
+
+```kotlin
+import kotlinx.serialization.json.Json
+
+val jsonFormat = Json {
+    ignoreUnknownKeys = true
+    prettyPrint = true
+}
+
+val event = Event(
+    id = 1,
+    title = "Conference",
+    eventDate = LocalDate.of(2025, 6, 15),
+    startTime = LocalDateTime.of(2025, 6, 15, 9, 0),
+    createdAt = ZonedDateTime.now()
+)
+
+// Serialize to JSON string
+val jsonString = jsonFormat.encodeToString(Event.serializer(), event)
+
+// Deserialize from JSON string
+val parsedEvent = jsonFormat.decodeFromString(Event.serializer(), jsonString)
+```
+
+## Available Serializers
+
+| Serializer | Type | Description |
+|------------|------|-------------|
+| `LocalDateSerializer` | `LocalDate` | Non-nullable date |
+| `NullableLocalDateSerializer` | `LocalDate?` | Nullable date |
+| `DateTimeSerializer` | `LocalDateTime` | Non-nullable date-time |
+| `NullableDateTimeSerializer` | `LocalDateTime?` | Nullable date-time |
+| `ZonedDateTimeSerializer` | `ZonedDateTime` | Non-nullable date-time with timezone |
+| `NullableZonedDateTimeSerializer` | `ZonedDateTime?` | Nullable date-time with timezone |
+
+## Serialization Format
+
+The serializers use the standard date formats defined in DateHelper:
+
+| Java Type | JSON Format | Example |
+|-----------|-------------|---------|
+| LocalDate | ISO-8601 date | `"2025-06-15"` |
+| LocalDateTime | ISO-8601 datetime | `"2025-06-15T09:00:00.000000Z"` |
+| ZonedDateTime | ISO-8601 datetime (UTC) | `"2025-06-15T13:00:00.000000Z"` |
+
+Note: ZonedDateTime values are always converted to UTC before serialization for consistent storage and transmission.
+
+## Timezone Handling
+
+For ZonedDateTime values:
+1. When serializing: The ZonedDateTime is converted to UTC timezone
+2. When deserializing: The UTC time is parsed and then converted to the device's local timezone
+
+This approach ensures consistent serialization while preserving timezone information.
+
+## Example: Custom JSON Configuration
+
+For more advanced use cases, you may want to configure the JSON serialization:
 
 ```kotlin
 val json = Json {
+    prettyPrint = true
     ignoreUnknownKeys = true
     encodeDefaults = true
-    // Additional configuration...
+    explicitNulls = false
 }
-```
 
-### Using in Data Classes
-
-```kotlin
-@Serializable
-data class UserDto(
-    val id: Int,
-    val name: String,
-    @Serializable(with = DateTimeSerializer::class)
-    val createdAt: LocalDateTime,
-    @Serializable(with = ZonedDateTimeSerializer::class)
-    val lastLogin: ZonedDateTime?
-)
-```
-
-### Using Nullable Serializers
-
-For nullable date types, use the nullable serializers:
-
-```kotlin
-@Serializable
-data class EventDto(
-    val id: Long,
-    val title: String,
-    @Serializable(with = DateTimeSerializer::class)
-    val startTime: LocalDateTime,
-    @Serializable(with = NullableDateTimeSerializer::class)
-    val endTime: LocalDateTime?,
-    @Serializable(with = NullableZonedDateTimeSerializer::class)
-    val reminderTime: ZonedDateTime?
-)
-```
-
-### Retrofit Integration
-
-When setting up Retrofit with Kotlinx Serialization:
-
-```kotlin
-Retrofit.Builder()
-    .baseUrl(baseUrl)
-    .addConverterFactory(
-        json.asConverterFactory("application/json".toMediaType())
-    )
-    // Additional configuration...
-    .build()
-```
-
-### API Request/Response Example
-
-```kotlin
-@Serializable
-data class EventRequest(
-    val title: String,
-    @Serializable(with = DateTimeSerializer::class)
-    val startTime: LocalDateTime,
-    @Serializable(with = ZonedDateTimeSerializer::class)
-    val endTime: ZonedDateTime
+// Create events list
+val events = listOf(
+    Event(1, "Meeting", LocalDate.now(), LocalDateTime.now(), ZonedDateTime.now()),
+    Event(2, "Conference", LocalDate.now().plusDays(7), null, ZonedDateTime.now())
 )
 
-// API interface
-interface EventApi {
-    @POST("events")
-    suspend fun createEvent(
-        @Body event: EventRequest
-    ): Response<EventResponse>
-}
-```
-
-### Manual Serialization Example
-
-```kotlin
-// Manually serialize an object
-val event = EventDto(
-    title = "Team Meeting",
-    startTime = LocalDateTime.now().plusDays(1),
-    endTime = ZonedDateTime.now().plusDays(1).plusHours(1)
-)
-
-val jsonString = json.encodeToString(EventDto.serializer(), event)
+// Serialize list to JSON
+val jsonString = json.encodeToString(ListSerializer(Event.serializer()), events)
 
 // Deserialize from JSON
-val parsedEvent = json.decodeFromString(EventDto.serializer(), jsonString)
-```
-
-## API Reference
-
-### Serializer Classes
-
-```kotlin
-// Non-nullable serializers
-object DateTimeSerializer : KSerializer<LocalDateTime>
-object LocalDateSerializer : KSerializer<LocalDate>
-object ZonedDateTimeSerializer : KSerializer<ZonedDateTime>
-
-// Nullable serializers
-object NullableDateTimeSerializer : KSerializer<LocalDateTime?>
-object NullableLocalDateSerializer : KSerializer<LocalDate?>
-object NullableZonedDateTimeSerializer : KSerializer<ZonedDateTime?>
+val parsedEvents = json.decodeFromString(ListSerializer(Event.serializer()), jsonString)
 ```
 
 ## Dependencies
 
-- [DateHelperUtil](../DateHelperUtil/README.md) module
-- [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization) library
-
-## Notes
-
-- All date/time types are serialized in ISO-8601 format for maximum compatibility
-- Time zone information is preserved for ZonedDateTime values
-- The serializers handle null values gracefully
+- [DateHelperUtil](../DateHelperUtil/README.md) - Base date/time utility module
+- [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) - Kotlin serialization library

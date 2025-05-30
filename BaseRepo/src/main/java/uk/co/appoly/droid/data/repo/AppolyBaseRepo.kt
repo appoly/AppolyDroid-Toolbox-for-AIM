@@ -29,12 +29,31 @@ import java.net.UnknownHostException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
+/**
+ * Abstract base class for repository implementations.
+ *
+ * This class provides common functionality for API communication, error handling,
+ * and response processing. It serves as the foundation for all repository classes
+ * in the application.
+ *
+ * @property getRetrofitClient Lambda that provides a [BaseRetrofitClient] instance for API communication
+ * @property logger Logger instance for logging API calls and errors
+ */
 @OptIn(ExperimentalContracts::class)
 abstract class AppolyBaseRepo(
 	val getRetrofitClient: () -> BaseRetrofitClient
 ) {
+	/**
+	 * Logger instance used for logging API calls and errors.
+	 * Defaults to [BaseRepoLogger], but can be overridden by subclasses.
+	 */
 	open val logger: FlexiLog = BaseRepoLogger
 
+	/**
+	 * Gets or creates a [ServiceManager] instance for managing API services.
+	 *
+	 * @return A [ServiceManager] instance configured with this repository's retrofit client and logger
+	 */
 	fun getServiceManager(): ServiceManager {
 		return ServiceManager.getInstance(
 			getRetrofitClient = { getRetrofitClient() },
@@ -43,15 +62,31 @@ abstract class AppolyBaseRepo(
 	}
 
 	companion object {
+		/**
+		 * Response code used for general exceptions that don't have a specific HTTP status code
+		 */
 		const val RESPONSE_EXCEPTION_CODE = -1
 	}
 
 	/**
 	 * Helper method to lazily initialize a service
+	 *
+	 * @param T The API interface type to get a service for
+	 * @return A lazy-initialized [BaseService] instance for the requested API type
 	 */
 	protected inline fun <reified T : BaseService.API> AppolyBaseRepo.lazyService(): Lazy<BaseService<T>> =
 		lazy { getServiceManager().getService() }
 
+	/**
+	 * Executes an API call and processes the response into an [APIResult].
+	 *
+	 * This method handles successful responses, error responses, and exceptions,
+	 * converting them all into the appropriate [APIResult] type.
+	 *
+	 * @param logDescription Description of the API call for logging purposes
+	 * @param call Lambda that performs the actual API call and returns an [ApiResponse]
+	 * @return An [APIResult] representing the outcome of the API call
+	 */
 	protected inline fun <T : Any> doAPICall(
 		logDescription: String,
 		call: () -> ApiResponse<GenericResponse<T>>
@@ -125,6 +160,16 @@ abstract class AppolyBaseRepo(
 		}
 	}
 
+	/**
+	 * Executes an API call that returns a [BaseResponse] and processes the response into an [APIResult].
+	 *
+	 * This method is similar to [doAPICall] but handles API calls that return a [BaseResponse]
+	 * instead of a [GenericResponse].
+	 *
+	 * @param logDescription Description of the API call for logging purposes
+	 * @param call Lambda that performs the actual API call and returns an [ApiResponse]
+	 * @return An [APIResult] representing the outcome of the API call
+	 */
 	protected inline fun doAPICallWithBaseResponse(
 		logDescription: String,
 		call: () -> ApiResponse<BaseResponse>
@@ -194,6 +239,12 @@ abstract class AppolyBaseRepo(
 		}
 	}
 
+	/**
+	 * Converts an API call into a Flow that emits loading state followed by the API result.
+	 *
+	 * @param apiCall Suspend function that performs the actual API call
+	 * @return A Flow that emits [APIFlowState.Loading] followed by the result of the API call
+	 */
 	protected inline fun <T : Any> callApiAsFlow(
 		crossinline apiCall: suspend () -> APIResult<T>
 	): Flow<APIFlowState<T>> = flow {
@@ -201,6 +252,15 @@ abstract class AppolyBaseRepo(
 		emit(apiCall().asApiFlowState())
 	}
 
+	/**
+	 * Creates a [RefreshableAPIFlow] that wraps an API call, providing refresh functionality.
+	 *
+	 * @param initialValue Optional initial value to use before the first API call completes
+	 * @param initialRefresh Whether to automatically refresh the data when created (defaults to true if initialValue is null)
+	 * @param scope CoroutineScope to use for API calls
+	 * @param apiCall Suspend function that performs the actual API call
+	 * @return A [RefreshableAPIFlow] that wraps the API call
+	 */
 	protected fun <T : Any> callApiAsRefreshableFlow(
 		initialValue: T? = null,
 		initialRefresh: Boolean = initialValue == null,

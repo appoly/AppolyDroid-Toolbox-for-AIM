@@ -4,177 +4,305 @@ An extension module for BaseRepo that adds Jetpack Paging 3 support for efficien
 
 ## Features
 
-- Seamless integration with BaseRepo
+- Seamless integration with BaseRepo and APIResult pattern
 - Support for Jetpack Paging 3 library
 - Standardized paging source implementation
-- Invalidation capabilities for refreshing data
+- Thread-safe invalidation capabilities for refreshing data
 - Support for jumping to specific pages
+- Integration with both traditional RecyclerView and Jetpack Compose
 
 ## Installation
 
 ```gradle.kts
 // Requires the base BaseRepo module
-implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.12")
-implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.12")
+implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.13")
+implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.13")
+
+// For Compose UI integration
+implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.13") // For LazyColumn
+implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.13") // For LazyGrid
+```
+
+## API Response Format
+
+This module requires your paginated API responses to follow a specific nested structure as shown below:
+
+```json
+{
+  "success": true,
+  "message": "Data retrieved successfully",
+  "data": {
+    "data": [
+      { "id": 1, "name": "Item 1" },
+      { "id": 2, "name": "Item 2" }
+    ],
+    "current_page": 1,
+    "last_page": 5,
+    "per_page": 10,
+    "from": 1,
+    "to": 10,
+    "total": 48
+  }
+}
 ```
 
 ## Usage
 
-### Creating a Paging Source Factory
+### Step 1: Create API Service Interface
+
+First, create your API service interface that returns paginated responses:
 
 ```kotlin
-class DataRepo : BaseRepo() {
-    fun getWenWesLibraryPagingSourceFactory(
-        searchQuery: String,
-        status: Status,
-        type: Type,
-        pageSize: Int = DEFAULT_PAGE_SIZE,
-        jumpingSupported: Boolean = false,
-        jumpPageThreshold: Float? = null
-    ) = GenericInvalidatingPagingSourceFactory(
-        pageSize = pageSize,
-        jumpingSupported = jumpingSupported,
-        jumpPageThreshold = jumpPageThreshold
-    ) { perPage, page ->
-        fetchWenWesLibraryPage(perPage, page, searchQuery, status, type)
-    }
+interface LibraryAPI : BaseService.API {
+    @POST("api/library/search")
+    suspend fun searchLibrary(
+        @Query("per_page") perPage: Int,
+        @Query("page") page: Int,
+        @Body body: SearchRequestBody
+    ): ApiResponse<GenericNestedPagedResponse<LibraryItem>>
+}
+```
+
+### Step 2: Add Repository Method to Fetch Pages
+
+In your repository, create a method that uses `doNestedPagedAPICall` to fetch a page:
+
+```kotlin
+class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
+    private val libraryService by lazyService<LibraryAPI>()
     
-    // API call to fetch a page
-    suspend fun fetchWenWesLibraryPage(
+    // Function to fetch a single page
+    suspend fun fetchLibraryPage(
         perPage: Int,
         page: Int,
-        searchQuery: String,
-        status: Status,
-        type: Type
-    ): APIResult<PageData<ItemData>> = doNestedPagedAPICall("fetchWenWesLibraryPage") {
-        dataService.api.fetchWenWesLibraryPage(
+        query: String,
+        filters: Filters
+    ): APIResult<PageData<LibraryItem>> = doNestedPagedAPICall("fetchLibraryPage") {
+        libraryService.api.searchLibrary(
             perPage = perPage,
             page = page,
-            body = SearchBody(
-                searchQuery = searchQuery,
-                status = status.id,
-                type = type.id
+            body = SearchRequestBody(
+                query = query,
+                filters = filters
             )
         )
     }
 }
 ```
 
-### Using the Paging Flow in a ViewModel
+### Step 3: Create a PagingSource Factory
+
+Create a factory that will generate paging sources on demand:
 
 ```kotlin
-class MyViewModel : ViewModel() {
-    private val dataRepo: DataRepo = // get repository instance
+class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
+    // ...existing code...
     
-    // Create paging flow
-    private val pagingSourceFactory = dataRepo.getWenWesLibraryPagingSourceFactory(
-        searchQuery = "",
-        status = Status.ACTIVE,
-        type = Type.ALL,
-        jumpingSupported = true
-    )
+    fun getLibraryPagingSourceFactory(
+        query: String,
+        filters: Filters,
+        pageSize: Int = 20,
+        jumpingSupported: Boolean = true,
+        jumpPageThreshold: Float = 2f
+    ): GenericInvalidatingPagingSourceFactory<LibraryItem> = 
+        GenericInvalidatingPagingSourceFactory(
+            pageSize = pageSize,
+            jumpingSupported = jumpingSupported,
+            jumpPageThreshold = jumpPageThreshold
+        ) { perPage, page ->
+            fetchLibraryPage(perPage, page, query, filters)
+        }
+}
+```
+
+### Step 4: Use in a ViewModel
+
+```kotlin
+class LibraryViewModel(
+    private val libraryRepository: LibraryRepository
+) : ViewModel() {
+    private var currentQuery = ""
+    private var currentFilters = Filters()
     
-    val pagingDataFlow = pagingSourceFactory
-        .getPager(enablePlaceholders = true)
+    // Create factory and pager
+    private val pagingSourceFactory = 
+        libraryRepository.getLibraryPagingSourceFactory(currentQuery, currentFilters)
+    
+    // Create flow to collect in UI
+    val items = pagingSourceFactory.getPager()
         .flow
         .cachedIn(viewModelScope)
     
-    // Call this to refresh/invalidate the data
+    // Function to refresh data
     fun refresh() {
+        pagingSourceFactory.invalidate()
+    }
+    
+    // Function to update search parameters
+    fun search(query: String, filters: Filters) {
+        currentQuery = query
+        currentFilters = filters
         pagingSourceFactory.invalidate()
     }
 }
 ```
 
-### Using in Jetpack Compose
+### Step 5: Collect in UI
+
+#### In Jetpack Compose
 
 ```kotlin
 @Composable
-fun ItemsList(viewModel: MyViewModel) {
-    val lazyPagingItems = viewModel.pagingDataFlow.collectAsLazyPagingItems()
+fun LibraryScreen(viewModel: LibraryViewModel) {
+    val items = viewModel.items.collectAsLazyPagingItems()
     
     LazyColumn {
         items(
-            count = lazyPagingItems.itemCount,
-            key = { index -> lazyPagingItems[index]?.id ?: index }
+            count = items.itemCount,
+            key = { index -> items[index]?.id ?: index }
         ) { index ->
-            val item = lazyPagingItems[index]
+            val item = items[index]
             if (item != null) {
-                ItemRow(item = item)
+                LibraryItemCard(item = item)
             } else {
-                // Placeholder for loading items
-                ItemLoadingPlaceholder()
+                // Placeholder for loading state
+                LoadingItemPlaceholder()
+            }
+        }
+        
+        // Handle different loading states
+        when (items.loadState.refresh) {
+            is LoadState.Loading -> item { FullScreenLoader() }
+            is LoadState.Error -> item { ErrorView(onRetry = { items.retry() }) }
+            else -> Unit
+        }
+        
+        // Append loading indicator
+        when (items.loadState.append) {
+            is LoadState.Loading -> item { LoadingIndicator() }
+            is LoadState.Error -> item { RetryButton(onRetry = { items.retry() }) }
+            else -> Unit
+        }
+    }
+}
+```
+
+#### In Traditional RecyclerView (with DataBinding)
+
+```kotlin
+class LibraryFragment : Fragment() {
+    private val viewModel: LibraryViewModel by viewModels()
+    private val adapter = LibraryAdapter()
+    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view)
+        
+        binding.recyclerView.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = LoadingStateAdapter { adapter.retry() },
+            footer = LoadingStateAdapter { adapter.retry() }
+        )
+        
+        // Collect paging data
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.items.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
+            }
+        }
+        
+        // Set up swipe refresh
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.refresh()
+        }
+        
+        // Monitor load state
+        viewLifecycleOwner.lifecycleScope.launch {
+            adapter.loadStateFlow.collectLatest { loadState ->
+                binding.swipeRefresh.isRefreshing = 
+                    loadState.refresh is LoadState.Loading
+                
+                // Show error if initial load fails
+                if (loadState.refresh is LoadState.Error) {
+                    showError((loadState.refresh as LoadState.Error).error.message)
+                }
             }
         }
     }
 }
 ```
 
-### Using with Enhanced Extensions
+## Converting APIFlowState to PagingData
 
-For a more complete implementation with error handling, loading state, and placeholders, consider using the [LazyListPagingExtensions](../LazyListPagingExtensions/README.md) or [LazyGridPagingExtensions](../LazyGridPagingExtensions/README.md) modules.
+If you have an existing Flow of `APIFlowState<List<T>>`, you can convert it to a PagingData flow:
 
 ```kotlin
-LazyColumn {
-    lazyPagingItemsWithStates(
-        lazyPagingItems = lazyPagingItems,
-        emptyText = { "No items found" },
-        errorText = { error -> "Error: ${error.message}" },
-        itemContent = { item ->
-            ItemRow(item = item)
-        },
-        itemPlaceholderContent = {
-            ItemLoadingPlaceholder()
-        }
-    )
+class ItemsViewModel(private val repository: ItemsRepository) : ViewModel() {
+    // Convert a standard flow to a paging flow
+    val itemsPaging = repository.getItemsFlow()
+        .mapToPagingData()
+        .cachedIn(viewModelScope)
 }
 ```
 
-## API Reference
+## Advanced Usage
+
+### Controlling Jump Threshold
+
+The `jumpPageThreshold` parameter determines when Paging will "jump" to a specific page instead of scrolling:
+
+```kotlin
+// Create a factory that allows jumping 5 pages when fast scrolling
+pagingSourceFactory = GenericInvalidatingPagingSourceFactory(
+    pageSize = 20,
+    jumpingSupported = true,
+    jumpPageThreshold = 5f
+) { perPage, page -> 
+    fetchPage(perPage, page) 
+}
+```
+
+### Testing
+
+The factory provides a `pagingSources()` method for testing purposes:
+
+```kotlin
+@Test
+fun testInvalidation() {
+    val factory = GenericInvalidatingPagingSourceFactory(
+        pageSize = 10,
+        fetchPageCall = { _, _ -> mockSuccessResult() }
+    )
+    
+    // Create a paging source
+    val pagingSource = factory.invoke()
+    
+    // Verify paging source is tracked
+    assertEquals(1, factory.pagingSources().size)
+    
+    // Invalidate and verify tracking is reset
+    factory.invalidate()
+    assertEquals(0, factory.pagingSources().size)
+}
+```
+
+## Key Components
+
+### GenericNestedPagedResponse
+
+Models the nested paged response from your API.
+
+### PageData
+
+A flattened, non-nullable representation of page data with computed properties like `itemsBefore` and `itemsAfter`.
+
+### GenericPagingSource
+
+Implements Android's `PagingSource` for seamless integration with Paging 3.
 
 ### GenericInvalidatingPagingSourceFactory
 
-The main class for creating invalidatable paging sources.
-
-```kotlin
-class GenericInvalidatingPagingSourceFactory<T : Any>(
-    private val pageSize: Int,
-    private val jumpingSupported: Boolean = false,
-    private val jumpPageThreshold: Float? = null,
-    private val fetchPage: suspend (perPage: Int, page: Int) -> APIResult<PageData<T>>
-)
-```
-
-#### Methods
-
-- `getPager(enablePlaceholders: Boolean)`: Creates a Pager for this source
-- `invalidate()`: Invalidates the current paging source, triggering a refresh
-
-#### Parameters
-
-- `pageSize`: Number of items per page
-- `jumpingSupported`: If true, allows jumping ahead to specific pages
-- `jumpPageThreshold`: When to use jumping vs. sequential loading
-- `fetchPage`: Suspend function to fetch a specific page of data
-
-### doNestedPagedAPICall
-
-Extension function for BaseRepo to handle paged API responses:
-
-```kotlin
-suspend fun <T : Any> doNestedPagedAPICall(
-    tag: String, 
-    apiCall: suspend () -> ApiResponse<GenericNestedPagedResponse<T>>
-): APIResult<PageData<T>>
-```
+Thread-safe factory that creates and tracks paging sources, allowing for invalidation.
 
 ## Dependencies
 
-- [BaseRepo](../BaseRepo/README.md) module
-- [Jetpack Paging 3 library](https://developer.android.com/topic/libraries/architecture/paging/v3-overview)
-- Kotlin Coroutines and Flow
-
-## See Also
-
-- [LazyListPagingExtensions](../LazyListPagingExtensions/README.md) - For enhanced LazyList integration
-- [LazyGridPagingExtensions](../LazyGridPagingExtensions/README.md) - For enhanced LazyGrid integration
+- [BaseRepo](../BaseRepo/README.md) - Core repository pattern implementation
+- [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Android paging library

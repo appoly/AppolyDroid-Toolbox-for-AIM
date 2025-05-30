@@ -22,7 +22,8 @@ import kotlin.math.roundToInt
  *
  * @param pageSize The size of each page to be loaded
  * @param jumpingSupported Whether the PagingSource supports jumping to a specific page
- * @param pagingSourceFactory The [GenericPagingSource] factory that returns a PagingSource when called
+ * @param jumpPageThreshold Optional multiplier for determining the jump threshold (pageSize * jumpPageThreshold)
+ * @param fetchPageCall Function to fetch a page of data from the API
  *
  * @see [androidx.paging.InvalidatingPagingSourceFactory]
  */
@@ -32,6 +33,9 @@ class GenericInvalidatingPagingSourceFactory<Value : Any>(
 	val jumpPageThreshold: Float? = null,
 	fetchPageCall: suspend (perPage: Int, page: Int) -> APIResult<PageData<Value>>
 ) : PagingSourceFactory<Int, Value> {
+	/**
+	 * Factory function that creates new [GenericPagingSource] instances
+	 */
 	private val pagingSourceFactory: () -> GenericPagingSource<Value> = {
 		GenericPagingSource<Value>(
 			fetchPage = fetchPageCall,
@@ -40,16 +44,31 @@ class GenericInvalidatingPagingSourceFactory<Value : Any>(
 		)
 	}
 
+	/**
+	 * Lock for thread-safe operations on [pagingSources]
+	 */
 	private val lock = ReentrantLock()
 
+	/**
+	 * List of active paging sources created by this factory
+	 */
 	private var pagingSources: List<GenericPagingSource<Value>> = emptyList()
 
+	/**
+	 * Returns the current list of active paging sources.
+	 * This method is primarily intended for testing.
+	 *
+	 * @return List of active [GenericPagingSource] instances
+	 */
 	@VisibleForTesting
 	internal fun pagingSources() = pagingSources
 
 	/**
-	 * @return [androidx.paging.PagingSource] which will be invalidated when this factory's [invalidate] method
-	 * is called
+	 * Creates a new [GenericPagingSource] instance and adds it to the factory's tracking list.
+	 *
+	 * This method is thread-safe and can be called concurrently.
+	 *
+	 * @return A new [GenericPagingSource] instance that will be invalidated when [invalidate] is called
 	 */
 	override fun invoke(): PagingSource<Int, Value> {
 		return pagingSourceFactory().also {
@@ -60,8 +79,12 @@ class GenericInvalidatingPagingSourceFactory<Value : Any>(
 	}
 
 	/**
-	 * Calls [PagingSource.invalidate] on each [PagingSource] that was produced by this
-	 * [androidx.paging.InvalidatingPagingSourceFactory]
+	 * Invalidates all active [GenericPagingSource] instances created by this factory.
+	 *
+	 * This causes the Paging library to create a new PagingSource and reload its data.
+	 * After invalidation, the factory clears its list of tracked PagingSources.
+	 *
+	 * This method is thread-safe and can be called concurrently.
 	 */
 	fun invalidate() {
 		val previousList = lock.withLock {
@@ -76,6 +99,16 @@ class GenericInvalidatingPagingSourceFactory<Value : Any>(
 		}
 	}
 
+	/**
+	 * Creates a [Pager] instance configured with this factory.
+	 *
+	 * This is a convenience method that creates a properly configured [Pager]
+	 * with the appropriate settings for page size and jumping threshold.
+	 *
+	 * @param initialKey The initial page key to use (default is 1)
+	 * @param enablePlaceholders Whether to enable placeholders in the [Pager] (default is false)
+	 * @return A configured [Pager] instance ready for collecting as a [androidx.paging.PagingData] flow
+	 */
 	fun getPager(
 		initialKey: Int = 1,
 		enablePlaceholders: Boolean = false

@@ -1,45 +1,43 @@
 # AppSnackBar-UiState
 
-Integration module that combines the AppSnackBar module with UiState for a seamless error and notification handling system in Android applications.
+Integration module that bridges the AppSnackBar and UiState modules, providing automatic Snackbar display based on UI state changes.
 
 ## Features
 
-- Automatic Snackbar display based on UiState changes
-- Handles error states automatically with styled error Snackbars
-- Support for different message types (Info, Success, Error)
-- Easy integration with existing UiState and AppSnackBar implementations
-- Clean separation of UI state and notification display logic
+- Automatic mapping between UiState and SnackBarType
+- Seamless integration with UiState for error handling
+- Simple extension property for type conversion
+- Consistent visual feedback for UI state changes
 
 ## Installation
 
 ```gradle.kts
-// Requires base modules
-implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.12")
-implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.12")
-implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.12")
+// Requires both base modules
+implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.13")
+implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.13")
+implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.13")
 ```
 
 ## Usage
 
 ### Basic Integration
 
+The module provides an extension property `snackBarType` that automatically converts a `UiState` to the appropriate `SnackBarType`:
+
 ```kotlin
 @Composable
 fun MyScreen(viewModel: MyViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val uiState = viewModel.uiState
+    val uiState = viewModel.uiState.collectAsState().value
+    val scope = rememberCoroutineScope()
     
-    // Automatically show snackbar when UI state changes to error
-    LaunchedEffect(key1 = uiState.state) {
-        if (uiState.state.isError()) {
-            // Extension function from AppSnackBar-UiState
+    // Show snackbar when UI state changes to error
+    LaunchedEffect(key1 = uiState) {
+        if (uiState.isError()) {
             snackbarHostState.showSnackbar(
-                message = uiState.state.errorMessage() ?: "An error occurred",
-                duration = SnackbarDuration.Long,
-                type = SnackBarType.Error
+                message = uiState.message,
+                type = uiState.snackBarType // Automatically uses SnackBarType.Error
             )
-            // Reset UI state after showing error
-            viewModel.resetState()
         }
     }
     
@@ -55,221 +53,58 @@ fun MyScreen(viewModel: MyViewModel) {
 }
 ```
 
-### Comprehensive Example
-
-```kotlin
-@Composable
-fun MyAppScreen(viewModel: MyViewModel) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val uiState = viewModel.uiState
-    val state = uiState.state
-    
-    // Handle different UI states
-    if (state.isError()) {
-        LaunchedEffect(key1 = state) {
-            snackbarHostState.showSnackbar(
-                message = state.errorMessage() ?: "Unknown error",
-                duration = SnackbarDuration.Long,
-                type = SnackBarType.Error
-            )
-            viewModel.resetState()
-        }
-    } else if (state is UiState.Success) {
-        LaunchedEffect(key1 = state) {
-            snackbarHostState.showSnackbar(
-                message = "Operation completed successfully!",
-                duration = SnackbarDuration.Short,
-                type = SnackBarType.Success
-            )
-            viewModel.resetState()
-        }
-    }
-    
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.padding(WindowInsets.navigationBars.asPaddingValues())
-            ) { data ->
-                AppSnackBar(snackbarData = data)
-            }
-        }
-    ) {
-        // Your app content
-        if (state.isLoading()) {
-            LoadingIndicator()
-        } else {
-            MainContent(
-                onButtonClick = {
-                    viewModel.performAction()
-                }
-            )
-        }
-    }
-}
-```
-
-### Using with Multiple UI States
-
-```kotlin
-@Composable
-fun ComplexScreen(
-    userViewModel: UserViewModel,
-    postViewModel: PostViewModel
-) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val userUiState = userViewModel.uiState.state
-    val postUiState = postViewModel.uiState.state
-    
-    // Handle user state errors
-    LaunchedEffect(userUiState) {
-        if (userUiState.isError()) {
-            snackbarHostState.showSnackbar(
-                message = "User error: ${userUiState.errorMessage()}",
-                duration = SnackbarDuration.Long,
-                type = SnackBarType.Error
-            )
-            userViewModel.resetState()
-        }
-    }
-    
-    // Handle post state errors
-    LaunchedEffect(postUiState) {
-        if (postUiState.isError()) {
-            snackbarHostState.showSnackbar(
-                message = "Post error: ${postUiState.errorMessage()}",
-                duration = SnackbarDuration.Long,
-                type = SnackBarType.Error
-            )
-            postViewModel.resetState()
-        }
-    }
-    
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) { data ->
-                AppSnackBar(snackbarData = data)
-            }
-        }
-    ) {
-        // Complex screen content
-    }
-}
-```
-
-### Integration with API Calls
+### Complete Example with ViewModel
 
 ```kotlin
 class MyViewModel : ViewModel() {
-    var uiState by mutableStateOf(UiScreenState())
-        private set
+    private val _uiState = MutableStateFlow<UiState>(UiState.Idle())
+    val uiState = _uiState.asStateFlow()
+    
+    fun performAction() {
+        _uiState.value = UiState.Loading()
         
-    fun fetchData() {
-        uiState = uiState.copy(state = UiState.Loading())
         viewModelScope.launch {
             try {
-                val result = repository.fetchData()
-                uiState = uiState.copy(
-                    state = UiState.Success(result),
-                    message = "Data loaded successfully"
-                )
+                // Perform some operation
+                val result = repository.doSomething()
+                
+                // Update UI state to success
+                _uiState.value = UiState.Success()
             } catch (e: Exception) {
-                uiState = uiState.copy(
-                    state = UiState.Error(e.message ?: "Unknown error")
-                )
+                // Update UI state to error with message
+                _uiState.value = UiState.Error(e.message ?: "Unknown error occurred")
             }
         }
     }
     
     fun resetState() {
-        uiState = uiState.copy(state = UiState.Idle())
+        _uiState.value = UiState.Idle()
     }
 }
 
-data class UiScreenState(
-    val state: UiState = UiState.Idle(),
-    val message: String? = null
-)
-```
-
-## Extension Functions
-
-### Core Extensions
-
-```kotlin
-// Extension property to convert UiState to appropriate SnackBarType
-val UiState?.snackBarType: SnackBarType
-    get() = when (this) {
-        is UiState.Success -> SnackBarType.Success
-        is UiState.Error -> SnackBarType.Error
-        else -> SnackBarType.Info
-    }
-
-// Helper function to show snackbar based on UiState
-suspend fun SnackbarHostState.showSnackbarForUiState(
-    uiState: UiState,
-    resetState: () -> Unit
-): SnackbarResult? {
-    return when (uiState) {
-        is UiState.Error -> {
-            val result = showSnackbar(
-                message = uiState.message ?: "An error occurred",
-                duration = SnackbarDuration.Long,
-                type = SnackBarType.Error
-            )
-            resetState()
-            result
-        }
-        is UiState.Success -> {
-            if (uiState.message != null) {
-                val result = showSnackbar(
-                    message = uiState.message,
-                    duration = SnackbarDuration.Short,
-                    type = SnackBarType.Success
-                )
-                resetState()
-                result
-            } else null
-        }
-        else -> null
-    }
-}
-```
-
-## Dependencies
-
-- [UiState](../UiState/README.md) module
-- [AppSnackBar](../AppSnackBar/README.md) module
-- Jetpack Compose
-
-## Integration with APIFlowState
-
-This module works well with APIFlowState from the BaseRepo module:
-
-```kotlin
 @Composable
-fun ApiScreen(viewModel: ApiViewModel) {
+fun MyScreen(viewModel: MyViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val apiState by viewModel.dataFlow.collectAsState()
+    val uiState = viewModel.uiState.collectAsState().value
+    val scope = rememberCoroutineScope()
     
-    LaunchedEffect(apiState) {
-        when (apiState) {
-            is APIFlowState.Error -> {
-                val errorState = apiState as APIFlowState.Error
+    // Show appropriate snackbars for different UI states
+    LaunchedEffect(key1 = uiState) {
+        when {
+            uiState.isSuccess() -> {
                 snackbarHostState.showSnackbar(
-                    message = errorState.message ?: "API Error",
-                    duration = SnackbarDuration.Long,
-                    type = SnackBarType.Error
+                    message = "Operation completed successfully",
+                    type = uiState.snackBarType // Uses SnackBarType.Success
                 )
+                viewModel.resetState() // Reset state after showing success
             }
-            is APIFlowState.Success -> {
+            uiState.isError() -> {
                 snackbarHostState.showSnackbar(
-                    message = "Data loaded successfully",
-                    duration = SnackbarDuration.Short,
-                    type = SnackBarType.Success
+                    message = uiState.message,
+                    type = uiState.snackBarType // Uses SnackBarType.Error
                 )
+                viewModel.resetState() // Reset state after showing error
             }
-            else -> {}
         }
     }
     
@@ -279,8 +114,55 @@ fun ApiScreen(viewModel: ApiViewModel) {
                 AppSnackBar(snackbarData = data)
             }
         }
-    ) {
-        // Content
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                onClick = { viewModel.performAction() },
+                enabled = !uiState.isLoading() // Disable button during loading
+            ) {
+                Text("Perform Action")
+            }
+            
+            // Show loading indicator
+            if (uiState.isLoading()) {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
     }
 }
 ```
+
+### State Mapping
+
+The module maps UiState types to SnackBarType as follows:
+
+| UiState         | SnackBarType      | Default Color |
+|-----------------|-------------------|---------------|
+| UiState.Success | SnackBarType.Success | Green         |
+| UiState.Error   | SnackBarType.Error   | Red           |
+| UiState.Idle    | SnackBarType.Info    | Blue          |
+| UiState.Loading | SnackBarType.Info    | Blue          |
+
+## API Reference
+
+### snackBarType
+
+```kotlin
+val UiState?.snackBarType: SnackBarType
+```
+
+An extension property that converts a UiState to the appropriate SnackBarType.
+
+## Dependencies
+
+- [UiState](../UiState/README.md) - For UI state management
+- [AppSnackBar](../AppSnackBar/README.md) - For type-based snackbar styling

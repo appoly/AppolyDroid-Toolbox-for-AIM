@@ -34,6 +34,15 @@ import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
+/**
+ * Main entry point for S3 file upload functionality.
+ *
+ * This singleton object provides methods to upload files to Amazon S3 storage
+ * using pre-signed URLs. It handles authentication, progress tracking, and error
+ * management for the entire upload process.
+ *
+ * Must be initialized with [initS3Uploader] before use.
+ */
 object S3Uploader {
 	private lateinit var tokenProvider: AuthTokenProvider
 	internal var loggingLevel: LoggingLevel = LoggingLevel.NONE
@@ -46,6 +55,15 @@ object S3Uploader {
 		return this::tokenProvider.isInitialized
 	}
 
+	/**
+	 * Initializes the S3Uploader with required configuration.
+	 *
+	 * This must be called before using any upload functionality, typically in your Application class.
+	 *
+	 * @param tokenProvider Provider for authentication tokens required for API calls
+	 * @param loggingLevel Controls the verbosity of logging (default is no logging)
+	 * @param logger Custom logger implementation
+	 */
 	fun initS3Uploader(
 		tokenProvider: AuthTokenProvider,
 		loggingLevel: LoggingLevel = LoggingLevel.NONE,
@@ -57,6 +75,12 @@ object S3Uploader {
 		this.LoggerWithLevel = logger.withLevel(loggingLevel)
 	}
 
+	/**
+	 * Determines the MIME type of a file based on its extension.
+	 *
+	 * @param file The file whose MIME type should be determined
+	 * @return The MIME type as a string, or null if it cannot be determined
+	 */
 	private fun getMimeType(file: File): String? {
 		var mimeType: String? = null
 		val extension: String = file.name.split(".").last()
@@ -66,6 +90,17 @@ object S3Uploader {
 		return mimeType
 	}
 
+	/**
+	 * Asynchronously uploads a file to S3 storage.
+	 *
+	 * This method returns immediately with a [Deferred] that will complete when the upload finishes.
+	 *
+	 * @param file The file to upload
+	 * @param getPresignedUrlAPI API endpoint URL that generates a pre-signed S3 URL
+	 * @param dispatcher Coroutine dispatcher to use for the operation (default is IO)
+	 * @param progressFlow Optional flow to track upload progress (0.0f to 100.0f)
+	 * @return A [Deferred] containing the result of the upload operation
+	 */
 	suspend fun uploadFileAsync(
 		file: File,
 		getPresignedUrlAPI: String,
@@ -81,6 +116,18 @@ object S3Uploader {
 		}
 	}
 
+	/**
+	 * Asynchronously uploads a file to S3 storage with a specific media type.
+	 *
+	 * This method returns immediately with a [Deferred] that will complete when the upload finishes.
+	 *
+	 * @param file The file to upload
+	 * @param mediaType The media type (MIME type) of the file
+	 * @param getPresignedUrlAPI API endpoint URL that generates a pre-signed S3 URL
+	 * @param dispatcher Coroutine dispatcher to use for the operation (default is IO)
+	 * @param progressFlow Optional flow to track upload progress (0.0f to 100.0f)
+	 * @return A [Deferred] containing the result of the upload operation
+	 */
 	suspend fun uploadFileAsync(
 		file: File,
 		mediaType: MediaType?,
@@ -98,6 +145,16 @@ object S3Uploader {
 		}
 	}
 
+	/**
+	 * Uploads a file to S3 storage.
+	 *
+	 * This method automatically determines the file's media type and uses it for the upload.
+	 *
+	 * @param file The file to upload
+	 * @param getPresignedUrlAPI API endpoint URL that generates a pre-signed S3 URL
+	 * @param progressFlow Optional flow to track upload progress (0.0f to 100.0f)
+	 * @return Result of the upload operation
+	 */
 	suspend fun uploadFile(
 		file: File,
 		getPresignedUrlAPI: String,
@@ -109,6 +166,21 @@ object S3Uploader {
 			progressFlow = progressFlow
 		)
 
+	/**
+	 * Uploads a file to S3 storage with a specific media type.
+	 *
+	 * This is the main implementation that handles the entire upload process:
+	 * 1. Gets a pre-signed URL from the API
+	 * 2. Uploads the file to S3 using the pre-signed URL
+	 * 3. Reports progress via the optional flow
+	 *
+	 * @param file The file to upload
+	 * @param mediaType The media type (MIME type) of the file
+	 * @param getPresignedUrlAPI API endpoint URL that generates a pre-signed S3 URL
+	 * @param progressFlow Optional flow to track upload progress (0.0f to 100.0f)
+	 * @return Result of the upload operation as [UploadResult.Success] or [UploadResult.Error]
+	 * @throws IllegalStateException If S3Uploader has not been initialized
+	 */
 	suspend fun uploadFile(
 		file: File,
 		mediaType: MediaType?,
@@ -166,6 +238,17 @@ object S3Uploader {
 		}
 	}
 
+	/**
+	 * Performs the actual upload of the file to S3 using a pre-signed URL.
+	 *
+	 * This is an internal implementation method called after successfully obtaining a pre-signed URL.
+	 *
+	 * @param file The file to upload
+	 * @param mediaType The media type (MIME type) of the file
+	 * @param data Pre-signed URL data containing upload URL, headers, and file path
+	 * @param progressFlow Optional flow to track upload progress
+	 * @return Result of the upload operation
+	 */
 	private suspend fun makeUploadRequestSuspend(
 		file: File,
 		mediaType: MediaType?,

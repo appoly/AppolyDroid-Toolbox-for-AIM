@@ -1,20 +1,24 @@
 # LazyGridPagingExtensions
 
-Extensions for Jetpack Compose LazyGrid with enhanced paging support, error handling, and loading states.
+Extension functions for integrating Jetpack Paging 3 with Compose LazyVerticalGrid and LazyHorizontalGrid components.
 
 ## Features
 
-- Simplified integration of Jetpack Paging with Compose LazyGrid
-- Built-in loading indicators and error states
-- Empty state handling
-- Support for placeholders
-- Automatic retry mechanisms
-- Clean DSL-style API
+- Easy-to-use extensions for LazyVerticalGrid and LazyHorizontalGrid
+- Simplified state handling for loading, error and empty states
+- Support for grid spans and spanning the full width when appropriate
+- Automatic placeholder management
+- Customizable UI through CompositionLocal providers
 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.12")
+// Requires the base PagingExtensions module
+implementation("com.github.appoly.AppolyDroid-Toolbox:PagingExtensions:1.0.13")
+implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.13")
+
+// Make sure to include Jetpack Paging Compose
+implementation("androidx.paging:paging-compose:3.3.6")
 ```
 
 ## Usage
@@ -23,344 +27,235 @@ implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1
 
 ```kotlin
 @Composable
-fun PhotosGrid(viewModel: PhotosViewModel) {
-    val lazyPagingItems = viewModel.photosPagingFlow.collectAsLazyPagingItems()
+fun ItemsGrid(viewModel: ItemsViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
     
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 120.dp),
-        contentPadding = PaddingValues(8.dp)
+        columns = GridCells.Fixed(2)
     ) {
         lazyPagingItemsWithStates(
-            lazyPagingItems = lazyPagingItems,
-            emptyText = { "No photos found" },
-            errorText = { error -> "Error: ${error.message}" },
-            itemContent = { photo ->
-                PhotoItem(photo = photo)
-            },
-            itemPlaceholderContent = {
-                PhotoLoadingPlaceholder()
-            }
-        )
+            lazyPagingItems = items,
+            emptyText = { "No items found" },
+            errorText = { error -> error.localizedMessage ?: "An error occurred" }
+        ) { item ->
+            // Your grid item composable here
+            ItemCard(item = item)
+        }
     }
 }
 ```
 
-### Full Example with All Options
+### Advanced Implementation with Custom Spans
 
 ```kotlin
 @Composable
-fun CompletePhotosGrid(viewModel: PhotosViewModel) {
-    val lazyPagingItems = viewModel.photosPagingFlow.collectAsLazyPagingItems()
+fun AdvancedItemsGrid(viewModel: AdvancedViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
     
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 120.dp),
-        contentPadding = PaddingValues(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)
+        columns = GridCells.Adaptive(minSize = 128.dp)
     ) {
         lazyPagingItemsWithStates(
-            lazyPagingItems = lazyPagingItems,
-            usingPlaceholders = true,
-            loadingContent = {
-                item(
-                    span = { GridItemSpan(maxLineSpan) },
-                    contentType = "loading"
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp)
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            lazyPagingItems = items,
+            usingPlaceholders = true,  // Enable placeholders support
+            emptyText = { "No items found" },
+            errorText = { error -> error.localizedMessage ?: "An error occurred" },
+            retry = { items.retry() },  // Custom retry action
+            itemKey = { it.id },  // Custom key function
+            // Custom span based on item properties
+            itemSpan = { item -> 
+                if (item != null && item.isFullWidth) {
+                    GridItemSpan(maxLineSpan)  // Full width for featured items
+                } else {
+                    GridItemSpan(1)  // Default span
                 }
             },
+            itemContentType = { it.type },  // Content type for recycling
+            placeholderItemContent = {
+                // Custom placeholder UI
+                ItemPlaceholder()
+            }
+        ) { item ->
+            // Item UI
+            ItemCard(item = item)
+        }
+    }
+}
+```
+
+### Custom Empty State with Custom Span
+
+```kotlin
+@Composable
+fun CustomEmptyStateGrid(viewModel: ItemsViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
+    
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3)
+    ) {
+        lazyPagingItemsWithStates(
+            lazyPagingItems = items,
+            emptyText = { "No items found" },
+            // Make empty state span all columns
+            emptyTextSpan = { GridItemSpan(maxLineSpan) },
+            errorText = { error -> error.localizedMessage ?: "An error occurred" },
+            // Make error state span all columns
+            errorTextSpan = { GridItemSpan(maxLineSpan) }
+        ) { item ->
+            ItemCard(item = item)
+        }
+    }
+}
+```
+
+### Custom Loading, Error, and Empty States
+
+```kotlin
+@Composable
+fun CustomStatesItemsGrid(viewModel: ItemsViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
+    
+    // Provide custom UI providers
+    CompositionLocalProvider(
+        LocalLoadingState provides MyLoadingStateProvider(),
+        LocalErrorState provides MyErrorStateProvider(),
+        LocalEmptyState provides MyEmptyStateProvider()
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2)
+        ) {
+            lazyPagingItemsWithStates(
+                lazyPagingItems = items,
+                emptyText = { "No items found" },
+                errorText = { error -> error.localizedMessage ?: "An error occurred" }
+            ) { item ->
+                ItemCard(item = item)
+            }
+        }
+    }
+}
+```
+
+### Custom Error Handling
+
+```kotlin
+@Composable
+fun ErrorHandlingGrid(viewModel: ItemsViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
+    
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2)
+    ) {
+        lazyPagingItemsWithStates(
+            lazyPagingItems = items,
             emptyContent = {
                 item(
-                    span = { GridItemSpan(maxLineSpan) },
-                    contentType = "empty"
+                    span = { GridItemSpan(maxLineSpan) }
                 ) {
-                    EmptyState(
-                        message = "No photos found",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(400.dp)
+                    Text(
+                        text = "No items found",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
                     )
                 }
             },
-            emptyText = { "No photos found" },
-            errorContent = { error ->
+            errorContent = { errorType, error ->
                 item(
-                    span = { GridItemSpan(maxLineSpan) },
-                    contentType = "error"
+                    span = { GridItemSpan(maxLineSpan) }
                 ) {
-                    ErrorState(
-                        error = error,
-                        onRetry = { lazyPagingItems.retry() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(400.dp)
-                    )
-                }
-            },
-            errorText = { error -> "Failed to load photos: ${error.message}" },
-            loadStateFooterContent = { loadState ->
-                when (loadState) {
-                    is LoadState.Loading -> {
-                        item(
-                            span = { GridItemSpan(maxLineSpan) },
-                            contentType = "footer_loading"
-                        ) {
-                            LoadingFooter()
-                        }
+                    when (errorType) {
+                        PagingErrorType.REFRESH -> FullScreenError(error, items::retry)
+                        PagingErrorType.APPEND -> AppendError(error, items::retry)
+                        PagingErrorType.PREPEND -> PrependError(error, items::retry)
                     }
-                    is LoadState.Error -> {
-                        item(
-                            span = { GridItemSpan(maxLineSpan) },
-                            contentType = "footer_error"
-                        ) {
-                            ErrorFooter(
-                                error = loadState.error,
-                                onRetry = { lazyPagingItems.retry() }
-                            )
-                        }
-                    }
-                    else -> {}
                 }
-            },
-            itemSpan = { GridItemSpan(1) },
-            itemKey = { index -> lazyPagingItems[index]?.id ?: index },
-            itemContentType = { "photo_item" },
-            itemContent = { photo ->
-                PhotoItem(photo = photo)
-            },
-            itemPlaceholderContent = {
-                PhotoLoadingPlaceholder()
             }
-        )
-    }
-}
-```
-
-### Simple Grid with Basic Implementation
-
-```kotlin
-@Composable
-fun SimplePhotosGrid(viewModel: PhotosViewModel) {
-    val lazyPagingItems = viewModel.photosPagingFlow.collectAsLazyPagingItems()
-    
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(4.dp)
-    ) {
-        lazyPagingItems(
-            lazyPagingItems = lazyPagingItems,
-            itemContent = { photo ->
-                PhotoItem(photo = photo)
-            }
-        )
-    }
-}
-```
-
-### Using Custom Header and Mixed Content
-
-```kotlin
-@Composable
-fun PhotosGridWithHeader(viewModel: PhotosViewModel) {
-    val lazyPagingItems = viewModel.photosPagingFlow.collectAsLazyPagingItems()
-    
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 120.dp)
-    ) {
-        item(
-            span = { GridItemSpan(maxLineSpan) },
-            contentType = "header"
-        ) {
-            Text(
-                text = "Photo Gallery",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-        
-        lazyPagingItemsWithStates(
-            lazyPagingItems = lazyPagingItems,
-            itemContent = { photo ->
-                PhotoItem(photo = photo)
-            }
-        )
-        
-        item(
-            span = { GridItemSpan(maxLineSpan) },
-            contentType = "footer"
-        ) {
-            Text(
-                text = "End of gallery",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
+        ) { item ->
+            ItemCard(item = item)
         }
     }
 }
 ```
 
-### Handling Different Item Spans
+## Main Functions
+
+### lazyPagingItems
+
+Simplified way to add items from a LazyPagingItems instance to a LazyVerticalGrid/LazyHorizontalGrid.
 
 ```kotlin
-@Composable
-fun DynamicSpanPhotosGrid(viewModel: PhotosViewModel) {
-    val lazyPagingItems = viewModel.photosPagingFlow.collectAsLazyPagingItems()
-    
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(4),
-        contentPadding = PaddingValues(4.dp)
-    ) {
-        lazyPagingItemsWithStates(
-            lazyPagingItems = lazyPagingItems,
-            itemSpan = { photo ->
-                // Featured photos take up 2 columns
-                GridItemSpan(if (photo.isFeatured) 2 else 1)
-            },
-            itemContent = { photo ->
-                PhotoItem(
-                    photo = photo,
-                    isFeatured = photo.isFeatured
-                )
-            }
-        )
-    }
-}
+fun <T : Any> LazyGridScope.lazyPagingItems(
+    lazyPagingItems: LazyPagingItems<T>,
+    key: ((item: T) -> Any)? = null,
+    span: (LazyGridItemSpanScope.(item: T?) -> GridItemSpan)? = null,
+    contentType: (item: T) -> Any? = { null },
+    placeholderItemContent: @Composable (LazyGridItemScope.() -> Unit) = {},
+    itemContent: @Composable LazyGridItemScope.(item: T) -> Unit
+)
 ```
 
-## API Reference
+### lazyPagingItemsWithStates
 
-### Main Extension Functions
+Complete solution that handles all states (loading, error, empty) and the items.
 
 ```kotlin
 fun <T : Any> LazyGridScope.lazyPagingItemsWithStates(
     lazyPagingItems: LazyPagingItems<T>,
     usingPlaceholders: Boolean = false,
-    loadingContent: (LazyGridScope.() -> Unit)? = null,
-    emptyContent: (LazyGridScope.() -> Unit)? = null,
-    emptyText: @Composable () -> String = { "No items found" },
-    errorContent: (LazyGridScope.(LoadState.Error) -> Unit)? = null,
-    errorText: @Composable (LoadState.Error) -> String = { it.error.message ?: "Unknown error" },
-    loadStateHeaderContent: (LoadState) -> LazyGridScope.() -> Unit = { _ -> ({}) },
-    loadStateFooterContent: (LoadState) -> LazyGridScope.() -> Unit = { _ -> ({}) },
-    itemSpan: (T) -> GridItemSpan = { GridItemSpan(1) },
-    itemKey: ((index: Int) -> Any)? = null,
-    itemContentType: ((index: Int) -> Any?)? = null,
-    itemContent: @Composable BoxScope.(item: T) -> Unit,
-    itemPlaceholderContent: @Composable BoxScope.() -> Unit = {}
-)
-
-fun <T : Any> LazyGridScope.lazyPagingItems(
-    lazyPagingItems: LazyPagingItems<T>,
-    itemSpan: (T) -> GridItemSpan = { GridItemSpan(1) },
-    key: ((index: Int) -> Any)? = null,
-    contentType: ((index: Int) -> Any?)? = null,
-    itemContent: @Composable BoxScope.(item: T) -> Unit
+    errorText: @Composable (LoadState.Error) -> String,
+    errorTextSpan: (LazyGridItemSpanScope.() -> GridItemSpan)? = { GridItemSpan(maxLineSpan) },
+    retry: () -> Unit = { lazyPagingItems.retry() },
+    emptyText: @Composable () -> String,
+    emptyTextSpan: (LazyGridItemSpanScope.() -> GridItemSpan)? = { GridItemSpan(maxLineSpan) },
+    itemKey: ((item: T) -> Any)? = null,
+    itemSpan: (LazyGridItemSpanScope.(item: T?) -> GridItemSpan)? = null,
+    itemContentType: (item: T) -> Any? = { null },
+    placeholderItemContent: @Composable (LazyGridItemScope.() -> Unit) = {},
+    itemContent: @Composable LazyGridItemScope.(item: T) -> Unit
 )
 ```
 
-### Helper Extension Functions
+## Helper Functions
+
+### loadingStateItem
+
+Adds a loading state item to the grid with customizable span.
 
 ```kotlin
-fun <T : Any> LazyPagingItems<T>.isEmpty(): Boolean
-fun <T : Any> LazyPagingItems<T>.isError(): Boolean
-val <T : Any> LazyPagingItems<T>.firstError: Throwable?
+fun LazyGridScope.loadingStateItem(
+    key: Any,
+    span: (LazyGridItemSpanScope.() -> GridItemSpan)? = null
+)
 ```
 
-## Example ViewModel Setup
+### errorStateItem
+
+Adds an error state item to the grid with customizable span.
 
 ```kotlin
-class PhotosViewModel : ViewModel() {
-    private val photoRepo: PhotoRepository = // get repository instance
-    
-    private val pagingSourceFactory = photoRepo.getPhotosPagingSourceFactory(
-        albumId = albumId,
-        pageSize = 30,
-        jumpingSupported = true
-    )
-    
-    val photosPagingFlow = pagingSourceFactory
-        .getPager(enablePlaceholders = true)
-        .flow
-        .cachedIn(viewModelScope)
-    
-    fun refresh() {
-        pagingSourceFactory.invalidate()
-    }
-}
+fun LazyGridScope.errorStateItem(
+    key: Any,
+    error: LoadState.Error,
+    errorText: @Composable (LoadState.Error) -> String,
+    retry: () -> Unit,
+    span: (LazyGridItemSpanScope.() -> GridItemSpan)? = null
+)
 ```
 
-## Real-world Example
+### emptyStateItem
+
+Adds an empty state item to the grid with customizable span.
 
 ```kotlin
-// Example media grid implementation
-LazyVerticalGrid(
-    modifier = Modifier.fillMaxSize(),
-    columns = GridCells.Adaptive(110.dp),
-    contentPadding = PaddingValues(
-        top = 24.dp,
-        bottom = 24.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding(),
-        start = 19.dp,
-        end = 19.dp
-    ),
-    verticalArrangement = Arrangement.spacedBy(3.5.dp),
-    horizontalArrangement = Arrangement.spacedBy(3.5.dp)
-) {
-    lazyPagingItemsWithStates(
-        lazyPagingItems = mediaItemsPagingItems,
-        usingPlaceholders = true,
-        emptyText = { stringResource(R.string.no_items_yet) },
-        errorText = { error ->
-            stringResource(R.string.error_loading_media, error.error.message?.ifBlank { null } ?: "Unknown error")
-        },
-        itemContentType = {
-            "MediaItem"
-        },
-        itemContent = { mediaItem ->
-            MediaItemTile(
-                modifier = Modifier
-                    .animateItem()
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
-                mediaItem = mediaItem,
-                onClick = {
-                    selectedMediaItem = mediaItem
-                },
-                appData = appStateData,
-                onDelete = {
-                    showConfirmDeleteFor = mediaItem
-                }
-            )
-        },
-        itemPlaceholderContent = {
-            MediaItemPlaceholder(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .animateItem()
-            )
-        }
-    )
-}
+fun LazyGridScope.emptyStateItem(
+    key: Any,
+    emptyText: @Composable () -> String,
+    span: (LazyGridItemSpanScope.() -> GridItemSpan)? = null
+)
 ```
 
 ## Dependencies
 
-- Jetpack Compose
-- [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview)
-- [BaseRepo-Paging](../BaseRepo-Paging/README.md) (optional but recommended)
-
-## See Also
-
-- [LazyListPagingExtensions](../LazyListPagingExtensions/README.md) - Similar extensions for LazyList
-- [BaseRepo-Paging](../BaseRepo-Paging/README.md) - Paging source implementations
+- [PagingExtensions](../PagingExtensions/README.md) - Core paging utility module
+- [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Android paging library
+- [Jetpack Compose](https://developer.android.com/jetpack/compose) - Android UI toolkit

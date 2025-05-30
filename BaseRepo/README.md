@@ -13,8 +13,76 @@ Foundation module for implementing the repository pattern with standardized API 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.12")
+implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.13")
 ```
+
+## API Response Structure
+
+The BaseRepo module expects a specific JSON structure for all API responses. The API handling code requires all responses to use this structure as the root level of the JSON response, with the API-specific data in the `data` field of the `GenericResponse`.
+
+### Response Format
+
+All API responses should follow one of these formats:
+
+The `message` field is optional in all responses, and is only checked in cases where `success` is `false`.
+
+#### Basic Response
+
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully"
+}
+```
+
+#### Success Response with Data Payload
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 123,
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+  }
+}
+```
+
+#### Success Response with Array Data
+
+```json
+{
+  "success": true,
+  "data": [
+    { "id": 1, "name": "Item 1" },
+    { "id": 2, "name": "Item 2" }
+  ]
+}
+```
+
+#### Error Response
+
+```json
+{
+  "success": false,
+  "message": "Resource not found"
+}
+```
+
+#### Validation Error Response
+
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "email": ["Email is required", "Email format is invalid"],
+    "password": ["Password must be at least 8 characters long"]
+  }
+}
+```
+
+The standardized error handling in BaseRepo automatically processes these response formats and converts them to the appropriate `APIResult` or `APIFlowState` types.
 
 ## Usage
 

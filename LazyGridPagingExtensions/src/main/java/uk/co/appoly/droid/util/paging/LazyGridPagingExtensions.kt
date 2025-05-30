@@ -1,3 +1,18 @@
+/**
+ * LazyGridPagingExtensions for Jetpack Compose
+ *
+ * This module provides extension functions for the LazyGridScope to work with Paging 3 library's LazyPagingItems.
+ * It offers convenient utilities to handle common grid-based paging scenarios including:
+ *
+ * - Displaying paging items in a grid layout with proper key and content type handling
+ * - Managing grid item spans to control layout width across columns
+ * - Handling loading states (prepend, append, refresh)
+ * - Displaying error states with retry functionality
+ * - Showing empty state when no items are available
+ *
+ * The extensions are designed to work with composition locals defined in the UiState module
+ * (LocalLoadingState, LocalErrorState, LocalEmptyState) for consistent UI presentation.
+ */
 package uk.co.appoly.droid.util.paging
 
 import androidx.compose.foundation.layout.fillMaxWidth
