@@ -21,7 +21,7 @@ implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.12
 // Required Room dependencies
 implementation("androidx.room:room-runtime:2.7.1")
 implementation("androidx.room:room-ktx:2.7.1")
-kapt("androidx.room:room-compiler:2.7.1")
+ksp("androidx.room:room-compiler:2.7.1")
 ```
 
 ## Usage

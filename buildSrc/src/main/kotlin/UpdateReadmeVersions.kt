@@ -50,20 +50,22 @@ abstract class UpdateReadmeVersions : DefaultTask() {
 
         versionsMap["toolbox"] = extractVersion(tomlContent, "toolboxVersion")
         versionsMap["room"] = extractVersion(tomlContent, "roomVersion")
+        versionsMap["kotlinx-serialization"] = extractVersion(tomlContent, "kotlinxSerialization")
 
         // Check if all required versions were found
         val missingVersions = versionsMap.filterValues { it == null }.keys
         if (missingVersions.isNotEmpty()) {
             missingVersions.forEach { key ->
-                logger.error("Could not find ${key}Version in libs.versions.toml")
+                logger.error("Could not find ${key.replace("kotlinx-serialization", "kotlinxSerialization")}Version in libs.versions.toml")
             }
             return
         }
 
         val toolboxVersion = versionsMap["toolbox"]!!
         val roomVersion = versionsMap["room"]!!
+        val kotlinxSerializationVersion = versionsMap["kotlinx-serialization"]!!
 
-        logger.lifecycle("Found versions - toolbox: $toolboxVersion, room: $roomVersion")
+        logger.lifecycle("Found versions - toolbox: $toolboxVersion, room: $roomVersion, kotlinx-serialization: $kotlinxSerializationVersion")
 
         // Find all README.md files in the project
         val readmeFiles = rootDir.walk()
@@ -128,7 +130,23 @@ abstract class UpdateReadmeVersions : DefaultTask() {
             fileUpdates += kaptRoomResult.third
             totalUpdates += kaptRoomResult.third
 
-            // Pattern 4: Check TOML version example in main README
+            // Pattern 4: Check kotlinx-serialization dependency versions in code blocks
+            val kotlinxSerializationResult = updateVersions(
+                content = content,
+                pattern = Pattern.compile("(implementation\\([\"']org\\.jetbrains\\.kotlinx:kotlinx-serialization-[^:]+:)([^\"')]+)([\"')])")
+                    .toMatchProcessor(1, 3) { it == kotlinxSerializationVersion },
+                file = file,
+                versionName = "kotlinx-serialization",
+                expectedVersion = kotlinxSerializationVersion,
+                checkOnly = checkOnly.get()
+            )
+
+            if (kotlinxSerializationResult.second) hasInconsistencies = true
+            content = kotlinxSerializationResult.first
+            fileUpdates += kotlinxSerializationResult.third
+            totalUpdates += kotlinxSerializationResult.third
+
+            // Pattern 5: Check TOML version example in main README
             if (file.name.equals("README.md", ignoreCase = true) && file.parentFile == rootDir) {
                 try {
                     val tomlResult = updateVersions(
