@@ -57,6 +57,14 @@ private fun AppSnackBar(
 	)
 }
 
+/**
+ * Enumeration of available snackbar types, each with its own visual styling.
+ *
+ * Used to differentiate between different types of messages shown to users:
+ * - [Info]: For general information messages
+ * - [Success]: For successful operation notifications
+ * - [Error]: For error messages and warnings
+ */
 enum class SnackBarType {
 	Info,
 	Success,
@@ -75,6 +83,12 @@ data class AppSnackBarColors(
 	val success: Color,
 	val error: Color
 ) {
+	/**
+	 * Returns the appropriate color for the specified snackbar type.
+	 *
+	 * @param type The snackbar type to get the color for
+	 * @return The color associated with the specified type
+	 */
 	fun get(type: SnackBarType): Color {
 		return when (type) {
 			SnackBarType.Info -> info
@@ -84,6 +98,14 @@ data class AppSnackBarColors(
 	}
 }
 
+/**
+ * Default colors for AppSnackBar.
+ *
+ * Provides a standard set of colors for different snackbar types:
+ * - Info: Blue
+ * - Success: Green
+ * - Error: Red
+ */
 object AppSnackBarDefaults {
 	val colors = AppSnackBarColors(
 		info = Color.Blue,
@@ -92,8 +114,24 @@ object AppSnackBarDefaults {
 	)
 }
 
+/**
+ * CompositionLocal to provide AppSnackBar colors throughout the composition hierarchy.
+ *
+ * Default value is provided by [AppSnackBarDefaults.colors].
+ */
 val LocalAppSnackBarColors = compositionLocalOf<AppSnackBarColors> { AppSnackBarDefaults.colors }
 
+/**
+ * Extension of [SnackbarVisuals] that includes a [type] property to specify the visual style of the snackbar.
+ *
+ * This is used internally by [AppSnackBar] to determine the styling of the snackbar.
+ *
+ * @property actionLabel Optional label for the snackbar action button
+ * @property duration How long to display the snackbar
+ * @property message The message to display in the snackbar
+ * @property withDismissAction Whether to show a dismiss action
+ * @property type The type of snackbar to display, determining its color
+ */
 data class SnackBarVisualsWithType internal constructor(
 	override val actionLabel: String?,
 	override val duration: SnackbarDuration,
