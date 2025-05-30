@@ -19,6 +19,27 @@ import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
+/**
+ * Extension function for AppolyBaseRepo to handle API calls that return paginated data
+ * with a nested structure.
+ *
+ * This function is similar to [AppolyBaseRepo.doAPICall] but specifically processes
+ * [GenericNestedPagedResponse] responses and converts them to [PageData] for easier
+ * consumption by Paging components.
+ *
+ * Example usage:
+ * ```kotlin
+ * suspend fun fetchUserList(page: Int): APIResult<PageData<User>> =
+ *     doNestedPagedAPICall("fetchUserList") {
+ *         userService.api.getUsers(page = page, perPage = 20)
+ *     }
+ * ```
+ *
+ * @param T The type of items in the paginated list
+ * @param logDescription Description for logging purposes
+ * @param call Lambda that performs the API call and returns an [ApiResponse] with [GenericNestedPagedResponse]
+ * @return An [APIResult] wrapping [PageData] with the normalized pagination data
+ */
 inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 	logDescription: String,
 	call: () -> ApiResponse<GenericNestedPagedResponse<T>>
