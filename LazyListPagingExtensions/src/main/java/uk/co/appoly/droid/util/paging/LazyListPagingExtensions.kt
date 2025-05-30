@@ -1,3 +1,17 @@
+/**
+ * LazyListPagingExtensions for Jetpack Compose
+ *
+ * This module provides extension functions for the LazyListScope to work with Paging 3 library's LazyPagingItems.
+ * It offers convenient utilities to handle common paging scenarios including:
+ *
+ * - Displaying paging items with proper key and content type handling
+ * - Managing loading states (prepend, append, refresh)
+ * - Handling error states with retry functionality
+ * - Showing empty state when no items are available
+ *
+ * The extensions are designed to work with composition locals defined in the UiState module
+ * (LocalLoadingState, LocalErrorState, LocalEmptyState) for consistent UI presentation.
+ */
 package uk.co.appoly.droid.util.paging
 
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -51,6 +65,14 @@ inline fun <T : Any> LazyListScope.lazyPagingItems(
 	}
 }
 
+/**
+ * Adds a loading state item to the list.
+ *
+ * Creates a loading indicator using the [LocalLoadingState] composition local provider.
+ * The loading indicator is animated when added to the list.
+ *
+ * @param key A unique key for the loading item to help with efficient list updates
+ */
 fun LazyListScope.loadingStateItem(
 	key: Any
 ) {
@@ -66,6 +88,17 @@ fun LazyListScope.loadingStateItem(
 	}
 }
 
+/**
+ * Adds an error state item to the list.
+ *
+ * Creates an error message with a retry option using the [LocalErrorState] composition local provider.
+ * The error state is animated when added to the list.
+ *
+ * @param key A unique key prefix for the error item
+ * @param error The [LoadState.Error] containing error details
+ * @param errorText A composable function that converts the error to a display string
+ * @param retry A callback function that is invoked when the user chooses to retry the operation
+ */
 inline fun LazyListScope.errorStateItem(
 	key: Any,
 	error: LoadState.Error,
@@ -88,6 +121,15 @@ inline fun LazyListScope.errorStateItem(
 	}
 }
 
+/**
+ * Adds an empty state item to the list.
+ *
+ * Creates an empty state message using the [LocalEmptyState] composition local provider.
+ * The empty state is animated when added to the list.
+ *
+ * @param key A unique key for the empty state item
+ * @param emptyText A composable function that provides the text to display when the list is empty
+ */
 inline fun LazyListScope.emptyStateItem(
 	key: Any,
 	crossinline emptyText: @Composable () -> String

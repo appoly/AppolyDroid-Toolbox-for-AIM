@@ -51,12 +51,17 @@ abstract class UpdateReadmeVersions : DefaultTask() {
         versionsMap["toolbox"] = extractVersion(tomlContent, "toolboxVersion")
         versionsMap["room"] = extractVersion(tomlContent, "roomVersion")
         versionsMap["kotlinx-serialization"] = extractVersion(tomlContent, "kotlinxSerialization")
+        versionsMap["paging"] = extractVersion(tomlContent, "paging")
 
         // Check if all required versions were found
         val missingVersions = versionsMap.filterValues { it == null }.keys
         if (missingVersions.isNotEmpty()) {
             missingVersions.forEach { key ->
-                logger.error("Could not find ${key.replace("kotlinx-serialization", "kotlinxSerialization")}Version in libs.versions.toml")
+                val versionKey = when (key) {
+                    "kotlinx-serialization" -> "kotlinxSerialization"
+                    else -> "${key}Version"
+                }
+                logger.error("Could not find $versionKey in libs.versions.toml")
             }
             return
         }
@@ -64,8 +69,9 @@ abstract class UpdateReadmeVersions : DefaultTask() {
         val toolboxVersion = versionsMap["toolbox"]!!
         val roomVersion = versionsMap["room"]!!
         val kotlinxSerializationVersion = versionsMap["kotlinx-serialization"]!!
+        val pagingVersion = versionsMap["paging"]!!
 
-        logger.lifecycle("Found versions - toolbox: $toolboxVersion, room: $roomVersion, kotlinx-serialization: $kotlinxSerializationVersion")
+        logger.lifecycle("Found versions - toolbox: $toolboxVersion, room: $roomVersion, kotlinx-serialization: $kotlinxSerializationVersion, paging: $pagingVersion")
 
         // Find all README.md files in the project
         val readmeFiles = rootDir.walk()
@@ -117,7 +123,7 @@ abstract class UpdateReadmeVersions : DefaultTask() {
             // Pattern 3: Check kapt Room compiler versions in code blocks
             val kaptRoomResult = updateVersions(
                 content = content,
-                pattern = Pattern.compile("(kapt\\([\"']androidx\\.room:[^:]+:)([^\"')]+)([\"')])")
+                pattern = Pattern.compile("(ksp\\([\"']androidx\\.room:[^:]+:)([^\"')]+)([\"')])")
                     .toMatchProcessor(1, 3) { it == roomVersion },
                 file = file,
                 versionName = "room",
@@ -146,7 +152,23 @@ abstract class UpdateReadmeVersions : DefaultTask() {
             fileUpdates += kotlinxSerializationResult.third
             totalUpdates += kotlinxSerializationResult.third
 
-            // Pattern 5: Check TOML version example in main README
+            // Pattern 5: Check androidx.paging:paging-compose dependency versions in code blocks
+            val pagingComposeResult = updateVersions(
+                content = content,
+                pattern = Pattern.compile("(implementation\\([\"']androidx\\.paging:paging-compose:)([^\"')]+)([\"')])")
+                    .toMatchProcessor(1, 3) { it == pagingVersion },
+                file = file,
+                versionName = "paging-compose",
+                expectedVersion = pagingVersion,
+                checkOnly = checkOnly.get()
+            )
+
+            if (pagingComposeResult.second) hasInconsistencies = true
+            content = pagingComposeResult.first
+            fileUpdates += pagingComposeResult.third
+            totalUpdates += pagingComposeResult.third
+
+            // Pattern 6: Check TOML version example in main README
             if (file.name.equals("README.md", ignoreCase = true) && file.parentFile == rootDir) {
                 try {
                     val tomlResult = updateVersions(

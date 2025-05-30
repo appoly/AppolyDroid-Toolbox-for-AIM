@@ -19,9 +19,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import uk.co.appoly.droid.pagingextensions.R
 
+/**
+ * Default implementation of [ErrorStateProvider] used when no custom provider is specified.
+ *
+ * This provider creates a simple error state UI with:
+ * - A rounded container with the surface container color background
+ * - Text styled with the bodyMedium typography and semibold weight
+ * - A retry button (if a retry callback is provided)
+ * - Consistent padding (16dp) around the content
+ */
 internal val defaultErrorStateProvider = DefaultErrorStateProvider()
 
+/**
+ * Default implementation of [ErrorStateProvider].
+ *
+ * Used as the default provider for the [LocalErrorState] composition local.
+ */
 internal class DefaultErrorStateProvider: ErrorStateProvider {
+	/**
+	 * Creates a default error state UI with a custom text composable.
+	 *
+	 * @param modifier Modifier to be applied to the container
+	 * @param text Composable function to display the error message
+	 * @param onRetry Optional callback to be invoked when the retry button is clicked
+	 */
 	@Composable
 	override fun ErrorState(
 		modifier: Modifier,
@@ -68,18 +89,31 @@ internal class DefaultErrorStateProvider: ErrorStateProvider {
  * This is used to display an error message when there is an issue with data fetching or processing.
  * It provides a default implementation that can be overridden by the user.
  *
+ * Example usage:
+ * ```kotlin
+ * CompositionLocalProvider(
+ *     LocalErrorState provides MyCustomErrorStateProvider()
+ * ) {
+ *     // Content that will use your custom error state provider
+ *     MyPagingList()
+ * }
+ * ```
+ *
  * @see ErrorStateProvider
  */
 val LocalErrorState = compositionLocalOf<ErrorStateProvider> { defaultErrorStateProvider }
 
 /**
- * Local composition for providing error state Composable.
+ * Interface for providing error state Composable UI.
  *
  * This is used to display an error message when there is an issue with data fetching or processing.
+ *
+ * Implement this interface to provide custom error state UI in your application.
+ * Then provide your implementation through the [LocalErrorState] composition local.
  */
 interface ErrorStateProvider {
 	/**
-	 * Composable function to display an error state.
+	 * Composable function to display an error state with a simple string message.
 	 *
 	 * By default this calls [ErrorState] with a [Text] Composable
 	 *
@@ -99,7 +133,7 @@ interface ErrorStateProvider {
 	)
 
 	/**
-	 * Composable function to display an error state.
+	 * Composable function to display an error state with a custom composable for the error message.
 	 *
 	 * @param modifier Modifier to be applied to the error state.
 	 * @param text Composable function to display the error message.
