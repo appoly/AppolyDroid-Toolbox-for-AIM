@@ -13,7 +13,7 @@ Standalone module for Amazon S3 file uploading with progress tracking and error 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.13")
+implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.14")
 ```
 
 ## Usage
@@ -286,8 +286,10 @@ The S3Uploader throws exceptions for various error conditions:
 
 ## Dependencies
 
+- [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) - For logging
 - OkHttp for HTTP communication
-- [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) for logging capabilities
+- [Retrofit](https://square.github.io/retrofit/) - For network requests
+- [Sandwich](https://github.com/skydoves/sandwich) - For API response handling
 - Kotlin Coroutines
 
 ## Notes

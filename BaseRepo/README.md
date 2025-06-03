@@ -13,7 +13,7 @@ Foundation module for implementing the repository pattern with standardized API 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.13")
+implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.14")
 ```
 
 ## API Response Structure
@@ -232,6 +232,8 @@ suspend fun doAPICallWithBaseResponse(tag: String, apiCall: suspend () -> ApiRes
 ## Dependencies
 
 - [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) - For logging
+- OkHttp for HTTP communication
+- [Retrofit](https://square.github.io/retrofit/) - For network requests
 - [Sandwich](https://github.com/skydoves/sandwich) - For API response handling
 - Kotlin Coroutines and Flow
 
