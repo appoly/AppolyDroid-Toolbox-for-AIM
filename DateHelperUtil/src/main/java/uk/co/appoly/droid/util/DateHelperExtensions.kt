@@ -116,7 +116,7 @@ fun LocalDateTime?.isPassed(): Boolean {
 @OptIn(ExperimentalContracts::class)
 fun LocalDate?.isPassed(): Boolean {
 	contract { returns(true) implies (this@isPassed != null) }
-	return this?.isBefore(LocalDate.now()) != false
+	return this?.isBefore(LocalDate.now()) == true
 }
 
 /**
