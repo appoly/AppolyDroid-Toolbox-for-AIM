@@ -55,6 +55,45 @@ fun ZonedDateTime?.isFuture(): Boolean {
 }
 
 /**
+ * Checks if this [LocalDate] is in the future.
+ *
+ * Uses Kotlin contracts to allow smart casting after null checking.
+ *
+ * @return True if the date is not null and is equal to the current date
+ */
+@OptIn(ExperimentalContracts::class)
+fun LocalDate?.isToday(): Boolean {
+	contract { returns(true) implies (this@isToday != null) }
+	return this?.isEqual(LocalDate.now()) == true
+}
+
+/**
+ * Checks if this [LocalDateTime] is today.
+ *
+ * Uses Kotlin contracts to allow smart casting after null checking.
+ *
+ * @return True if the date-time is not null and is today
+ */
+@OptIn(ExperimentalContracts::class)
+fun LocalDateTime?.isToday(): Boolean {
+	contract { returns(true) implies (this@isToday != null) }
+	return this?.toLocalDate()?.isToday() == true
+}
+
+/**
+ * Checks if this [ZonedDateTime] is today.
+ *
+ * Uses Kotlin contracts to allow smart casting after null checking.
+ *
+ * @return True if the date-time is not null and is today
+ */
+@OptIn(ExperimentalContracts::class)
+fun ZonedDateTime?.isToday(): Boolean {
+	contract { returns(true) implies (this@isToday != null) }
+	return this?.toDeviceZone()?.toLocalDate()?.isToday() == true
+}
+
+/**
  * Checks if this [LocalDateTime] is in the past.
  *
  * Uses Kotlin contracts to allow smart casting after null checking.
@@ -65,6 +104,19 @@ fun ZonedDateTime?.isFuture(): Boolean {
 fun LocalDateTime?.isPassed(): Boolean {
 	contract { returns(true) implies (this@isPassed != null) }
 	return this?.isBefore(LocalDateTime.now()) == true
+}
+
+/**
+ * Checks if this [LocalDate] is in the past.
+ *
+ * Uses Kotlin contracts to allow smart casting after null checking.
+ *
+ * @return True if the date is not null and is before the current date
+ */
+@OptIn(ExperimentalContracts::class)
+fun LocalDate?.isPassed(): Boolean {
+	contract { returns(true) implies (this@isPassed != null) }
+	return this?.isBefore(LocalDate.now()) != false
 }
 
 /**
@@ -102,6 +154,43 @@ fun LocalDateTime.deviceToUTC(): LocalDateTime {
  */
 fun ZonedDateTime.toDeviceZone(): ZonedDateTime {
 	return this.withZoneSameInstant(ZoneOffset.systemDefault())
+}
+
+/**
+ * Converts a [ZonedDateTime] to the device's default timezone and returns the local date.
+ *
+ * This extension function takes a [ZonedDateTime] in any timezone and returns
+ * a new [LocalDate] representing the same date in the device's timezone.
+ *
+ * @return A new [LocalDate] representing the same date in the device's timezone
+ */
+fun ZonedDateTime.daysFromNow(): Int =
+	toDeviceZone().toLocalDate().daysFromNow()
+
+/**
+ * Calculates the number of days from the current date to this [LocalDateTime].
+ *
+ * If the date-time is in the past, returns 0.
+ *
+ * @return The number of days from now until this date-time, or 0 if the date-time has passed
+ */
+fun LocalDateTime.daysFromNow(): Int =
+	toLocalDate().daysFromNow()
+
+/**
+ * Calculates the number of days from the current date to this [LocalDate].
+ *
+ * If the date is in the past, returns 0.
+ *
+ * @return The number of days from now until this date, or 0 if the date has passed
+ */
+fun LocalDate.daysFromNow(): Int {
+	val now = LocalDate.now()
+	return if (isPassed()) {
+		0
+	} else {
+		toEpochDay().toInt() - now.toEpochDay().toInt()
+	}
 }
 
 /**
