@@ -13,7 +13,7 @@ A utility module for standardized date and time operations in Android applicatio
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.17-alpha01")
+implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.17")
 ```
 
 ## Usage
