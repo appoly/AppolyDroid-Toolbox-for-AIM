@@ -3,6 +3,7 @@ package uk.co.appoly.droid.ui.paging
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -47,12 +48,14 @@ internal class DefaultErrorStateProvider: ErrorStateProvider {
 	override fun ErrorState(
 		modifier: Modifier,
 		text: @Composable () -> Unit,
-		onRetry: (() -> Unit)?
+		onRetry: (() -> Unit)?,
+		contentPadding: PaddingValues
 	) {
 		Column(
 			modifier = modifier
 				.then(
 					Modifier
+						.padding(contentPadding)
 						.background(
 							color = MaterialTheme.colorScheme.surfaceContainer,
 							RoundedCornerShape(10.dp)
@@ -125,11 +128,13 @@ interface ErrorStateProvider {
 	fun ErrorState(
 		modifier: Modifier,
 		text: String,
-		onRetry: (() -> Unit)?
+		onRetry: (() -> Unit)?,
+		contentPadding: PaddingValues //= PaddingValues(0.dp)
 	) = ErrorState(
 		modifier = modifier,
 		text = { Text(text = text) },
-		onRetry = onRetry
+		onRetry = onRetry,
+		contentPadding = contentPadding
 	)
 
 	/**
@@ -140,9 +145,10 @@ interface ErrorStateProvider {
 	 * @param onRetry Optional callback function to be invoked when the retry button is clicked.
 	 */
 	@Composable
-	abstract fun ErrorState(
+	fun ErrorState(
 		modifier: Modifier,
 		text: @Composable () -> Unit,
-		onRetry: (() -> Unit)?
+		onRetry: (() -> Unit)?,
+		contentPadding: PaddingValues = PaddingValues(0.dp)
 	)
 }

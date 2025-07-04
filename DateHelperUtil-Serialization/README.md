@@ -15,12 +15,12 @@ Extension module for DateHelperUtil that provides kotlinx.serialization integrat
 
 ```gradle.kts
 // Requires base DateHelperUtil module
-implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.16")
-implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.16")
+implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.17")
+implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.17")
 
 // Required kotlinx.serialization dependencies
-implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.8.1")
-implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0")
+implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 ```
 
 ## Usage
