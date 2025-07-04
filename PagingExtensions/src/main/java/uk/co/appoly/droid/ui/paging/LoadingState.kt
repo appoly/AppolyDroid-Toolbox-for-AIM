@@ -2,6 +2,7 @@ package uk.co.appoly.droid.ui.paging
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -30,9 +31,10 @@ internal class DefaultLoadingStateProvider: LoadingStateProvider {
 	 * @param modifier Modifier to be applied to the container
 	 */
 	@Composable
-	override fun LoadingState(modifier: Modifier) {
+	override fun LoadingState(modifier: Modifier, contentPadding: PaddingValues) {
 		Column(
-			modifier = modifier,
+			modifier = modifier
+				.then(Modifier.padding(contentPadding)),
 			verticalArrangement = Arrangement.Center,
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
@@ -78,5 +80,8 @@ interface LoadingStateProvider {
 	 * @param modifier Modifier to be applied to the loading state.
 	 */
 	@Composable
-	fun LoadingState(modifier: Modifier)
+	fun LoadingState(
+		modifier: Modifier,
+		contentPadding: PaddingValues = PaddingValues(0.dp)
+	)
 }
