@@ -2,6 +2,7 @@ package uk.co.appoly.droid.ui.paging
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,12 +42,14 @@ internal class DefaultEmptyStateTextProvider: EmptyStateTextProvider {
 	@Composable
 	override fun EmptyStateText(
 		modifier: Modifier,
-		text: String
+		text: String,
+		contentPadding: PaddingValues
 	) {
 		Row(
 			modifier = modifier
 				.then(
 					Modifier
+						.padding(contentPadding)
 						.background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(10.dp))
 						.padding(16.dp)
 				),
@@ -104,6 +107,7 @@ interface EmptyStateTextProvider {
 	@Composable
 	fun EmptyStateText(
 		modifier: Modifier,
-		text: String
+		text: String,
+		contentPadding: PaddingValues = PaddingValues(0.dp)
 	)
 }
