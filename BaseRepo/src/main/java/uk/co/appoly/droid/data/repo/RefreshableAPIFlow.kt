@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import com.duck.flexilogger.FlexiLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -98,14 +99,25 @@ class RefreshableAPIFlow<T : Any>(
 	/**
 	 * Refresh the API call and emit the new state.
 	 *
+	 * @param simulatedError Optional simulated error to emit instead of making an API call,
+	 * this is useful for testing purposes.
 	 * @param onComplete Optional callback to be invoked when the refresh operation completes
 	 */
-	fun refresh(onComplete: (() -> Unit)? = null) {
-		if (isRefreshing.compareAndSet(false, true)) {
+	fun refresh(
+		simulatedError: APIFlowState.Error? = null,
+		onComplete: (() -> Unit)? = null
+	) {
+		if (isRefreshing.compareAndSet(expectedValue = false, newValue = true)) {
 			scope.launch {
 				try {
 					internalFlow.emit(APIFlowState.Loading)
-					internalFlow.emit(apiCall().asApiFlowState())
+					if (simulatedError != null) {
+						Log.v(this@RefreshableAPIFlow, "Simulated error: ${simulatedError.message}")
+						delay(350) // Simulate network delay
+						internalFlow.emit(simulatedError)
+					} else {
+						internalFlow.emit(apiCall().asApiFlowState())
+					}
 				} catch (e: Exception) {
 					Log.w(this@RefreshableAPIFlow, "Exception in refresh", e)
 					internalFlow.emit(APIFlowState.Error(AppolyBaseRepo.RESPONSE_EXCEPTION_CODE, e.message ?: "Unknown error"))
