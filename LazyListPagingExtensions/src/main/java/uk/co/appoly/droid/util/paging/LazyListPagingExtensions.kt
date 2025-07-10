@@ -16,7 +16,6 @@ package uk.co.appoly.droid.util.paging
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
@@ -53,8 +52,8 @@ inline fun <T : Any> LazyListScope.lazyPagingItems(
 	lazyPagingItems: LazyPagingItems<T>,
 	noinline key: ((item: T) -> Any)? = null,
 	noinline contentType: (item: T) -> Any? = { null },
-	crossinline placeholderItemContent: @Composable (LazyItemScope.() -> Unit) = {},
-	crossinline itemContent: @Composable (LazyItemScope.(item: T) -> Unit)
+	crossinline placeholderItemContent: @Composable LazyItemScope.() -> Unit = {},
+	crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
 ) = items(
 	count = lazyPagingItems.itemCount,
 	key = if (key != null) lazyPagingItems.itemKey { key(it) } else null,
@@ -65,6 +64,57 @@ inline fun <T : Any> LazyListScope.lazyPagingItems(
 		itemContent(item)
 	} else {
 		placeholderItemContent()
+	}
+}
+
+/**
+ * Adds a list of items from a [LazyPagingItems] object, providing the previous item in the list.
+ *
+ * This is useful for scenarios where you need to compare the current item with the previous one,
+ * such as displaying a diff or showing a transition effect.
+ *
+ * @param lazyPagingItems The [LazyPagingItems] object to use as the data source
+ * @param key a factory of stable and unique keys representing the item. Using the same key
+ * for multiple items in the list is not allowed. Type of the key should be saveable
+ * via Bundle on Android. If null is passed the position in the list will represent the key.
+ * When you specify the key the scroll position will be maintained based on the key, which
+ * means if you add/remove items before the current visible item the item with the given key
+ * will be kept as the first visible one. This can be overridden by calling
+ * `requestScrollToItem` on the `LazyListState`.
+ * @param contentType a factory of the content types for the item. The item compositions of
+ * the same type could be reused more efficiently. Note that null is a valid type and items of such
+ * type will be considered compatible.
+ * @param placeholderItemContent the content displayed by a single placeholder item
+ * @param item LazyListScope content lambda that provides the previous item, the current item,
+ * the item key and the item content type.
+ *
+ * @see LazyListScope.items
+ */
+inline fun <T : Any> LazyListScope.lazyPagingItemsWithPrev(
+	lazyPagingItems: LazyPagingItems<T>,
+	noinline key: ((item: T) -> Any)? = null,
+	noinline contentType: (item: T) -> Any? = { null },
+	crossinline placeholderItemContent: @Composable (LazyItemScope.() -> Unit) = {},
+	crossinline item: LazyListScope.(prevItem: T?, item: T, itemKey: Any?, itemContentType: Any?) -> Unit
+) {
+	for (index in 0 until lazyPagingItems.itemCount) {
+		val prevItem = if (index > 0) lazyPagingItems[index - 1] else null
+		val item = lazyPagingItems[index]
+		if (item != null) {
+			item(
+				prevItem,
+				item,
+				if (key != null) lazyPagingItems.itemKey { key(it) } else null,
+				lazyPagingItems.itemContentType { contentType(it) }
+			)
+		} else {
+			item(
+				key = if (key != null) lazyPagingItems.itemKey { key(it) } else null,
+				contentType = lazyPagingItems.itemContentType { contentType(it) }
+			) {
+				placeholderItemContent()
+			}
+		}
 	}
 }
 
@@ -236,7 +286,7 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
  *
  * This function will automatically handle the loading, error, empty states and the items.
  *
- * This function uses [LazyListScope.lazyPagingItems], passing the [itemKey], [itemContentType], [itemPlaceholderContent] and [itemContent] to it.
+ * This function uses [LazyListScope.lazyPagingItemsWithPrev], passing the [itemKey], [itemContentType], [itemPlaceholderContent] and [item] to it.
  *
  * @param lazyPagingItems The [LazyPagingItems] object to use as the data source.
  * @param usingPlaceholders If using Placeholders, then the [prependLoadingContent] and [appendLoadingContent] will not be displayed.
@@ -249,6 +299,73 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
  * @param itemKey The key for the item, this should be unique for each item.
  * @param itemContentType The content type for the item, this should be unique for each item.
  * @param itemPlaceholderContent The content displayed by a single placeholder item.
+ * @param item The content displayed by a single item, this provides the previous item, the current item, the item key and the item content type.
+ * @param statesContentPadding The padding to apply around the loading and error states, this defaults to 0.dp.
+ *
+ * @see LazyListScope.lazyPagingItemsWithPrev
+ */
+inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
+	lazyPagingItems: LazyPagingItems<T>,
+	usingPlaceholders: Boolean = false,
+	crossinline prependLoadingContent: LazyListScope.(PaddingValues) -> Unit = { paddingValues ->
+		loadingStateItem(key = "paging_prepend_loading", contentPadding = paddingValues)
+	},
+	crossinline appendLoadingContent: LazyListScope.(PaddingValues) -> Unit = { paddingValues ->
+		loadingStateItem(key = "paging_append_loading" , contentPadding = paddingValues)
+	},
+	noinline refreshLoadingContent: (LazyListScope.(PaddingValues) -> Unit)? = null,
+	noinline emptyText: (@Composable () -> String)?,
+	crossinline errorText: @Composable (LoadState.Error) -> String,
+	crossinline retry: () -> Unit = { lazyPagingItems.retry() },
+	noinline itemKey: ((item: T) -> Any)? = null,
+	noinline itemContentType: (item: T) -> Any? = { null },
+	crossinline itemPlaceholderContent: @Composable (LazyItemScope.() -> Unit) = {},
+	crossinline item: LazyListScope.(prevItem: T?, item: T, itemKey: Any?, itemContentType: Any?) -> Unit,
+	statesContentPadding: PaddingValues = PaddingValues(0.dp)
+) = lazyPagingItemsWithStates(
+	lazyPagingItems = lazyPagingItems,
+	usingPlaceholders = usingPlaceholders,
+	prependLoadingContent = prependLoadingContent,
+	appendLoadingContent = appendLoadingContent,
+	refreshLoadingContent = refreshLoadingContent,
+	errorContent = { key, error, paddingValues ->
+		errorStateItem(
+			key = "${key}_Paging_error",
+			error = error,
+			errorText = errorText,
+			retry = retry,
+			contentPadding = paddingValues
+		)
+	},
+	emptyContent = if (emptyText != null) {
+		{
+			emptyStateItem(
+				key = "paging_empty",
+				emptyText = emptyText,
+				contentPadding = statesContentPadding
+			)
+		}
+	} else null,
+	itemKey = itemKey,
+	itemContentType = itemContentType,
+	itemPlaceholderContent = itemPlaceholderContent,
+	item = item,
+	statesContentPadding = statesContentPadding
+)
+
+/**
+ * Item and loading state management for [LazyPagingItems] within a [LazyListScope].
+ *
+ * This function will automatically handle the loading, error, empty states and the items.
+ *
+ * @param lazyPagingItems The [LazyPagingItems] object to use as the data source.
+ * @param usingPlaceholders If using Placeholders, then the [prependLoadingContent] and [appendLoadingContent] will not be displayed.
+ * @param prependLoadingContent The content displayed when the prepend is loading, this defaults to a [loadingStateItem].
+ * @param appendLoadingContent The content displayed when the append or refresh is loading, this defaults to a [loadingStateItem].
+ * @param refreshLoadingContent The content displayed when the refresh is loading, this defaults to null.
+ * @param errorText The text displayed when an error occurs.
+ * @param emptyText The text displayed when the list is empty and not loading.
+ * @param retry The retry action to perform when an error occurs.
  * @param itemsContent LazyListScope content lambda that provides the [LazyPagingItems] to display the items.
  * @param statesContentPadding The padding to apply around the loading and error states, this defaults to 0.dp.
  *
@@ -409,6 +526,66 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
 			contentType = itemContentType,
 			placeholderItemContent = itemPlaceholderContent,
 			itemContent = itemContent
+		)
+	},
+	statesContentPadding = statesContentPadding
+)
+
+/**
+ * Item and loading state management for [LazyPagingItems] within a [LazyListScope].
+ *
+ * This function will automatically handle the loading, error, empty states and the items.
+ *
+ * This function uses [LazyListScope.lazyPagingItemsWithPrev], passing the [itemKey], [itemContentType], [itemPlaceholderContent] and [item] to it.
+ *
+ * @param lazyPagingItems The [LazyPagingItems] object to use as the data source.
+ * @param usingPlaceholders If using Placeholders, then the [prependLoadingContent] and [appendLoadingContent] will not be displayed.
+ * @param prependLoadingContent The content displayed when the prepend is loading, this defaults to a [loadingStateItem].
+ * @param appendLoadingContent The content displayed when the append or refresh is loading, this defaults to a [loadingStateItem].
+ * @param refreshLoadingContent The content displayed when the refresh is loading, this defaults to null.
+ * @param errorContent The content displayed when an error occurs, this provides the key and the error, the should be used for
+ * the [item][LazyListScope.item] key as there could show multiple errors for the prepend, append and refresh states.
+ * @param emptyContent The content displayed when the list is empty and not loading.
+ * @param itemKey The key for the item, this should be unique for each item.
+ * @param itemContentType The content type for the item, this should be unique for each item.
+ * @param itemPlaceholderContent The content displayed by a single placeholder item.
+ * @param item The content displayed by a single item, this provides the previous item, the current item, the item key and the item content type.
+ * @param statesContentPadding The padding to apply around the loading and error states, this defaults to 0.dp.
+ *
+ * @see LazyListScope.lazyPagingItemsWithPrev
+ */
+inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
+	lazyPagingItems: LazyPagingItems<T>,
+	usingPlaceholders: Boolean = false,
+	crossinline prependLoadingContent: LazyListScope.(PaddingValues) -> Unit = { paddingValues ->
+		loadingStateItem("paging_prepend_loading", contentPadding = paddingValues)
+	},
+	crossinline appendLoadingContent: LazyListScope.(PaddingValues) -> Unit = { paddingValues ->
+		loadingStateItem("paging_append_loading", contentPadding = paddingValues)
+	},
+	noinline refreshLoadingContent: (LazyListScope.(PaddingValues) -> Unit)? = null,
+	crossinline errorContent: LazyListScope.(key: PagingErrorType, error: LoadState.Error, PaddingValues) -> Unit,
+	noinline emptyContent: (LazyListScope.(PaddingValues) -> Unit)?,
+	noinline itemKey: ((item: T) -> Any)? = null,
+	noinline itemContentType: (item: T) -> Any? = { null },
+	crossinline itemPlaceholderContent: @Composable (LazyItemScope.() -> Unit) = {},
+	crossinline item: LazyListScope.(prevItem: T?, item: T, itemKey: Any?, itemContentType: Any?) -> Unit,
+	statesContentPadding: PaddingValues = PaddingValues(0.dp)
+) = lazyPagingItemsWithStates(
+	lazyPagingItems = lazyPagingItems,
+	usingPlaceholders = usingPlaceholders,
+	prependLoadingContent = prependLoadingContent,
+	appendLoadingContent = appendLoadingContent,
+	refreshLoadingContent = refreshLoadingContent,
+	errorContent = errorContent,
+	emptyContent = emptyContent,
+	itemsContent = {
+		lazyPagingItemsWithPrev(
+			lazyPagingItems = lazyPagingItems,
+			key = itemKey,
+			contentType = itemContentType,
+			placeholderItemContent = itemPlaceholderContent,
+			item = item
 		)
 	},
 	statesContentPadding = statesContentPadding
