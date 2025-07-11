@@ -1,5 +1,6 @@
 package uk.co.appoly.droid.util
 
+import android.os.Build
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -243,4 +244,64 @@ fun Long.millisToLocalDateTime(zoneOffset: ZoneOffset? = ZoneOffset.UTC): LocalD
  */
 fun Long.millisToLocalDate(zoneOffset: ZoneOffset? = ZoneOffset.UTC): LocalDate {
 	return this.millisToLocalDateTime(zoneOffset).toLocalDate()
+}
+
+/**
+ * Returns the days part of the Duration, compatible with Android versions below S.
+ * For Android S and above, uses the built-in method; otherwise, calculates it manually.
+ *
+ * @see Duration.toDaysPart
+ * @see Duration.toDays
+ */
+fun Duration.toDaysPartCompat(): Long {
+	return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+		this.toDaysPart()
+	} else {
+		this.toDays()
+	}
+}
+
+/**
+ * Returns the hours part of the Duration, compatible with Android versions below S.
+ * For Android S and above, uses the built-in method; otherwise, calculates it manually.
+ *
+ * @see Duration.toHoursPart
+ * @see Duration.toHours
+ */
+fun Duration.toHoursPartCompat(): Int {
+	return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+		this.toHoursPart()
+	} else {
+		(this.toHours() % 24).toInt()
+	}
+}
+
+/**
+ * Returns the minutes part of the Duration, compatible with Android versions below S.
+ * For Android S and above, uses the built-in method; otherwise, calculates it manually.
+ *
+ * @see Duration.toMinutesPart
+ * @see Duration.toMinutes
+ */
+fun Duration.toMinutesPartCompat(): Int {
+	return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+		this.toMinutesPart()
+	} else {
+		(this.toMinutes() % 60).toInt()
+	}
+}
+
+/**
+ * Returns the seconds part of the Duration, compatible with Android versions below S.
+ * For Android S and above, uses the built-in method; otherwise, calculates it manually.
+ *
+ * @see Duration.toSecondsPart
+ * @see Duration.seconds
+ */
+fun Duration.toSecondsPartCompat(): Int {
+	return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+		this.toSecondsPart()
+	} else {
+		(this.seconds % 60).toInt()
+	}
 }
