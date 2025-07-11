@@ -85,7 +85,7 @@ inline fun <T : Any> LazyListScope.lazyPagingItems(
  * the same type could be reused more efficiently. Note that null is a valid type and items of such
  * type will be considered compatible.
  * @param placeholderItemContent the content displayed by a single placeholder item
- * @param item LazyListScope content lambda that provides the previous item, the current item,
+ * @param item LazyListScope content lambda that provides the previous item, the current item, the next item,
  * the item key and the item content type.
  *
  * @see LazyListScope.items
@@ -301,7 +301,7 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
  * @param itemKey The key for the item, this should be unique for each item.
  * @param itemContentType The content type for the item, this should be unique for each item.
  * @param itemPlaceholderContent The content displayed by a single placeholder item.
- * @param item The content displayed by a single item, this provides the previous item, the current item, the item key and the item content type.
+ * @param item The content displayed by a single item, this provides the previous item, the current item, the next item, the item key and the item content type.
  * @param statesContentPadding The padding to apply around the loading and error states, this defaults to 0.dp.
  *
  * @see LazyListScope.lazyPagingItemsWithPrev
@@ -490,7 +490,7 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
  * @param itemKey The key for the item, this should be unique for each item.
  * @param itemContentType The content type for the item, this should be unique for each item.
  * @param itemPlaceholderContent The content displayed by a single placeholder item.
- * @param item The content displayed by a single item, this provides the previous item, the current item, the item key and the item content type.
+ * @param item The content displayed by a single item, this provides the previous item, the current item, the next item, the item key and the item content type.
  * @param statesContentPadding The padding to apply around the loading and error states, this defaults to 0.dp.
  *
  * @see LazyListScope.lazyPagingItemsWithPrev
