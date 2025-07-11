@@ -107,12 +107,12 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithPrev(
 				item,
 				nextItem,
 				if (key != null) lazyPagingItems.itemKey { key(it) }.invoke(index) else null,
-				lazyPagingItems.itemContentType { contentType(it) }
+				lazyPagingItems.itemContentType { contentType(it) }.invoke(index)
 			)
 		} else {
 			item(
 				key = if (key != null) lazyPagingItems.itemKey { key(it) }.invoke(index) else null,
-				contentType = lazyPagingItems.itemContentType { contentType(it) }
+				contentType = lazyPagingItems.itemContentType { contentType(it) }.invoke(index)
 			) {
 				placeholderItemContent()
 			}
