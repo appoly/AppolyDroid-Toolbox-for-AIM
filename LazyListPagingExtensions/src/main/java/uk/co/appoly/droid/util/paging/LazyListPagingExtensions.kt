@@ -95,15 +95,17 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithPrev(
 	noinline key: ((item: T) -> Any)? = null,
 	noinline contentType: (item: T) -> Any? = { null },
 	crossinline placeholderItemContent: @Composable (LazyItemScope.() -> Unit) = {},
-	crossinline item: LazyListScope.(prevItem: T?, item: T, itemKey: Any?, itemContentType: Any?) -> Unit
+	crossinline item: LazyListScope.(prevItem: T?, item: T, nextItem: T?, itemKey: Any?, itemContentType: Any?) -> Unit
 ) {
 	for (index in 0 until lazyPagingItems.itemCount) {
 		val prevItem = if (index > 0) lazyPagingItems[index - 1] else null
 		val item = lazyPagingItems[index]
+		val nextItem = if (index < lazyPagingItems.itemCount - 1) lazyPagingItems[index + 1] else null
 		if (item != null) {
 			item(
 				prevItem,
 				item,
+				nextItem,
 				if (key != null) lazyPagingItems.itemKey { key(it) }.invoke(index) else null,
 				lazyPagingItems.itemContentType { contentType(it) }
 			)
@@ -320,7 +322,7 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
 	noinline itemKey: ((item: T) -> Any)? = null,
 	noinline itemContentType: (item: T) -> Any? = { null },
 	crossinline itemPlaceholderContent: @Composable (LazyItemScope.() -> Unit) = {},
-	crossinline item: LazyListScope.(prevItem: T?, item: T, itemKey: Any?, itemContentType: Any?) -> Unit,
+	crossinline item: LazyListScope.(prevItem: T?, item: T, nextItem: T?, itemKey: Any?, itemContentType: Any?) -> Unit,
 	statesContentPadding: PaddingValues = PaddingValues(0.dp)
 ) = lazyPagingItemsWithStates(
 	lazyPagingItems = lazyPagingItems,
@@ -508,7 +510,7 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
 	noinline itemKey: ((item: T) -> Any)? = null,
 	noinline itemContentType: (item: T) -> Any? = { null },
 	crossinline itemPlaceholderContent: @Composable (LazyItemScope.() -> Unit) = {},
-	crossinline item: LazyListScope.(prevItem: T?, item: T, itemKey: Any?, itemContentType: Any?) -> Unit,
+	crossinline item: LazyListScope.(prevItem: T?, item: T, nextItem: T?, itemKey: Any?, itemContentType: Any?) -> Unit,
 	statesContentPadding: PaddingValues = PaddingValues(0.dp)
 ) = lazyPagingItemsWithStates(
 	lazyPagingItems = lazyPagingItems,
