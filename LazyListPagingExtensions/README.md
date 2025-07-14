@@ -9,6 +9,7 @@ Extension functions for easy integration of Jetpack Paging 3 with Compose LazyCo
 - Automatic placeholder management
 - Customizable UI through CompositionLocal providers
 - Supports standard Jetpack Paging patterns
+- Multiple function variants for different use cases
 
 ## Installation
 
@@ -31,7 +32,7 @@ fun ItemsList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
     
     LazyColumn {
-        lazyPagingItemsWithStates(
+        lazyPagingItemsStates(
             lazyPagingItems = items,
             emptyText = { "No items found" },
             errorText = { error -> error.localizedMessage ?: "An error occurred" }
@@ -51,7 +52,7 @@ fun AdvancedItemsList(viewModel: AdvancedViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
     
     LazyColumn {
-        lazyPagingItemsWithStates(
+        lazyPagingItemsStates(
             lazyPagingItems = items,
             usingPlaceholders = true,  // Enable placeholders support
             emptyText = { "No items found" },
@@ -59,7 +60,7 @@ fun AdvancedItemsList(viewModel: AdvancedViewModel) {
             retry = { items.retry() },  // Custom retry action
             itemKey = { it.id },  // Custom key function
             itemContentType = { it.type },  // Content type for recycling
-            placeholderItemContent = {
+            itemPlaceholderContent = {
                 // Custom placeholder UI
                 ItemPlaceholder()
             }
@@ -85,41 +86,12 @@ fun CustomStatesItemsList(viewModel: ItemsViewModel) {
         LocalEmptyState provides MyEmptyStateProvider()
     ) {
         LazyColumn {
-            lazyPagingItemsWithStates(
+            lazyPagingItemsStates(
                 lazyPagingItems = items,
                 emptyText = { "No items found" },
                 errorText = { error -> error.localizedMessage ?: "An error occurred" }
             ) { item ->
                 ItemRow(item = item)
-            }
-        }
-    }
-}
-```
-
-### Manual Items Content
-
-If you need more control over how items are rendered, you can use the itemsContent parameter:
-
-```kotlin
-@Composable
-fun CustomItemsList(viewModel: ItemsViewModel) {
-    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
-    LazyColumn {
-        lazyPagingItemsWithStates(
-            lazyPagingItems = items,
-            emptyText = { "No items found" },
-            errorText = { error -> "Error: ${error.localizedMessage}" }
-        ) { lazyPagingItems ->
-            // Custom items rendering logic
-            items(lazyPagingItems.itemCount) { index ->
-                val item = lazyPagingItems[index]
-                if (item != null) {
-                    ItemRow(item = item)
-                } else {
-                    ItemPlaceholder()
-                }
             }
         }
     }
@@ -134,9 +106,9 @@ fun ErrorHandlingList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
     
     LazyColumn {
-        lazyPagingItemsWithStates(
+        lazyPagingItemsStates(
             lazyPagingItems = items,
-            emptyContent = {
+            emptyContent = { paddingValues ->
                 item(key = "empty") {
                     Text(
                         text = "No items found",
@@ -145,7 +117,7 @@ fun ErrorHandlingList(viewModel: ItemsViewModel) {
                     )
                 }
             },
-            errorContent = { errorType, error ->
+            errorContent = { errorType, error, paddingValues ->
                 item(key = "${errorType}_error") {
                     when (errorType) {
                         PagingErrorType.REFRESH -> FullScreenError(error, items::retry)
@@ -156,6 +128,105 @@ fun ErrorHandlingList(viewModel: ItemsViewModel) {
             }
         ) { item ->
             ItemRow(item = item)
+        }
+    }
+}
+```
+
+### Using Items with Neighbours
+
+For scenarios where you need access to previous and next items:
+The Next and Previous items are accessed with the LazyPagingItems.peek(index: Int) function
+so as not to trigger page load operations.
+
+```kotlin
+@Composable
+fun ItemsWithNeighboursList(viewModel: ItemsViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
+    
+    LazyColumn {
+        lazyPagingItemsStatesWithNeighbours(
+            lazyPagingItems = items,
+            emptyText = { "No items found" },
+            errorText = { error -> error.localizedMessage ?: "An error occurred" },
+            itemKey = { it.id },  // Custom key function
+            itemContentType = { it.type }  // Content type for recycling
+        ) { previousItem, currentItem, nextItem, itemKey, itemContentType ->
+            // Access to neighbouring items
+			// eg yuo may want to add additional list Items based on a comparison of
+			// the current item with the previous and/or next items like a date separator.
+			if(currentItem.date != previousItem?.date) {
+                item(
+					key = "date_separator_${currentItem.date}",
+					contentType = "date_separator"
+				) {
+					DateSeparator(currentItem.date)
+                }
+            }
+			item (
+				key = itemKey,// this is the value returned by itemKey function
+                contentType = itemContentType// this is the value returned by itemContentType function
+			) {
+				ItemRowWithContext(
+					item = currentItem,
+					previousItem = previousItem,
+					nextItem = nextItem
+				)
+			}
+        }
+    }
+}
+```
+
+### Using Indexed Items
+
+For scenarios where you need access to the item index:
+
+```kotlin
+@Composable
+fun IndexedItemsList(viewModel: ItemsViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
+    
+    LazyColumn {
+        lazyPagingItemsIndexedStates(
+            lazyPagingItems = items,
+            emptyText = { "No items found" },
+            errorText = { error -> error.localizedMessage ?: "An error occurred" }
+        ) { index, item ->
+            // Access to item index
+            ItemRowWithIndex(
+                index = index,
+                item = item
+            )
+        }
+    }
+}
+```
+
+### Custom Items Content
+
+If you need complete control over how items are rendered:
+
+```kotlin
+@Composable
+fun CustomItemsList(viewModel: ItemsViewModel) {
+    val items = viewModel.itemsFlow.collectAsLazyPagingItems()
+    
+    LazyColumn {
+        lazyPagingItemsStates(
+            lazyPagingItems = items,
+            emptyText = { "No items found" },
+            errorText = { error -> "Error: ${error.localizedMessage}" }
+        ) { lazyPagingItems ->
+            // Custom items rendering logic
+            items(lazyPagingItems.itemCount) { index ->
+                val item = lazyPagingItems[index]
+                if (item != null) {
+                    ItemRow(item = item)
+                } else {
+                    ItemPlaceholder()
+                }
+            }
         }
     }
 }
@@ -177,23 +248,65 @@ fun <T : Any> LazyListScope.lazyPagingItems(
 )
 ```
 
-### lazyPagingItemsWithStates
+### lazyPagingItemsStates
 
 Complete solution that handles all states (loading, error, empty) and the items.
 
 ```kotlin
-fun <T : Any> LazyListScope.lazyPagingItemsWithStates(
+fun <T : Any> LazyListScope.lazyPagingItemsStates(
     lazyPagingItems: LazyPagingItems<T>,
     usingPlaceholders: Boolean = false,
-    emptyText: @Composable () -> String,
+    emptyText: (@Composable () -> String)?,
     errorText: @Composable (LoadState.Error) -> String,
     retry: () -> Unit = { lazyPagingItems.retry() },
     itemKey: ((item: T) -> Any)? = null,
     itemContentType: (item: T) -> Any? = { null },
     itemPlaceholderContent: @Composable (LazyItemScope.() -> Unit) = {},
-    itemContent: @Composable LazyItemScope.(item: T) -> Unit
+    itemContent: @Composable LazyItemScope.(item: T) -> Unit,
+    statesContentPadding: PaddingValues = PaddingValues(0.dp)
 )
 ```
+
+### lazyPagingItemsStates (with custom content)
+
+Version that allows custom error and empty content handling:
+
+```kotlin
+fun <T : Any> LazyListScope.lazyPagingItemsStates(
+    lazyPagingItems: LazyPagingItems<T>,
+    usingPlaceholders: Boolean = false,
+    errorContent: LazyListScope.(key: PagingErrorType, error: LoadState.Error, PaddingValues) -> Unit,
+    emptyContent: (LazyListScope.(PaddingValues) -> Unit)?,
+    itemKey: ((item: T) -> Any)? = null,
+    itemContentType: (item: T) -> Any? = { null },
+    itemPlaceholderContent: @Composable (LazyItemScope.() -> Unit) = {},
+    itemContent: @Composable LazyItemScope.(item: T) -> Unit,
+    statesContentPadding: PaddingValues = PaddingValues(0.dp)
+)
+```
+
+### lazyPagingItemsStates (with items content)
+
+Version that provides complete control over items rendering:
+
+```kotlin
+fun <T : Any> LazyListScope.lazyPagingItemsStates(
+    lazyPagingItems: LazyPagingItems<T>,
+    usingPlaceholders: Boolean = false,
+    emptyText: @Composable () -> String,
+    errorText: @Composable (LoadState.Error) -> String,
+    retry: () -> Unit = { lazyPagingItems.retry() },
+    itemsContent: LazyListScope.(lazyPagingItems: LazyPagingItems<T>) -> Unit,
+    statesContentPadding: PaddingValues = PaddingValues(0.dp)
+)
+```
+
+### Additional Variants
+
+- **lazyPagingItemsStatesWithNeighbours**: Access to previous and next items
+- **lazyPagingItemsIndexedStates**: Access to item indices
+- **lazyPagingItemsIndexedStatesWithNeighbours**: Access to both indices and neighbouring items
+- **lazyPagingItemsWithNeighbours**: Basic neighbour access without state management
 
 ## Dependencies
 
