@@ -91,7 +91,7 @@ inline fun <T : Any> LazyListScope.lazyPagingItemsIndexedWithNeighbours(
 ) = items(
 	count = lazyPagingItems.itemCount,
 	key = if (key != null) {
-		{ i-> lazyPagingItems.itemKey { key(i, it) } }
+		{ i-> lazyPagingItems.itemKey { key(i, it) }.invoke(i) }
 	} else null,
 	contentType = { i -> lazyPagingItems.itemContentType { contentType(i, it) } },
 	itemContent = { index ->
