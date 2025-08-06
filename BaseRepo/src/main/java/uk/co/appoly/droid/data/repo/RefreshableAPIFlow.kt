@@ -219,7 +219,10 @@ fun <T : Any> RefreshableAPIFlow<T>.stateIn(
  * val cachedUserFlow = userApiFlow.cacheSuccessData(null) { user -> user }
  * ```
  */
-fun <T, R> Flow<APIFlowState<T>>.cacheSuccessData(initial: R, map: (T) -> R): Flow<R> =
+inline fun <T, R> Flow<APIFlowState<T>>.cacheSuccessData(
+	initial: R,
+	crossinline map: (T) -> R
+): Flow<R> =
 	scan<APIFlowState<T>, R>(initial) { cachedValue, apiFlowState ->
 		when (apiFlowState) {
 			is APIFlowState.Success -> map(apiFlowState.data)

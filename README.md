@@ -96,7 +96,7 @@ dependencies {
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.23")
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.23")
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.23")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.23") 
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.23")
     implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.23")
     implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.23")
     implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.23")
