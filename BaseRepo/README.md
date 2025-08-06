@@ -13,7 +13,7 @@ Foundation module for implementing the repository pattern with standardized API 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.22")
+implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.23")
 ```
 
 ## API Response Structure
@@ -150,6 +150,28 @@ val userDataState: StateFlow<APIFlowState<UserData>> = userDataRefreshFlow.state
 
 // To refresh:
 userDataRefreshFlow.refresh()
+```
+
+### Caching Success Data
+
+Maintain stable data during refresh operations to prevent UI flicker:
+
+```kotlin
+// Cache the entire user object, preserving data during loading states
+val cachedUserFlow = userDataRefreshFlow.cacheSuccessData(null) { user -> user }
+
+// Cache only specific fields with transformation
+val userNameFlow = userDataRefreshFlow.cacheSuccessData("Unknown User") { user -> user.name }
+
+// Use in Compose
+@Composable
+fun UserScreen() {
+	val cachedUser by cachedUserFlow.collectAsState()
+	val userName by userNameFlow.collectAsState()
+
+	// cachedUser retains the last successful value even during refresh
+	// userName shows "Unknown User" initially, then the actual name
+}
 ```
 
 ### Processing API Results

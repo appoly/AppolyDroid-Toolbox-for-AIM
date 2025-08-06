@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -194,6 +195,37 @@ fun <T : Any> RefreshableAPIFlow<T>.stateIn(
 	started: SharingStarted = SharingStarted.WhileSubscribed(5000),
 	initialValue: APIFlowState<T> = APIFlowState.Loading
 ) = this.stateIn(scope, started, initialValue)
+
+/**
+ * Uses the [scan] operator to cache the most recent success data from this flow.
+ * When the flow emits a [APIFlowState.Success], the data is transformed using [map] and cached.
+ * For [APIFlowState.Loading] and [APIFlowState.Error] states, the previously cached value is retained.
+ *
+ * This is useful for maintaining stable data in Compose UI during refresh operations,
+ * preventing UI flicker when the flow transitions between Loading and Success states.
+ *
+ * @param T The type of data in the success state
+ * @param R The type of the cached/transformed data
+ * @param initial The initial value to emit before any success state is received
+ * @param map A transformation function that converts success data of type [T] to cached data of type [R]
+ * @return A [Flow] that emits the cached/transformed success data or the initial value
+ *
+ * @sample
+ * ```kotlin
+ * // Cache user names from a user data flow
+ * val userNameFlow = userApiFlow.cacheSuccessData("Unknown") { user -> user.name }
+ *
+ * // Cache the entire data object
+ * val cachedUserFlow = userApiFlow.cacheSuccessData(null) { user -> user }
+ * ```
+ */
+fun <T, R> Flow<APIFlowState<T>>.cacheSuccessData(initial: R, map: (T) -> R): Flow<R> =
+	scan<APIFlowState<T>, R>(initial) { cachedValue, apiFlowState ->
+		when (apiFlowState) {
+			is APIFlowState.Success -> map(apiFlowState.data)
+			else -> cachedValue
+		}
+	}
 
 /**
  * Collects values from this flow and represents its latest value as [State] in a composable.
