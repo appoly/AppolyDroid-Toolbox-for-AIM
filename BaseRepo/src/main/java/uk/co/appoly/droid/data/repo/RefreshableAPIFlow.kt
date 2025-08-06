@@ -91,7 +91,7 @@ class RefreshableAPIFlow<T : Any>(
 		get() = ServiceManager.getLogger()
 
 	private val isRefreshing = AtomicBoolean(false)
-	private val refreshCompletion = CompletableDeferred<Unit>()
+	private var refreshCompletion = CompletableDeferred<Unit>().apply { complete(Unit) }
 	private val internalFlow = MutableStateFlow<APIFlowState<T>>(APIFlowState.Loading)
 
 	/**
@@ -125,6 +125,8 @@ class RefreshableAPIFlow<T : Any>(
 		onComplete: (() -> Unit)? = null
 	) {
 		if (isRefreshing.compareAndSet(expectedValue = false, newValue = true)) {
+			// Create a new CompletableDeferred for this refresh operation
+			refreshCompletion = CompletableDeferred()
 			scope.launch {
 				try {
 					internalFlow.emit(APIFlowState.Loading)
@@ -148,9 +150,10 @@ class RefreshableAPIFlow<T : Any>(
 			}
 		} else {
 			// Refresh is already running
+			val currentCompletion = refreshCompletion
 			if (onComplete != null) {
 				scope.launch {
-					refreshCompletion.await() // Wait for current refresh to complete
+					currentCompletion.await() // Wait for current refresh to complete
 					withContext(Dispatchers.Main) { onComplete() }
 				}
 			}
@@ -202,8 +205,6 @@ class RefreshableAPIFlow<T : Any>(
 			if (initialRefresh) {
 				Log.v(this@RefreshableAPIFlow, "Initial refresh requested")
 				refresh()
-			} else {
-				refreshCompletion.complete(Unit) // Complete the deferred immediately if no refresh is needed
 			}
 		}
 	}
