@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.duck.flexilogger.FlexiLog
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -24,8 +25,10 @@ import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import uk.co.appoly.droid.data.remote.ServiceManager
 import uk.co.appoly.droid.data.remote.model.APIResult
+import kotlin.concurrent.Volatile
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
 
@@ -88,6 +91,9 @@ class RefreshableAPIFlow<T : Any>(
 		get() = ServiceManager.getLogger()
 
 	private val isRefreshing = AtomicBoolean(false)
+
+	@Volatile
+	private var refreshCompletion = CompletableDeferred<Unit>().apply { complete(Unit) }
 	private val internalFlow = MutableStateFlow<APIFlowState<T>>(APIFlowState.Loading)
 
 	/**
@@ -100,15 +106,28 @@ class RefreshableAPIFlow<T : Any>(
 	/**
 	 * Refresh the API call and emit the new state.
 	 *
+	 * @param onComplete Optional callback to be invoked when the refresh operation completes,
+	 * will be invoked on the Main thread.
+	 */
+	fun refresh(
+		onComplete: (() -> Unit)? = null
+	) = refresh(simulatedError = null, onComplete = onComplete)
+
+	/**
+	 * Refresh the API call and emit the new state.
+	 *
 	 * @param simulatedError Optional simulated error to emit instead of making an API call,
 	 * this is useful for testing purposes.
-	 * @param onComplete Optional callback to be invoked when the refresh operation completes
+	 * @param onComplete Optional callback to be invoked when the refresh operation completes,
+	 * will be invoked on the Main thread.
 	 */
 	fun refresh(
 		simulatedError: APIFlowState.Error? = null,
 		onComplete: (() -> Unit)? = null
 	) {
 		if (isRefreshing.compareAndSet(expectedValue = false, newValue = true)) {
+			// Create a new CompletableDeferred for this refresh operation
+			refreshCompletion = CompletableDeferred()
 			scope.launch {
 				try {
 					internalFlow.emit(APIFlowState.Loading)
@@ -124,11 +143,21 @@ class RefreshableAPIFlow<T : Any>(
 					internalFlow.emit(APIFlowState.Error(AppolyBaseRepo.RESPONSE_EXCEPTION_CODE, e.message ?: "Unknown error"))
 				} finally {
 					isRefreshing.store(false)
-					onComplete?.invoke()
+					refreshCompletion.complete(Unit)
+					onComplete?.let { onComplete ->
+						withContext(Dispatchers.Main) { onComplete() }
+					}
 				}
 			}
 		} else {
-			onComplete?.invoke()
+			// Refresh is already running
+			val currentCompletion = refreshCompletion
+			if (onComplete != null) {
+				scope.launch {
+					currentCompletion.await() // Wait for current refresh to complete
+					withContext(Dispatchers.Main) { onComplete() }
+				}
+			}
 		}
 	}
 
