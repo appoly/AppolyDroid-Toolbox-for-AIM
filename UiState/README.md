@@ -28,8 +28,8 @@ class MyViewModel : ViewModel() {
     fun loadData() {
         // Update state to Loading
         _uiState.value = UiState.Loading()
-        
-        viewModelScope.launch {
+
+		viewModelScope.launch {
             try {
                 val result = repository.fetchData()
                 // Update state to Success
@@ -72,13 +72,13 @@ You can track multiple operations using the `key` property:
 class MyViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle())
     val uiState = _uiState.asStateFlow()
-    
-    fun loadUserProfile(userId: String) {
+
+	fun loadUserProfile(userId: String) {
         _uiState.value = UiState.Loading(key = "profile")
         // ...fetch profile...
     }
-    
-    fun loadUserPosts(userId: String) {
+
+	fun loadUserPosts(userId: String) {
         _uiState.value = UiState.Loading(key = "posts")
         // ...fetch posts...
     }
