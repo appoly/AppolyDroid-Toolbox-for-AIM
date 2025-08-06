@@ -203,7 +203,7 @@ class RefreshableAPIFlow<T : Any>(
 				Log.v(this@RefreshableAPIFlow, "Initial refresh requested")
 				refresh()
 			} else {
-				refreshCompletion.complete(Unit)// Complete the deferred immediately if no refresh is needed
+				refreshCompletion.complete(Unit) // Complete the deferred immediately if no refresh is needed
 			}
 		}
 	}
