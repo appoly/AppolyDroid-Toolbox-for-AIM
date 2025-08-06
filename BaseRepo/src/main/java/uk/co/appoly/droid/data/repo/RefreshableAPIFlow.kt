@@ -28,9 +28,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import uk.co.appoly.droid.data.remote.ServiceManager
 import uk.co.appoly.droid.data.remote.model.APIResult
+import kotlin.concurrent.Volatile
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import kotlin.contracts.ExperimentalContracts
 
 /**
  * A wrapper around a [Flow] that fetches data from an API and emits [APIFlowState] of [T] for
@@ -91,6 +91,8 @@ class RefreshableAPIFlow<T : Any>(
 		get() = ServiceManager.getLogger()
 
 	private val isRefreshing = AtomicBoolean(false)
+
+	@Volatile
 	private var refreshCompletion = CompletableDeferred<Unit>().apply { complete(Unit) }
 	private val internalFlow = MutableStateFlow<APIFlowState<T>>(APIFlowState.Loading)
 
@@ -119,7 +121,6 @@ class RefreshableAPIFlow<T : Any>(
 	 * @param onComplete Optional callback to be invoked when the refresh operation completes,
 	 * will be invoked on the Main thread.
 	 */
-	@OptIn(ExperimentalContracts::class)
 	fun refresh(
 		simulatedError: APIFlowState.Error? = null,
 		onComplete: (() -> Unit)? = null
