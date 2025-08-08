@@ -13,7 +13,7 @@ Foundation module for implementing the repository pattern with standardized API 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.24")
+implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.25")
 ```
 
 ## API Response Structure
@@ -158,7 +158,7 @@ Maintain stable data during refresh operations to prevent UI flicker:
 
 ```kotlin
 // Cache the entire user object, preserving data during loading states
-val cachedUserFlow = userDataRefreshFlow.cacheSuccessData(null) { user -> user }
+val cachedUserFlow = userDataRefreshFlow.cacheSuccessData(null)
 
 // Cache only specific fields with transformation
 val userNameFlow = userDataRefreshFlow.cacheSuccessData("Unknown User") { user -> user.name }
