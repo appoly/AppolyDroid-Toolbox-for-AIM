@@ -1,14 +1,8 @@
 package uk.co.appoly.droid.data.repo
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import com.duck.flexilogger.FlexiLog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +15,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -226,40 +219,6 @@ fun <T : Any> RefreshableAPIFlow<T>.stateIn(
 ) = this.stateIn(scope, started, initialValue)
 
 /**
- * Uses the [scan] operator to cache the most recent success data from this flow.
- * When the flow emits a [APIFlowState.Success], the data is transformed using [map] and cached.
- * For [APIFlowState.Loading] and [APIFlowState.Error] states, the previously cached value is retained.
- *
- * This is useful for maintaining stable data in Compose UI during refresh operations,
- * preventing UI flicker when the flow transitions between Loading and Success states.
- *
- * @param T The type of data in the success state
- * @param R The type of the cached/transformed data
- * @param initial The initial value to emit before any success state is received
- * @param map A transformation function that converts success data of type [T] to cached data of type [R]
- * @return A [Flow] that emits the cached/transformed success data or the initial value
- *
- * @sample
- * ```kotlin
- * // Cache user names from a user data flow
- * val userNameFlow = userApiFlow.cacheSuccessData("Unknown") { user -> user.name }
- *
- * // Cache the entire data object
- * val cachedUserFlow = userApiFlow.cacheSuccessData(null) { user -> user }
- * ```
- */
-inline fun <T, R> Flow<APIFlowState<T>>.cacheSuccessData(
-	initial: R,
-	crossinline map: (T) -> R
-): Flow<R> =
-	scan<APIFlowState<T>, R>(initial) { cachedValue, apiFlowState ->
-		when (apiFlowState) {
-			is APIFlowState.Success -> map(apiFlowState.data)
-			else -> cachedValue
-		}
-	}
-
-/**
  * Collects values from this flow and represents its latest value as [State] in a composable.
  *
  * @return A [State] object that represents the latest value from this flow
@@ -267,183 +226,3 @@ inline fun <T, R> Flow<APIFlowState<T>>.cacheSuccessData(
 @Composable
 fun <T : Any> RefreshableAPIFlow<T>.collectAsState(): State<APIFlowState<T>> =
 	this.collectAsState(APIFlowState.Loading)
-
-/**
- * Creates a [androidx.compose.runtime.remember] 'Cache' of the data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to null.
- *
- * @return the cached value as a [androidx.compose.runtime.State].
- */
-@Composable
-fun <T> APIFlowState<T>.rememberSuccessDataAsState(initialValue: T? = null): State<T?> {
-	val cache = remember {
-		mutableStateOf(initialValue)
-	}
-	val successData = successData()
-	LaunchedEffect(successData) {
-		successData?.let {
-			cache.value = it
-		}
-	}
-	return cache
-}
-
-/**
- * Creates a [androidx.compose.runtime.saveable.rememberSaveable] 'Cache' of the data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to null.
- *
- * @return the cached value as a [androidx.compose.runtime.State].
- */
-@Composable
-fun <T> APIFlowState<T>.rememberSaveableSuccessDataAsState(initialValue: T? = null): State<T?> {
-	val cache = rememberSaveable {
-		mutableStateOf(initialValue)
-	}
-	val successData = successData()
-	LaunchedEffect(successData) {
-		successData?.let {
-			cache.value = it
-		}
-	}
-	return cache
-}
-
-/**
- * Creates a [androidx.compose.runtime.remember] 'Cache' of the List data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to [emptyList].
- *
- * @return the cached value as a [androidx.compose.runtime.State].
- */
-@Composable
-fun <T> APIFlowState<List<T>>.rememberSuccessListAsState(initialValue: List<T> = emptyList()): State<List<T>> {
-	val cache = remember {
-		mutableStateOf(initialValue)
-	}
-	val successData = successData()
-	LaunchedEffect(successData) {
-		successData?.let {
-			cache.value = it
-		}
-	}
-	return cache
-}
-
-/**
- * Creates a [androidx.compose.runtime.saveable.rememberSaveable] 'Cache' of the List data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to [emptyList].
- *
- * @return the cached value as a [androidx.compose.runtime.State].
- */
-@Composable
-fun <T> APIFlowState<List<T>>.rememberSaveableSuccessListAsState(initialValue: List<T> = emptyList()): State<List<T>> {
-	val cache = rememberSaveable {
-		mutableStateOf(initialValue)
-	}
-	val successData = successData()
-	LaunchedEffect(successData) {
-		successData?.let {
-			cache.value = it
-		}
-	}
-	return cache
-}
-
-/**
- * Creates a [androidx.compose.runtime.remember] 'Cache' of the data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to null.
- *
- * @return the cached value.
- */
-@Composable
-fun <T> APIFlowState<T>.rememberSuccessData(initialValue: T? = null): T? {
-	var cache by remember {
-		mutableStateOf(initialValue)
-	}
-	successData()?.let {
-		cache = it
-	}
-	return cache
-}
-
-/**
- * Creates a [androidx.compose.runtime.saveable.rememberSaveable] 'Cache' of the data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to null.
- *
- * @return the cached value.
- */
-@Composable
-fun <T> APIFlowState<T>.rememberSaveableSuccessData(initialValue: T? = null): T? {
-	var cache by rememberSaveable {
-		mutableStateOf(initialValue)
-	}
-	successData()?.let {
-		cache = it
-	}
-	return cache
-}
-
-/**
- * Creates a [androidx.compose.runtime.remember] 'Cache' of the List data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to [emptyList].
- *
- * @return the cached value.
- */
-@Composable
-fun <T> APIFlowState<List<T>>.rememberSuccessList(initialValue: List<T> = emptyList()): List<T> {
-	var cache by remember {
-		mutableStateOf(initialValue)
-	}
-	successData()?.let {
-		cache = it
-	}
-	return cache
-}
-
-/**
- * Creates a [androidx.compose.runtime.saveable.rememberSaveable] 'Cache' of the List data with initial value of [initialValue],
- * Updates the cache if the [APIFlowState] is [APIFlowState.Success].
- *
- * Using this results in a stable value between refreshes when the [APIFlowState] changes between [APIFlowState.Loading] and [APIFlowState.Success].
- *
- * @param initialValue the initial value of the cache. Defaults to [emptyList].
- *
- * @return the cached value.
- */
-@Composable
-fun <T> APIFlowState<List<T>>.rememberSaveableSuccessList(initialValue: List<T> = emptyList()): List<T> {
-	var cache by rememberSaveable {
-		mutableStateOf(initialValue)
-	}
-	successData()?.let {
-		cache = it
-	}
-	return cache
-}
