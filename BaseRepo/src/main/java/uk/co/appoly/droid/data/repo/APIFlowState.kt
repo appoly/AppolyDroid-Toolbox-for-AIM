@@ -503,3 +503,22 @@ inline fun <T, R> Flow<APIFlowState<T>>.cacheSuccessData(
 		else -> cachedValue
 	}
 }.stateIn(scope = scope, started = started, initialValue = initial)
+
+/**
+ * Maps the data in the [APIFlowState] to a new type [R].
+ * If the state is [APIFlowState.Loading], it remains unchanged.
+ * If the state is [APIFlowState.Error], it remains unchanged.
+ * If the state is [APIFlowState.Success], the data is transformed using the provided [transform] function.
+ *
+ * @param T The type of data in the success state
+ * @param R The type of data in the resulting success state
+ * @param transform A function that transforms the success data of type [T] to type [R]
+ * @return A new [APIFlowState] with the transformed data
+ */
+inline fun <T, R : Any> APIFlowState<T>.map(crossinline transform: (value: T) -> R): APIFlowState<R> {
+	return when (this) {
+		is APIFlowState.Loading -> APIFlowState.Loading
+		is APIFlowState.Error -> APIFlowState.Error(this)
+		is APIFlowState.Success -> APIFlowState.Success(transform(this.data))
+	}
+}
