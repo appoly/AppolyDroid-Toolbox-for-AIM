@@ -46,7 +46,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.26" # Replace with the latest version
+appolydroidToolbox = "1.0.27" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox
@@ -93,19 +93,19 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Add only the modules you need
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.26")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:ComposeExtensions:1.0.26")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.27")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:ComposeExtensions:1.0.27")
 }
 ```
 
