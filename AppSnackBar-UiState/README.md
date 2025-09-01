@@ -13,9 +13,9 @@ Integration module that bridges the AppSnackBar and UiState modules, providing a
 
 ```gradle.kts
 // Requires both base modules
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.28")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.28")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar-UiState:1.0.28")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.29")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.29")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar-UiState:1.0.29")
 ```
 
 ## Usage
