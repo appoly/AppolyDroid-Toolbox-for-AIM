@@ -69,6 +69,9 @@ The `errors` field is optional in all responses, and is only checked when the `s
 {
   "status": "error",
   "messages": [
+    "No results found"
+  ],
+  "errors": [
     "Resource not found"
   ]
 }
