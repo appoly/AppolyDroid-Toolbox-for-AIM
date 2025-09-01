@@ -56,7 +56,7 @@ class GenericPagingSource<T : Any>(
 			}
 
 			is APIResult.Error -> {
-				LoadResult.Error(Exception(response.message, response.throwable))
+				LoadResult.Error(Exception(response.errors.first(), response.throwable))
 			}
 		}
 	}

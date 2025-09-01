@@ -5,7 +5,7 @@ import com.skydoves.sandwich.message
 import com.skydoves.sandwich.retrofit.errorBody
 import com.skydoves.sandwich.retrofit.statusCode
 import uk.co.appoly.droid.data.remote.model.APIResult
-import uk.co.appoly.droid.data.remote.model.response.ErrorBody
+import uk.co.appoly.droid.data.remote.model.response.BaseResponse
 import uk.co.appoly.droid.data.remote.model.response.GenericNestedPagedResponse
 import uk.co.appoly.droid.data.remote.model.response.PageData
 import uk.co.appoly.droid.data.repo.AppolyBaseRepo.Companion.RESPONSE_EXCEPTION_CODE
@@ -52,25 +52,40 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 			} else {
 				val message = result.message.ifNullOrBlank { "Unknown error" }
 				logger.e(
-					this,
-					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
+					caller = this,
+					msg = "$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 				)
-				APIResult.Error(response.statusCode.code, message)
+				APIResult.Error(
+					responseCode = response.statusCode.code,
+					errors = listOf(message)
+				)
 			}
 		}
 
 		is ApiResponse.Failure.Error -> {
-			val message =
-				firstNotNullOrBlank(
-					{ response.errorBody.parseBody<ErrorBody>(getRetrofitClient())?.message },
-					{ response.message() },
-					fallback = { "Unknown error" }
+			var messages: List<String>? = null
+			var errors: List<String>
+			try {
+				val errorBody = response.errorBody.parseBody<BaseResponse>(getRetrofitClient())
+				errors = errorBody?.errors ?: listOf("Unknown error")
+				messages = errorBody?.messages
+				logger.e(
+					caller = this,
+					msg = "$logDescription failed! code:${response.statusCode.code}, messages:\"$messages\", errors:\"$errors\""
 				)
-			logger.e(
-				this,
-				"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
+			} catch (e: Exception) {
+				logger.e(
+					caller = this,
+					msg = "$logDescription failed! code:${response.statusCode.code} - Failed to parse error body",
+					tr = e
+				)
+				errors = listOf("Unknown error")
+			}
+			APIResult.Error(
+				responseCode = response.statusCode.code,
+				messages = messages,
+				errors = errors
 			)
-			APIResult.Error(response.statusCode.code, message)
 		}
 
 		is ApiResponse.Failure.Exception -> {
@@ -81,14 +96,14 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 				is SocketException,
 				is SocketTimeoutException -> {
 					logger.w(
-						this,
-						"$logDescription failed Due to No Connection!",
-						response.throwable
+						caller = this,
+						msg = "$logDescription failed Due to No Connection!",
+						tr = response.throwable
 					)
 					APIResult.Error(
-						RESPONSE_EXCEPTION_CODE,
-						"No Internet Connection",
-						response.throwable.asNoConnectivityException()
+						responseCode = RESPONSE_EXCEPTION_CODE,
+						errors = listOf("No Internet Connection"),
+						throwable = response.throwable.asNoConnectivityException()
 					)
 				}
 
@@ -99,11 +114,15 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 						fallback = { "Unknown error" }
 					)
 					logger.e(
-						this,
-						"$logDescription failed with exception! message:\"$message\"",
-						response.throwable
+						caller = this,
+						msg = "$logDescription failed with exception! message:\"$message\"",
+						tr = response.throwable
 					)
-					APIResult.Error(RESPONSE_EXCEPTION_CODE, message, response.throwable)
+					APIResult.Error(
+						responseCode = RESPONSE_EXCEPTION_CODE,
+						errors = listOf(message),
+						throwable = response.throwable
+					)
 				}
 			}
 		}

@@ -1,4 +1,7 @@
-# AppolyDroid Toolbox
+# AppolyDroid Toolbox (For AIM)
+
+This is a client/project specific fork of the original [AppolyDroid-Toolbox](https://github.com/appoly/AppolyDroid-Toolbox) repository, tailored to handle the specific json response structure used by
+AIM's APIs.
 
 Appoly's Android development toolbox - a collection of utilities and components to accelerate Android app development
 

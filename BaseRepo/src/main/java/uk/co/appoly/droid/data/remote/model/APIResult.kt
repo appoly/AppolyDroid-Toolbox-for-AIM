@@ -10,14 +10,37 @@ import kotlin.contracts.contract
  * @param <T>
  */
 sealed class APIResult<out T : Any> {
-	data class Success<out T : Any>(val data: T) : APIResult<T>()
+	data class Success<out T : Any>(
+		val data: T,
+		val messages: List<String>? = null
+	) : APIResult<T>()
 
-	data class Error(val responseCode: Int, val message: String, val throwable: Throwable? = null) : APIResult<Nothing>() {
-		constructor(other: Error) : this(responseCode = other.responseCode, message = other.message, throwable = other.exception)
-		constructor(message: String, throwable: Throwable? = null) : this(responseCode = -1, message = message, throwable = throwable)
+	data class Error(
+		val responseCode: Int,
+		val messages: List<String>? = null,
+		val errors: List<String>,
+		val throwable: Throwable? = null
+	) : APIResult<Nothing>() {
+		constructor(other: Error) : this(
+			responseCode = other.responseCode,
+			messages = other.messages,
+			errors = other.errors,
+			throwable = other.exception
+		)
+
+		constructor(
+			message: String?,
+			error: String?,
+			throwable: Throwable? = null
+		) : this(
+			responseCode = -1,
+			messages = listOfNotNull(message),
+			errors = listOfNotNull(error),
+			throwable = throwable
+		)
 
 		val exception: Throwable
-			get() = throwable ?: APIError(message)
+			get() = throwable ?: APIError(errors.ifEmpty { messages.orEmpty() })
 
 		fun isNetworkError(): Boolean {
 			return throwable is NoConnectivityException
@@ -27,7 +50,7 @@ sealed class APIResult<out T : Any> {
 	override fun toString(): String {
 		return when (this) {
 			is Success<*> -> "Success[data=$data]"
-			is Error -> "Error[message=\"$message\",exception=$exception]"
+			is Error -> "Error[message=\"$messages\",exception=$exception]"
 		}
 	}
 }
@@ -35,7 +58,7 @@ sealed class APIResult<out T : Any> {
 /**
  * An exception that is thrown when an API call fails.
  */
-class APIError(message: String) : Exception(message)
+class APIError(errors: List<String>) : Exception(errors.joinToString(", "))
 
 /**
  * Returns true if the [APIResult] is [APIResult.Success].

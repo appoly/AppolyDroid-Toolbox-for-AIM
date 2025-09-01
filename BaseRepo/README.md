@@ -24,14 +24,17 @@ The BaseRepo module expects a specific JSON structure for all API responses. The
 
 All API responses should follow one of these formats:
 
-The `message` field is optional in all responses, and is only checked in cases where `success` is `false`.
+The `messages` field is optional in all responses.
+The `errors` field is optional in all responses, and is only checked when the `status` is `"error"`.
 
 #### Basic Response
 
 ```json
 {
-  "success": true,
-  "message": "Operation completed successfully"
+  "status": "success",
+  "messages": [
+    "Operation completed successfully"
+  ]
 }
 ```
 
@@ -39,7 +42,7 @@ The `message` field is optional in all responses, and is only checked in cases w
 
 ```json
 {
-  "success": true,
+  "status": "success",
   "data": {
     "id": 123,
     "name": "John Doe",
@@ -52,7 +55,7 @@ The `message` field is optional in all responses, and is only checked in cases w
 
 ```json
 {
-  "success": true,
+  "status": "success",
   "data": [
     { "id": 1, "name": "Item 1" },
     { "id": 2, "name": "Item 2" }
@@ -64,8 +67,10 @@ The `message` field is optional in all responses, and is only checked in cases w
 
 ```json
 {
-  "success": false,
-  "message": "Resource not found"
+  "status": "error",
+  "messages": [
+    "Resource not found"
+  ]
 }
 ```
 
@@ -73,12 +78,14 @@ The `message` field is optional in all responses, and is only checked in cases w
 
 ```json
 {
-  "success": false,
-  "message": "Validation failed",
-  "errors": {
-    "email": ["Email is required", "Email format is invalid"],
-    "password": ["Password must be at least 8 characters long"]
-  }
+  "status": "error",
+  "messages": [
+    "Validation failed"
+  ],
+  "errors": [
+    "Email is required",
+    "Password must be at least 8 characters long"
+  ]
 }
 ```
 

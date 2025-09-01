@@ -10,23 +10,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import uk.co.appoly.droid.BaseRepoLogger
-import uk.co.appoly.droid.data.remote.BaseService
 import uk.co.appoly.droid.data.remote.BaseRetrofitClient
+import uk.co.appoly.droid.data.remote.BaseService
 import uk.co.appoly.droid.data.remote.ServiceManager
 import uk.co.appoly.droid.data.remote.model.APIResult
 import uk.co.appoly.droid.data.remote.model.response.BaseResponse
-import uk.co.appoly.droid.data.remote.model.response.ErrorBody
 import uk.co.appoly.droid.data.remote.model.response.GenericResponse
+import uk.co.appoly.droid.data.remote.model.response.RootJson
 import uk.co.appoly.droid.util.NoConnectivityException
 import uk.co.appoly.droid.util.asNoConnectivityException
 import uk.co.appoly.droid.util.firstNotNullOrBlank
-import uk.co.appoly.droid.util.ifNullOrBlank
 import uk.co.appoly.droid.util.parseBody
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
 /**
@@ -92,7 +92,7 @@ abstract class AppolyBaseRepo(
 		call: () -> ApiResponse<GenericResponse<T>>
 	): APIResult<T> {
 		contract {
-			callsInPlace(call, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+			callsInPlace(call, InvocationKind.EXACTLY_ONCE)
 		}
 		return when (val response = call()) {
 			is ApiResponse.Success -> {
@@ -100,62 +100,26 @@ abstract class AppolyBaseRepo(
 				if (result.success && result.data != null) {
 					APIResult.Success(result.data)
 				} else {
-					val message = result.message.ifNullOrBlank { "Unknown error" }
-					logger.e(
-						this,
-						"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
+					handleFailure(
+						result = result,
+						statusCode = response.statusCode.code,
+						logDescription = logDescription
 					)
-					APIResult.Error(response.statusCode.code, message)
 				}
 			}
 
 			is ApiResponse.Failure.Error -> {
-				val message =
-					firstNotNullOrBlank(
-						{ response.errorBody.parseBody<ErrorBody>(getRetrofitClient())?.message },
-						{ response.message() },
-						fallback = { "Unknown error" }
-					)
-				logger.e(
-					this,
-					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
+				handleFailureError(
+					response = response,
+					logDescription = logDescription
 				)
-				APIResult.Error(response.statusCode.code, message)
 			}
 
 			is ApiResponse.Failure.Exception -> {
-				when (response.throwable) {
-					is NoConnectivityException,
-					is UnknownHostException,
-					is ConnectException,
-					is SocketException,
-					is SocketTimeoutException -> {
-						logger.w(
-							this,
-							"$logDescription failed Due to No Connection!",
-							response.throwable
-						)
-						APIResult.Error(
-							RESPONSE_EXCEPTION_CODE,
-							"No Internet Connection",
-							response.throwable.asNoConnectivityException()
-						)
-					}
-
-					else -> {
-						val message = firstNotNullOrBlank(
-							{ response.throwable.message },
-							{ response.message() },
-							fallback = { "Unknown error" }
-						)
-						logger.e(
-							this,
-							"$logDescription failed with exception! message:\"$message\"",
-							response.throwable
-						)
-						APIResult.Error(RESPONSE_EXCEPTION_CODE, message, response.throwable)
-					}
-				}
+				handleFailureException(
+					response = response,
+					logDescription = logDescription
+				)
 			}
 		}
 	}
@@ -175,7 +139,7 @@ abstract class AppolyBaseRepo(
 		call: () -> ApiResponse<BaseResponse>
 	): APIResult<BaseResponse> {
 		contract {
-			callsInPlace(call, kotlin.contracts.InvocationKind.EXACTLY_ONCE)
+			callsInPlace(call, InvocationKind.EXACTLY_ONCE)
 		}
 		return when (val response = call()) {
 			is ApiResponse.Success -> {
@@ -183,58 +147,26 @@ abstract class AppolyBaseRepo(
 				if (result.success) {
 					APIResult.Success(result)
 				} else {
-					val message = result.message.ifNullOrBlank { "Unknown error" }
-					logger.e(
-						this,
-						"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
+					handleFailure(
+						result = result,
+						statusCode = response.statusCode.code,
+						logDescription = logDescription
 					)
-					APIResult.Error(response.statusCode.code, message)
 				}
 			}
 
 			is ApiResponse.Failure.Error -> {
-				val message =
-					firstNotNullOrBlank(
-						{ response.errorBody.parseBody<ErrorBody>(getRetrofitClient())?.message },
-						{ response.message() },
-						fallback = { "Unknown error" }
-					)
-				logger.e(
-					this,
-					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
+				handleFailureError(
+					response = response,
+					logDescription = logDescription
 				)
-				APIResult.Error(response.statusCode.code, message)
 			}
 
 			is ApiResponse.Failure.Exception -> {
-				when (response.throwable) {
-					is NoConnectivityException,
-					is UnknownHostException,
-					is ConnectException,
-					is SocketException,
-					is SocketTimeoutException -> {
-						logger.w(
-							this,
-							"$logDescription failed Due to No Connection!",
-							response.throwable
-						)
-						APIResult.Error(RESPONSE_EXCEPTION_CODE, "No Internet Connection", response.throwable)
-					}
-
-					else -> {
-						val message = firstNotNullOrBlank(
-							{ response.throwable.message },
-							{ response.message() },
-							fallback = { "Unknown error" }
-						)
-						logger.e(
-							this,
-							"$logDescription failed with exception! message:\"$message\"",
-							response.throwable
-						)
-						APIResult.Error(RESPONSE_EXCEPTION_CODE, message, response.throwable)
-					}
-				}
+				handleFailureException(
+					response = response,
+					logDescription = logDescription
+				)
 			}
 		}
 	}
@@ -273,5 +205,80 @@ abstract class AppolyBaseRepo(
 			apiCall = apiCall,
 			scope = scope
 		)
+	}
+
+	protected fun handleFailure(
+		result: RootJson,
+		statusCode: Int,
+		logDescription: String
+	): APIResult.Error {
+		val errors = result.errors ?: listOf("Unknown error")
+		val messages = result.messages
+		logger.e(
+			caller = this,
+			msg = "$logDescription failed! code:$statusCode, messages:\"$messages\", errors:\"$errors\""
+		)
+		return APIResult.Error(responseCode = statusCode, messages = messages, errors = errors)
+	}
+
+	protected fun handleFailureError(response: ApiResponse.Failure.Error, logDescription: String): APIResult.Error {
+		var messages: List<String>? = null
+		var errors: List<String>
+		try {
+			val errorBody = response.errorBody.parseBody<BaseResponse>(getRetrofitClient())
+			errors = errorBody?.errors ?: listOf("Unknown error")
+			messages = errorBody?.messages
+			logger.e(
+				caller = this,
+				msg = "$logDescription failed! code:${response.statusCode.code}, messages:\"$messages\", errors:\"$errors\""
+			)
+		} catch (e: Exception) {
+			logger.e(
+				caller = this,
+				msg = "$logDescription failed! code:${response.statusCode.code} - Failed to parse error body",
+				tr = e
+			)
+			errors = listOf("Unknown error")
+		}
+		return APIResult.Error(responseCode = response.statusCode.code, messages = messages, errors = errors)
+	}
+
+	protected fun handleFailureException(response: ApiResponse.Failure.Exception, logDescription: String): APIResult.Error {
+		return when (response.throwable) {
+			is NoConnectivityException,
+			is UnknownHostException,
+			is ConnectException,
+			is SocketException,
+			is SocketTimeoutException -> {
+				logger.w(
+					caller = this,
+					msg = "$logDescription failed Due to No Connection!",
+					tr = response.throwable
+				)
+				APIResult.Error(
+					responseCode = RESPONSE_EXCEPTION_CODE,
+					errors = listOf("No Internet Connection"),
+					throwable = response.throwable.asNoConnectivityException()
+				)
+			}
+
+			else -> {
+				val message = firstNotNullOrBlank(
+					{ response.throwable.message },
+					{ response.message() },
+					fallback = { "Unknown error" }
+				)
+				logger.e(
+					caller = this,
+					msg = "$logDescription failed with exception! message:\"$message\"",
+					tr = response.throwable
+				)
+				APIResult.Error(
+					responseCode = RESPONSE_EXCEPTION_CODE,
+					errors = listOf(message),
+					throwable = response.throwable
+				)
+			}
+		}
 	}
 }
