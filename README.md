@@ -2,7 +2,7 @@
 
 Appoly's Android development toolbox - a collection of utilities and components to accelerate Android app development
 
-[![Release](https://jitpack.io/v/appoly/AppolyDroid-Toolbox.svg)](https://jitpack.io/#appoly/AppolyDroid-Toolbox)
+[![](https://jitpack.io/v/appoly/AppolyDroid-Toolbox-for-AIM.svg)](https://jitpack.io/#appoly/AppolyDroid-Toolbox-for-AIM)
 
 ## Overview
 
@@ -46,23 +46,23 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.28" # Replace with the latest version
+appolydroidToolbox_AIM = "1.0.28" # Replace with the latest version
 
 [libraries]
-#AppolyDroid-Toolbox
-appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-Paging", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-dateHelper = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-dateHelper-room = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Room", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-dateHelper-serialization = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Serialization", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar-UiState", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyListPagingExtensions", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyGridPagingExtensions", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "S3Uploader", version.ref = "appolydroidToolbox" }
-appolydroid-toolbox-compose-extensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "ComposeExtensions", version.ref = "appolydroidToolbox" }
+#AppolyDroid-Toolbox-for-AIM
+appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "BaseRepo", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "BaseRepo-S3Uploader", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "BaseRepo-Paging", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-dateHelper = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "DateHelperUtil", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-dateHelper-room = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "DateHelperUtil-Room", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-dateHelper-serialization = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "DateHelperUtil-Serialization", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "UiState", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "AppSnackBar", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "AppSnackBar-UiState", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "LazyListPagingExtensions", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "LazyGridPagingExtensions", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "S3Uploader", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-compose-extensions = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "ComposeExtensions", version.ref = "appolydroidToolbox_AIM" }
 ```
 
 Then in your module's `build.gradle.kts`:
@@ -93,19 +93,19 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Add only the modules you need
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.28")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:ComposeExtensions:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-S3Uploader:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Room:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Serialization:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar-UiState:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.28")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:ComposeExtensions:1.0.28")
 }
 ```
 
