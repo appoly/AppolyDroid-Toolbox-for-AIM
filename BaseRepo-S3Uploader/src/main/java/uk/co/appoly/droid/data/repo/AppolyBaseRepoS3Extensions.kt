@@ -39,11 +39,15 @@ suspend inline fun AppolyBaseRepo.uploadFileToS3(
 	)
 	return when (uploadResult) {
 		is UploadResult.Success -> {
-			APIResult.Success(uploadResult.filePath)
+			APIResult.Success(data = uploadResult.filePath)
 		}
 
 		is UploadResult.Error -> {
-			APIResult.Error(uploadResult.message, uploadResult.throwable)
+			APIResult.Error(
+				message = null,
+				error = uploadResult.message,
+				throwable = uploadResult.throwable
+			)
 		}
 	}
 }
@@ -80,7 +84,7 @@ suspend inline fun <T : Any> AppolyBaseRepo.uploadFileToS3(
 	val uploadResult = S3Uploader.uploadFile(file, generatePresignedURL)
 	return when (uploadResult) {
 		is UploadResult.Error -> {
-			APIResult.Error(uploadResult.message)
+			APIResult.Error(message = null, error = uploadResult.message)
 		}
 
 		is UploadResult.Success -> {

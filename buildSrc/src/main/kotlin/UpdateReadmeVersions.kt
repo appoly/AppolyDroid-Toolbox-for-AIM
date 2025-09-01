@@ -91,7 +91,7 @@ abstract class UpdateReadmeVersions : DefaultTask() {
             // Pattern 1: Check toolbox implementation statements in code blocks
             val toolboxResult = updateVersions(
                 content = content,
-                pattern = Pattern.compile("(implementation\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox:[^:]+:)([^\"')]+)([\"')])")
+                pattern = Pattern.compile("(implementation\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox-for-AIM:[^:]+:)([^\"')]+)([\"')])")
                     .toMatchProcessor(1, 3) { it == toolboxVersion },
                 file = file,
                 versionName = "toolbox",
@@ -173,7 +173,7 @@ abstract class UpdateReadmeVersions : DefaultTask() {
                 try {
                     val tomlResult = updateVersions(
                         content = content,
-                        pattern = Pattern.compile("(appolydroidToolbox\\s*=\\s*\")([^\"]+)(\".+?\\#\\s*Replace with the latest version)")
+                        pattern = Pattern.compile("(appolydroidToolbox_AIM\\s*=\\s*\")([^\"]+)(\".+?\\#\\s*Replace with the latest version)")
                             .toMatchProcessor(1, 3) { it == toolboxVersion },
                         file = file,
                         versionName = "toolbox TOML example",

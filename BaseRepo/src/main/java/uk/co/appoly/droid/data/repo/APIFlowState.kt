@@ -37,18 +37,36 @@ sealed class APIFlowState<out T> {
 	 * Represents a successful API request that returned data.
 	 *
 	 * @property data The data returned by the API request
+	 * @property messages Optional list of messages providing additional context about the success
 	 */
-	data class Success<T>(val data: T) : APIFlowState<T>()
+	data class Success<T>(
+		val data: T,
+		val messages: List<String>? = null
+	) : APIFlowState<T>()
 
 	/**
 	 * Represents an error that occurred during an API request.
 	 *
 	 * @property responseCode The HTTP status code or error code
-	 * @property message The error message describing what went wrong
+	 * @property messages Optional list of messages providing additional context about the error
+	 * @property errors Optional list of error details
 	 */
-	data class Error(val responseCode: Int, val message: String) : APIFlowState<Nothing>() {
-		constructor(other: Error) : this(other.responseCode, other.message)
-		constructor(other: APIResult.Error) : this(other.responseCode, other.message)
+	data class Error(
+		val responseCode: Int,
+		val messages: List<String>? = null,
+		val errors: List<String>
+	) : APIFlowState<Nothing>() {
+		constructor(other: Error) : this(
+			responseCode = other.responseCode,
+			messages = other.messages,
+			errors = other.errors
+		)
+
+		constructor(other: APIResult.Error) : this(
+			responseCode = other.responseCode,
+			messages = other.messages,
+			errors = other.errors
+		)
 	}
 }
 
@@ -60,7 +78,7 @@ sealed class APIFlowState<out T> {
 fun <T : Any> APIResult<T>.asApiFlowState(): APIFlowState<T> {
 	return when (this) {
 		is APIResult.Success -> APIFlowState.Success(data)
-		is APIResult.Error -> APIFlowState.Error(responseCode, message)
+		is APIResult.Error -> APIFlowState.Error(responseCode = responseCode, messages = messages, errors = errors)
 	}
 }
 
@@ -161,14 +179,15 @@ fun <T> APIFlowState<T>?.isError(): Boolean {
 	}
 	return this is APIFlowState.Error
 }
-
+/*
+*/
 /**
  * Returns the message if the [APIFlowState] is [APIFlowState.Error], otherwise null.
  *
  * @return the message if the [APIFlowState] is [APIFlowState.Error], otherwise null.
  *
  * @see APIFlowState.Error
- */
+ *//*
 @OptIn(ExperimentalContracts::class)
 fun <T> APIFlowState<T>?.errorMessage(): String? {
 	contract {
@@ -179,7 +198,7 @@ fun <T> APIFlowState<T>?.errorMessage(): String? {
 	} else {
 		null
 	}
-}
+}*/
 
 /**
  * Creates a [remember] 'Cache' of the data with initial value of [initialValue],

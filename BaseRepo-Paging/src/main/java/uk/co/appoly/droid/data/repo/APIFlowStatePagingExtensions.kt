@@ -44,7 +44,7 @@ fun <T : Any> APIFlowState<List<T>>.asPagingData(): PagingData<T> = when (this) 
 		PagingData.empty(
 			sourceLoadStates = LoadStates(
 				refresh = LoadState.Error(
-					error = Throwable(this.message)
+					error = Throwable(this.errors.first())
 				),
 				prepend = LoadState.NotLoading(false),
 				append = LoadState.NotLoading(false)

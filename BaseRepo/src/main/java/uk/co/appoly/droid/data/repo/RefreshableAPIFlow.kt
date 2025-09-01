@@ -125,7 +125,7 @@ class RefreshableAPIFlow<T : Any>(
 				try {
 					internalFlow.emit(APIFlowState.Loading)
 					if (simulatedError != null) {
-						Log.v(this@RefreshableAPIFlow, "Simulated error: ${simulatedError.message}")
+						Log.v(this@RefreshableAPIFlow, "Simulated error: ${simulatedError.errors}")
 						delay(350) // Simulate network delay
 						internalFlow.emit(simulatedError)
 					} else {
@@ -133,7 +133,12 @@ class RefreshableAPIFlow<T : Any>(
 					}
 				} catch (e: Exception) {
 					Log.w(this@RefreshableAPIFlow, "Exception in refresh", e)
-					internalFlow.emit(APIFlowState.Error(AppolyBaseRepo.RESPONSE_EXCEPTION_CODE, e.message ?: "Unknown error"))
+					internalFlow.emit(
+						APIFlowState.Error(
+							responseCode = AppolyBaseRepo.RESPONSE_EXCEPTION_CODE,
+							errors = listOf(e.message ?: "Unknown error")
+						)
+					)
 				} finally {
 					isRefreshing.store(false)
 					refreshCompletion.complete(Unit)
