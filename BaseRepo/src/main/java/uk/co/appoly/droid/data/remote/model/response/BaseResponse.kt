@@ -11,31 +11,34 @@ import kotlinx.serialization.Serializable
  * Example JSON:
  * ```json
  * {
- *   "success": true
+ *   "status": "success"
  * }
  * ```
  *
  * Or with a message:
  * ```json
  * {
- *   "success": true,
- *   "message": "Operation completed successfully"
+ *   "status": "success",
+ *   "messages": ["Operation completed successfully"]
  * }
  * ```
  *
  * Or for an error (a message, while optional, is expected to be present in error cases):
  * ```json
  * {
- *   "success": false,
- *   "message": "Invalid credentials"
+ *   "status": "error",
+ *   "messages": ["Invalid credentials"],
+ *   "errors": ["Email format is incorrect", "Password is too short"]
  * }
  * ```
  *
- * @property success Indicates whether the API request was successful
- * @property message Optional message providing additional information about the response
+ * @property status The status of the response, indicating success or error
+ * @property messages Optional message(s) providing additional information about the response
+ * @property errors Optional list of error messages, typically present in error responses
  */
 @Serializable
 data class BaseResponse(
-	val success: Boolean,
-	val message: String? = null
-)
+	override val status: ResponseStatus = ResponseStatus.Error,
+	override val messages: List<String>? = null,
+	override val errors: List<String>? = null
+) : RootJson

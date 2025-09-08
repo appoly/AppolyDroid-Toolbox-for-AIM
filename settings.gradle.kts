@@ -22,7 +22,7 @@ dependencyResolutionManagement {
 	}
 }
 
-rootProject.name = "AppolyDroid"
+rootProject.name = "AppolyDroid (for AIM)"
 include(":app")
 include(":BaseRepo")
 include(":BaseRepo-S3Uploader")
