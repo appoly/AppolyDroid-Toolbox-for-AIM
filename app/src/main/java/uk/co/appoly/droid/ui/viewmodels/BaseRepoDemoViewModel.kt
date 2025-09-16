@@ -45,7 +45,7 @@ class BaseRepoDemoViewModel : ViewModel() {
 
 		viewModelScope.launch {
 			delay(1500)
-			_userState.value = APIResult.Error(404, "User not found").asApiFlowState()
+			_userState.value = APIResult.Error(404, null, listOf("User not found")).asApiFlowState()
 			_lastApiResult.value = "❌ API Error: User not found (404)"
 		}
 	}
@@ -56,7 +56,7 @@ class BaseRepoDemoViewModel : ViewModel() {
 
 		viewModelScope.launch {
 			delay(1000)
-			_userState.value = APIResult.Error(-1, "No Internet Connection").asApiFlowState()
+			_userState.value = APIResult.Error(-1, null, listOf("No Internet Connection")).asApiFlowState()
 			_lastApiResult.value = "❌ Network Error: No Internet Connection"
 		}
 	}
@@ -83,7 +83,7 @@ class BaseRepoDemoViewModel : ViewModel() {
 
 		viewModelScope.launch {
 			delay(1800)
-			_postsState.value = APIResult.Error(500, "Internal server error").asApiFlowState()
+			_postsState.value = APIResult.Error(500, null, listOf("Internal server error")).asApiFlowState()
 			_lastApiResult.value = "❌ API Error: Internal server error (500)"
 		}
 	}

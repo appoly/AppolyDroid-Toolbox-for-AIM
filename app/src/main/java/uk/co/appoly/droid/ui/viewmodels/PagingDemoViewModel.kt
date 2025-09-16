@@ -46,7 +46,7 @@ class PagingDemoViewModel : ViewModel() {
 
 				page == 3 -> {
 					// Simulate error on page 3
-					APIResult.Error(500, "Server error on page $page")
+					APIResult.Error(500, null, listOf("Server error on page $page"))
 				}
 
 				else -> {
