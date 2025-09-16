@@ -55,10 +55,10 @@ fun BaseRepoDemoScreen(navController: NavController) {
 	) { paddingValues ->
 		Column(
 			modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+				.fillMaxSize()
+				.padding(paddingValues)
+				.padding(16.dp)
+				.verticalScroll(rememberScrollState()),
 			verticalArrangement = Arrangement.spacedBy(16.dp)
 		) {
 			Text(
@@ -123,7 +123,7 @@ fun BaseRepoDemoScreen(navController: NavController) {
 
 						is APIFlowState.Error -> {
 							Column {
-								Text("❌ Error: ${state.message}")
+								Text("❌ Error: ${state.errors.joinToString()}")
 								Text("Response Code: ${state.responseCode}")
 							}
 						}
@@ -201,7 +201,7 @@ fun BaseRepoDemoScreen(navController: NavController) {
 
 						is APIFlowState.Error -> {
 							Column {
-								Text("❌ Error: ${state.message}")
+								Text("❌ Error: ${state.errors.joinToString(", ")}")
 								Text("Response Code: ${state.responseCode}")
 							}
 						}
