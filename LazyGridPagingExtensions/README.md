@@ -14,8 +14,8 @@ Extension functions for integrating Jetpack Paging 3 with Compose LazyVerticalGr
 
 ```gradle.kts
 // Requires the base PagingExtensions module
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:PagingExtensions:1.0.29")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.29")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:PagingExtensions:1.0.30")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.30")
 
 // Make sure to include Jetpack Paging Compose
 implementation("androidx.paging:paging-compose:3.3.6")
