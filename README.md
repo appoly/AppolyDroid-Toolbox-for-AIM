@@ -49,7 +49,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox_AIM = "1.0.29" # Replace with the latest version
+appolydroidToolbox_AIM = "1.0.30" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox-for-AIM
@@ -96,19 +96,19 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Add only the modules you need
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-S3Uploader:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Room:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Serialization:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar-UiState:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.29")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:ComposeExtensions:1.0.29")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-S3Uploader:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Room:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Serialization:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar-UiState:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.30")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:ComposeExtensions:1.0.30")
 }
 ```
 
