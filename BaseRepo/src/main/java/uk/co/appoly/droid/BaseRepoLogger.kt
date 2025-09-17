@@ -2,6 +2,10 @@ package uk.co.appoly.droid
 
 import com.duck.flexilogger.FlexiLog
 import com.duck.flexilogger.LogType
+import com.duck.flexilogger.LoggerWithLevel
+import com.duck.flexilogger.LoggingLevel
+
+val BaseRepoLog = LoggerWithLevel(LoggingLevel.V, BaseRepoLogger)
 
 internal object BaseRepoLogger : FlexiLog() {
 	/**

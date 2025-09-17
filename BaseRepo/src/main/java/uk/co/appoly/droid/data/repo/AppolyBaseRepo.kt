@@ -1,6 +1,7 @@
 package uk.co.appoly.droid.data.repo
 
 import com.duck.flexilogger.FlexiLog
+import com.duck.flexilogger.LoggingLevel
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.retrofit.errorBody
@@ -9,9 +10,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.BaseRepoLogger
-import uk.co.appoly.droid.data.remote.BaseService
 import uk.co.appoly.droid.data.remote.BaseRetrofitClient
+import uk.co.appoly.droid.data.remote.BaseService
 import uk.co.appoly.droid.data.remote.ServiceManager
 import uk.co.appoly.droid.data.remote.model.APIResult
 import uk.co.appoly.droid.data.remote.model.response.BaseResponse
@@ -41,13 +43,13 @@ import kotlin.contracts.contract
  */
 @OptIn(ExperimentalContracts::class)
 abstract class AppolyBaseRepo(
-	val getRetrofitClient: () -> BaseRetrofitClient
+	val getRetrofitClient: () -> BaseRetrofitClient,
+	logger: FlexiLog = BaseRepoLogger,
+	loggingLevel: LoggingLevel = LoggingLevel.V
 ) {
-	/**
-	 * Logger instance used for logging API calls and errors.
-	 * Defaults to [BaseRepoLogger], but can be overridden by subclasses.
-	 */
-	open val logger: FlexiLog = BaseRepoLogger
+	init {
+		BaseRepoLog.updateLogger(logger, loggingLevel)
+	}
 
 	/**
 	 * Gets or creates a [ServiceManager] instance for managing API services.
@@ -56,8 +58,7 @@ abstract class AppolyBaseRepo(
 	 */
 	fun getServiceManager(): ServiceManager {
 		return ServiceManager.getInstance(
-			getRetrofitClient = { getRetrofitClient() },
-			getLogger = { logger }
+			getRetrofitClient = getRetrofitClient,
 		)
 	}
 
@@ -101,7 +102,7 @@ abstract class AppolyBaseRepo(
 					APIResult.Success(result.data)
 				} else {
 					val message = result.message.ifNullOrBlank { "Unknown error" }
-					logger.e(
+					BaseRepoLog.e(
 						this,
 						"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 					)
@@ -116,7 +117,7 @@ abstract class AppolyBaseRepo(
 						{ response.message() },
 						fallback = { "Unknown error" }
 					)
-				logger.e(
+				BaseRepoLog.e(
 					this,
 					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 				)
@@ -130,7 +131,7 @@ abstract class AppolyBaseRepo(
 					is ConnectException,
 					is SocketException,
 					is SocketTimeoutException -> {
-						logger.w(
+						BaseRepoLog.w(
 							this,
 							"$logDescription failed Due to No Connection!",
 							response.throwable
@@ -148,7 +149,7 @@ abstract class AppolyBaseRepo(
 							{ response.message() },
 							fallback = { "Unknown error" }
 						)
-						logger.e(
+						BaseRepoLog.e(
 							this,
 							"$logDescription failed with exception! message:\"$message\"",
 							response.throwable
@@ -184,7 +185,7 @@ abstract class AppolyBaseRepo(
 					APIResult.Success(result)
 				} else {
 					val message = result.message.ifNullOrBlank { "Unknown error" }
-					logger.e(
+					BaseRepoLog.e(
 						this,
 						"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 					)
@@ -199,7 +200,7 @@ abstract class AppolyBaseRepo(
 						{ response.message() },
 						fallback = { "Unknown error" }
 					)
-				logger.e(
+				BaseRepoLog.e(
 					this,
 					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 				)
@@ -213,7 +214,7 @@ abstract class AppolyBaseRepo(
 					is ConnectException,
 					is SocketException,
 					is SocketTimeoutException -> {
-						logger.w(
+						BaseRepoLog.w(
 							this,
 							"$logDescription failed Due to No Connection!",
 							response.throwable
@@ -227,7 +228,7 @@ abstract class AppolyBaseRepo(
 							{ response.message() },
 							fallback = { "Unknown error" }
 						)
-						logger.e(
+						BaseRepoLog.e(
 							this,
 							"$logDescription failed with exception! message:\"$message\"",
 							response.throwable

@@ -1,8 +1,6 @@
 package uk.co.appoly.droid.data.remote
 
-import com.duck.flexilogger.FlexiLog
 import kotlinx.serialization.json.Json
-import uk.co.appoly.droid.BaseRepoLogger
 import kotlin.reflect.KClass
 
 /**
@@ -13,11 +11,9 @@ import kotlin.reflect.KClass
  * example, when the Auth token changes.
  *
  * @property getRetrofitClient Lambda that provides a [BaseRetrofitClient] instance
- * @property getLogger Lambda that provides a [FlexiLog] instance for logging
  */
 class ServiceManager private constructor(
 	val getRetrofitClient: () -> BaseRetrofitClient,
-	val getLogger: () -> FlexiLog
 ) {
 	val services = mutableMapOf<KClass<*>, BaseService<*>>()
 
@@ -70,17 +66,14 @@ class ServiceManager private constructor(
 		 * Gets or creates the singleton [ServiceManager] instance.
 		 *
 		 * @param getRetrofitClient Lambda that provides a [BaseRetrofitClient] instance
-		 * @param getLogger Lambda that provides a [FlexiLog] instance for logging
 		 * @return The singleton [ServiceManager] instance
 		 */
 		fun getInstance(
 			getRetrofitClient: () -> BaseRetrofitClient,
-			getLogger: () -> FlexiLog
 		): ServiceManager {
 			return instance ?: synchronized(this) {
 				instance ?: ServiceManager(
-					getRetrofitClient = getRetrofitClient,
-					getLogger = getLogger
+					getRetrofitClient = getRetrofitClient
 				).also {
 					instance = it
 				}
@@ -92,15 +85,6 @@ class ServiceManager private constructor(
 		 */
 		fun resetClients() {
 			instance?.resetClients()
-		}
-
-		/**
-		 * Gets the logger from the singleton instance or returns the default [BaseRepoLogger].
-		 *
-		 * @return The configured [FlexiLog] instance or [BaseRepoLogger] if no instance exists
-		 */
-		fun getLogger(): FlexiLog {
-			return instance?.getLogger() ?: BaseRepoLogger
 		}
 	}
 }

@@ -3,7 +3,6 @@ package uk.co.appoly.droid.data.repo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import com.duck.flexilogger.FlexiLog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import uk.co.appoly.droid.data.remote.ServiceManager
+import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.data.remote.model.APIResult
 import kotlin.concurrent.Volatile
 import kotlin.concurrent.atomics.AtomicBoolean
@@ -77,12 +76,6 @@ class RefreshableAPIFlow<T : Any>(
 		scope = scope
 	)
 
-	/**
-	 * Logger instance used for logging API calls and errors.
-	 */
-	private val Log: FlexiLog
-		get() = ServiceManager.getLogger()
-
 	private val isRefreshing = AtomicBoolean(false)
 
 	@Volatile
@@ -125,14 +118,14 @@ class RefreshableAPIFlow<T : Any>(
 				try {
 					internalFlow.emit(APIFlowState.Loading)
 					if (simulatedError != null) {
-						Log.v(this@RefreshableAPIFlow, "Simulated error: ${simulatedError.message}")
+						BaseRepoLog.v(this@RefreshableAPIFlow, "Simulated error: ${simulatedError.message}")
 						delay(350) // Simulate network delay
 						internalFlow.emit(simulatedError)
 					} else {
 						internalFlow.emit(apiCall().asApiFlowState())
 					}
 				} catch (e: Exception) {
-					Log.w(this@RefreshableAPIFlow, "Exception in refresh", e)
+					BaseRepoLog.w(this@RefreshableAPIFlow, "Exception in refresh", e)
 					internalFlow.emit(APIFlowState.Error(AppolyBaseRepo.RESPONSE_EXCEPTION_CODE, e.message ?: "Unknown error"))
 				} finally {
 					isRefreshing.store(false)
@@ -193,11 +186,11 @@ class RefreshableAPIFlow<T : Any>(
 	init {
 		scope.launch {
 			if (initialValue != null) {
-				Log.v(this@RefreshableAPIFlow, "Initial value provided, emitting success state")
+				BaseRepoLog.v(this@RefreshableAPIFlow, "Initial value provided, emitting success state")
 				internalFlow.emit(APIFlowState.Success(initialValue))
 			}
 			if (initialRefresh) {
-				Log.v(this@RefreshableAPIFlow, "Initial refresh requested")
+				BaseRepoLog.v(this@RefreshableAPIFlow, "Initial refresh requested")
 				refresh()
 			}
 		}
