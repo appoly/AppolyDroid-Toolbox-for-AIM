@@ -3,7 +3,7 @@ package uk.co.appoly.droid.util
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import uk.co.appoly.droid.Log
+import uk.co.appoly.droid.BaseRepoLog
 import java.io.IOException
 
 class NetworkConnectionInterceptor(
@@ -13,10 +13,10 @@ class NetworkConnectionInterceptor(
 	@Throws(IOException::class)
 	override fun intercept(chain: Interceptor.Chain): Response {
 		if (!isInternetAvailable()) {
-			Log.v(this, "Interceptor check says: No internet connection!")
+			BaseRepoLog.v(this, "Interceptor check says: No internet connection!")
 			throw NoConnectivityException()
 		}
-		Log.v(this, "Interceptor check says: Has internet connection")
+		BaseRepoLog.v(this, "Interceptor check says: Has internet connection")
 		val builder: Request.Builder = chain.request().newBuilder()
 		return chain.proceed(builder.build())
 	}

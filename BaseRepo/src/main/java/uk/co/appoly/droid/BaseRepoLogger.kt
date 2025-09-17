@@ -5,7 +5,7 @@ import com.duck.flexilogger.LogType
 import com.duck.flexilogger.LoggerWithLevel
 import com.duck.flexilogger.LoggingLevel
 
-val Log = LoggerWithLevel(LoggingLevel.V, BaseRepoLogger)
+val BaseRepoLog = LoggerWithLevel(LoggingLevel.V, BaseRepoLogger)
 
 internal object BaseRepoLogger : FlexiLog() {
 	/**

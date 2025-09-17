@@ -2,7 +2,7 @@ package uk.co.appoly.droid.util
 
 import androidx.annotation.WorkerThread
 import okhttp3.ResponseBody
-import uk.co.appoly.droid.Log
+import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.data.remote.BaseRetrofitClient
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -18,7 +18,7 @@ fun <C : CharSequence> firstNotNullOrBlank(vararg options: () -> C?, fallback: (
 		val value = try {
 			option()
 		} catch (e: Exception) {
-			Log.w("firstNotNullOrBlank", "Exception thrown in option", e)
+			BaseRepoLog.w("firstNotNullOrBlank", "Exception thrown in option", e)
 			null
 		}
 		if (!value.isNullOrBlank()) {

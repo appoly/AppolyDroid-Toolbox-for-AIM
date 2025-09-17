@@ -10,8 +10,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.BaseRepoLogger
-import uk.co.appoly.droid.Log
 import uk.co.appoly.droid.data.remote.BaseRetrofitClient
 import uk.co.appoly.droid.data.remote.BaseService
 import uk.co.appoly.droid.data.remote.ServiceManager
@@ -48,7 +48,7 @@ abstract class AppolyBaseRepo(
 	loggingLevel: LoggingLevel = LoggingLevel.V
 ) {
 	init {
-		Log.updateLogger(logger, loggingLevel)
+		BaseRepoLog.updateLogger(logger, loggingLevel)
 	}
 
 	/**
@@ -102,7 +102,7 @@ abstract class AppolyBaseRepo(
 					APIResult.Success(result.data)
 				} else {
 					val message = result.message.ifNullOrBlank { "Unknown error" }
-					Log.e(
+					BaseRepoLog.e(
 						this,
 						"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 					)
@@ -117,7 +117,7 @@ abstract class AppolyBaseRepo(
 						{ response.message() },
 						fallback = { "Unknown error" }
 					)
-				Log.e(
+				BaseRepoLog.e(
 					this,
 					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 				)
@@ -131,7 +131,7 @@ abstract class AppolyBaseRepo(
 					is ConnectException,
 					is SocketException,
 					is SocketTimeoutException -> {
-						Log.w(
+						BaseRepoLog.w(
 							this,
 							"$logDescription failed Due to No Connection!",
 							response.throwable
@@ -149,7 +149,7 @@ abstract class AppolyBaseRepo(
 							{ response.message() },
 							fallback = { "Unknown error" }
 						)
-						Log.e(
+						BaseRepoLog.e(
 							this,
 							"$logDescription failed with exception! message:\"$message\"",
 							response.throwable
@@ -185,7 +185,7 @@ abstract class AppolyBaseRepo(
 					APIResult.Success(result)
 				} else {
 					val message = result.message.ifNullOrBlank { "Unknown error" }
-					Log.e(
+					BaseRepoLog.e(
 						this,
 						"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 					)
@@ -200,7 +200,7 @@ abstract class AppolyBaseRepo(
 						{ response.message() },
 						fallback = { "Unknown error" }
 					)
-				Log.e(
+				BaseRepoLog.e(
 					this,
 					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 				)
@@ -214,7 +214,7 @@ abstract class AppolyBaseRepo(
 					is ConnectException,
 					is SocketException,
 					is SocketTimeoutException -> {
-						Log.w(
+						BaseRepoLog.w(
 							this,
 							"$logDescription failed Due to No Connection!",
 							response.throwable
@@ -228,7 +228,7 @@ abstract class AppolyBaseRepo(
 							{ response.message() },
 							fallback = { "Unknown error" }
 						)
-						Log.e(
+						BaseRepoLog.e(
 							this,
 							"$logDescription failed with exception! message:\"$message\"",
 							response.throwable

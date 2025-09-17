@@ -5,7 +5,7 @@ import com.duck.flexilogger.LogType
 import com.duck.flexilogger.LoggerWithLevel
 import com.duck.flexilogger.LoggingLevel
 
-val Log = LoggerWithLevel(LoggingLevel.V, DateHelperLogger)
+val DateHelperLog = LoggerWithLevel(LoggingLevel.V, DateHelperLogger)
 
 internal object DateHelperLogger : FlexiLog() {
 	/**

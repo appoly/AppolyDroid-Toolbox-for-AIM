@@ -24,7 +24,7 @@ import uk.co.appoly.droid.s3upload.network.GetPreSignedUrlResponse
 import uk.co.appoly.droid.s3upload.network.PreSignedURLData
 import uk.co.appoly.droid.s3upload.network.ProgressRequestBody
 import uk.co.appoly.droid.s3upload.network.RetrofitClient
-import uk.co.appoly.droid.s3upload.utils.Log
+import uk.co.appoly.droid.s3upload.utils.S3UploadLog
 import uk.co.appoly.droid.s3upload.utils.S3UploadLogger
 import uk.co.appoly.droid.s3upload.utils.firstNotNullOrBlank
 import uk.co.appoly.droid.s3upload.utils.parseBody
@@ -70,7 +70,7 @@ object S3Uploader {
 	) {
 		this.tokenProvider = tokenProvider
 		this.loggingLevel = loggingLevel
-		Log.updateLogger(logger, loggingLevel)
+		S3UploadLog.updateLogger(logger, loggingLevel)
 	}
 
 	/**
@@ -188,7 +188,7 @@ object S3Uploader {
 		if(!isInitDone()) {
 			throw IllegalStateException("S3Uploader is not initialized. Please call S3Uploader.initS3Uploader() before using it.")
 		}
-		Log.v(this, "Getting Pre-Signed URL for file: ${file.name}, from API:\"$getPresignedUrlAPI\"")
+		S3UploadLog.v(this, "Getting Pre-Signed URL for file: ${file.name}, from API:\"$getPresignedUrlAPI\"")
 		return try {
 			val response: ApiResponse<GetPreSignedUrlResponse> = RetrofitClient.apiService.getPreSignedURL(
 				authToken = tokenProvider.provideToken(),
@@ -200,17 +200,17 @@ object S3Uploader {
 					val body = response.data
 					val preSignedUrlData = body.data
 					if (preSignedUrlData != null) {
-						Log.d(this, "Request is successful with response: $body")
+						S3UploadLog.d(this, "Request is successful with response: $body")
 						makeUploadRequestSuspend(file, mediaType, preSignedUrlData, progressFlow)
 					} else {
-						Log.e(this, "Error getting pre-signed URL for file upload, PreSignedURLData was Null!")
+						S3UploadLog.e(this, "Error getting pre-signed URL for file upload, PreSignedURLData was Null!")
 						UploadResult.Error("Error getting pre-signed URL for file upload, PreSignedURLData was Null!")
 					}
 				}
 
 				is ApiResponse.Failure.Error -> {
 					val message = firstNotNullOrBlank({ response.errorBody.parseBody<ErrorBody>()?.message }, { response.message() }, fallback = "Unknown error")
-					Log.e(this, "Error getting pre-signed URL for file upload, $message")
+					S3UploadLog.e(this, "Error getting pre-signed URL for file upload, $message")
 					UploadResult.Error("Error generating presignedUrl", IOException("Response code: ${response.statusCode.code}"))
 				}
 
@@ -220,18 +220,18 @@ object S3Uploader {
 						is ConnectException,
 						is SocketException,
 						is SocketTimeoutException -> {
-							Log.w(this, "Error getting pre-signed URL for file upload", response.throwable)
+							S3UploadLog.w(this, "Error getting pre-signed URL for file upload", response.throwable)
 						}
 						else -> {
 							val message = firstNotNullOrBlank({ response.throwable.message }, { response.message() }, fallback = "Unknown error")
-							Log.e(this, "Error getting pre-signed URL for file upload, $message", response.throwable)
+							S3UploadLog.e(this, "Error getting pre-signed URL for file upload, $message", response.throwable)
 						}
 					}
 					UploadResult.Error("Error generating presignedUrl", response.throwable)
 				}
 			}
 		} catch (e: Exception) {
-			Log.e(this, "Error getting pre-signed URL for file upload", e)
+			S3UploadLog.e(this, "Error getting pre-signed URL for file upload", e)
 			UploadResult.Error("Error generating presignedUrl", e)
 		}
 	}
@@ -253,7 +253,7 @@ object S3Uploader {
 		data: PreSignedURLData,
 		progressFlow: MutableStateFlow<Float>?
 	): UploadResult {
-		Log.v(this, "Start uploading file:\"${file.name}\", mediaType:\"$mediaType\"")
+		S3UploadLog.v(this, "Start uploading file:\"${file.name}\", mediaType:\"$mediaType\"")
 		return try {
 			val requestBody = if (progressFlow != null) {
 				ProgressRequestBody(file, mediaType, progressFlow)
@@ -268,20 +268,20 @@ object S3Uploader {
 			when(response) {
 				is ApiResponse.Success -> {
 					progressFlow?.value = 100f // Ensure progress hits 100% on success, if provided
-					Log.d(this, "file Uploading is successful!")
+					S3UploadLog.d(this, "file Uploading is successful!")
 					UploadResult.Success(data.filePath)
 				}
 				is ApiResponse.Failure.Error -> {
-					Log.e(this, "Uploading is failed with code: ${response.statusCode.code}, message: ${response.message()}")
+					S3UploadLog.e(this, "Uploading is failed with code: ${response.statusCode.code}, message: ${response.message()}")
 					UploadResult.Error("Error uploading file", IOException("Response code: ${response.statusCode.code}"))
 				}
 				is ApiResponse.Failure.Exception -> {
-					Log.e(this, "Uploading is failed with exception: ", response.throwable)
+					S3UploadLog.e(this, "Uploading is failed with exception: ", response.throwable)
 					UploadResult.Error("Error uploading file", response.throwable)
 				}
 			}
 		} catch (e: Exception) {
-			Log.e(this, "Error uploading file", e)
+			S3UploadLog.e(this, "Error uploading file", e)
 			UploadResult.Error("Error uploading file", e)
 		}
 	}

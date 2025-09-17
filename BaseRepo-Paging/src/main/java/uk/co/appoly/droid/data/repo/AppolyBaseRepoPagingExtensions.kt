@@ -4,7 +4,7 @@ import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.retrofit.errorBody
 import com.skydoves.sandwich.retrofit.statusCode
-import uk.co.appoly.droid.Log
+import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.data.remote.model.APIResult
 import uk.co.appoly.droid.data.remote.model.response.ErrorBody
 import uk.co.appoly.droid.data.remote.model.response.GenericNestedPagedResponse
@@ -52,7 +52,7 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 				APIResult.Success(PageData(result))
 			} else {
 				val message = result.message.ifNullOrBlank { "Unknown error" }
-				Log.e(
+				BaseRepoLog.e(
 					this,
 					"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 				)
@@ -67,7 +67,7 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 					{ response.message() },
 					fallback = { "Unknown error" }
 				)
-			Log.e(
+			BaseRepoLog.e(
 				this,
 				"$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 			)
@@ -81,7 +81,7 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 				is ConnectException,
 				is SocketException,
 				is SocketTimeoutException -> {
-					Log.w(
+					BaseRepoLog.w(
 						this,
 						"$logDescription failed Due to No Connection!",
 						response.throwable
@@ -99,7 +99,7 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 						{ response.message() },
 						fallback = { "Unknown error" }
 					)
-					Log.e(
+					BaseRepoLog.e(
 						this,
 						"$logDescription failed with exception! message:\"$message\"",
 						response.throwable
