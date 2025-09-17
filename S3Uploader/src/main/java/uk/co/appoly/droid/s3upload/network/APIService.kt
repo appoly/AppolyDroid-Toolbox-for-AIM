@@ -2,8 +2,8 @@ package uk.co.appoly.droid.s3upload.network
 
 import com.skydoves.sandwich.ApiResponse
 import okhttp3.RequestBody
-import uk.co.appoly.droid.s3upload.S3Uploader
 import uk.co.appoly.droid.s3upload.network.api.APIs
+import uk.co.appoly.droid.s3upload.utils.Log
 
 internal class APIService {
 	private var internalClient: APIs? = null
@@ -41,7 +41,7 @@ internal class APIService {
 				)
 			}
 		} catch (e: Exception) {
-			S3Uploader.Log.e(this, "Exception in getPreSignedURL! url=\"$url\"", e)
+			Log.e(this, "Exception in getPreSignedURL! url=\"$url\"", e)
 			ApiResponse.Failure.Exception(e)
 		}
 	}
@@ -59,7 +59,7 @@ internal class APIService {
 			)
 		}
 		catch (e: Exception) {
-			S3Uploader.Log.e(this, "Exception in uploadToS3! url=\"$uploadUrl\"", e)
+			Log.e(this, "Exception in uploadToS3! url=\"$uploadUrl\"", e)
 			ApiResponse.Failure.Exception(e)
 		}
 	}

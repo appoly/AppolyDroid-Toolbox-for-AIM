@@ -1,24 +1,22 @@
 package uk.co.appoly.droid.util
 
-import com.duck.flexilogger.FlexiLog
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import uk.co.appoly.droid.BaseRepoLogger
+import uk.co.appoly.droid.Log
 import java.io.IOException
 
 class NetworkConnectionInterceptor(
-	private val isInternetAvailable: () -> Boolean,
-	private val logger: FlexiLog = BaseRepoLogger
+	private val isInternetAvailable: () -> Boolean
 ) : Interceptor {
 
 	@Throws(IOException::class)
 	override fun intercept(chain: Interceptor.Chain): Response {
 		if (!isInternetAvailable()) {
-			logger.v(this, "Interceptor check says: No internet connection!")
+			Log.v(this, "Interceptor check says: No internet connection!")
 			throw NoConnectivityException()
 		}
-		logger.v(this, "Interceptor check says: Has internet connection")
+		Log.v(this, "Interceptor check says: Has internet connection")
 		val builder: Request.Builder = chain.request().newBuilder()
 		return chain.proceed(builder.build())
 	}

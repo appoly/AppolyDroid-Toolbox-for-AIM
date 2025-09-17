@@ -10,6 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import uk.co.appoly.droid.s3upload.S3Uploader
+import uk.co.appoly.droid.s3upload.utils.Log
 import java.util.concurrent.TimeUnit
 
 internal object RetrofitClient {
@@ -43,7 +44,7 @@ internal object RetrofitClient {
 								if (S3Uploader.loggingLevel.level >= LoggingLevel.D.level) {
 									addInterceptor(
 										HttpLoggingInterceptor(
-											FlexiLogHttpLoggingInterceptorLogger.with(S3Uploader.Log, "S3Uploader:http")
+											FlexiLogHttpLoggingInterceptorLogger.with(Log, "S3Uploader:http")
 										).apply {
 											level = when(S3Uploader.loggingLevel) {
 												LoggingLevel.V,

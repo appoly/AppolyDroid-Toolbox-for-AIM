@@ -3,7 +3,6 @@ package uk.co.appoly.droid.s3upload
 import android.webkit.MimeTypeMap
 import com.duck.flexilogger.FlexiLog
 import com.duck.flexilogger.LogType
-import com.duck.flexilogger.LoggerWithLevel
 import com.duck.flexilogger.LoggingLevel
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.message
@@ -18,12 +17,14 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.asRequestBody
+import uk.co.appoly.droid.s3upload.S3Uploader.initS3Uploader
 import uk.co.appoly.droid.s3upload.interfaces.AuthTokenProvider
 import uk.co.appoly.droid.s3upload.network.ErrorBody
 import uk.co.appoly.droid.s3upload.network.GetPreSignedUrlResponse
 import uk.co.appoly.droid.s3upload.network.PreSignedURLData
 import uk.co.appoly.droid.s3upload.network.ProgressRequestBody
 import uk.co.appoly.droid.s3upload.network.RetrofitClient
+import uk.co.appoly.droid.s3upload.utils.Log
 import uk.co.appoly.droid.s3upload.utils.S3UploadLogger
 import uk.co.appoly.droid.s3upload.utils.firstNotNullOrBlank
 import uk.co.appoly.droid.s3upload.utils.parseBody
@@ -46,8 +47,6 @@ import java.net.UnknownHostException
 object S3Uploader {
 	private lateinit var tokenProvider: AuthTokenProvider
 	internal var loggingLevel: LoggingLevel = LoggingLevel.NONE
-	internal var Log: FlexiLog = S3UploadLogger
-	internal var LoggerWithLevel: LoggerWithLevel = Log.withLevel(loggingLevel)
 
 	internal fun canLog(type: LogType): Boolean = loggingLevel.canLog(type)
 
@@ -67,12 +66,11 @@ object S3Uploader {
 	fun initS3Uploader(
 		tokenProvider: AuthTokenProvider,
 		loggingLevel: LoggingLevel = LoggingLevel.NONE,
-		logger: FlexiLog = Log
+		logger: FlexiLog = S3UploadLogger
 	) {
 		this.tokenProvider = tokenProvider
 		this.loggingLevel = loggingLevel
-		this.Log = logger
-		this.LoggerWithLevel = logger.withLevel(loggingLevel)
+		Log.updateLogger(logger, loggingLevel)
 	}
 
 	/**
@@ -190,7 +188,7 @@ object S3Uploader {
 		if(!isInitDone()) {
 			throw IllegalStateException("S3Uploader is not initialized. Please call S3Uploader.initS3Uploader() before using it.")
 		}
-		LoggerWithLevel.v(this, "Getting Pre-Signed URL for file: ${file.name}, from API:\"$getPresignedUrlAPI\"")
+		Log.v(this, "Getting Pre-Signed URL for file: ${file.name}, from API:\"$getPresignedUrlAPI\"")
 		return try {
 			val response: ApiResponse<GetPreSignedUrlResponse> = RetrofitClient.apiService.getPreSignedURL(
 				authToken = tokenProvider.provideToken(),
@@ -202,17 +200,17 @@ object S3Uploader {
 					val body = response.data
 					val preSignedUrlData = body.data
 					if (preSignedUrlData != null) {
-						LoggerWithLevel.d(this, "Request is successful with response: $body")
+						Log.d(this, "Request is successful with response: $body")
 						makeUploadRequestSuspend(file, mediaType, preSignedUrlData, progressFlow)
 					} else {
-						LoggerWithLevel.e(this, "Error getting pre-signed URL for file upload, PreSignedURLData was Null!")
+						Log.e(this, "Error getting pre-signed URL for file upload, PreSignedURLData was Null!")
 						UploadResult.Error("Error getting pre-signed URL for file upload, PreSignedURLData was Null!")
 					}
 				}
 
 				is ApiResponse.Failure.Error -> {
 					val message = firstNotNullOrBlank({ response.errorBody.parseBody<ErrorBody>()?.message }, { response.message() }, fallback = "Unknown error")
-					LoggerWithLevel.e(this, "Error getting pre-signed URL for file upload, $message")
+					Log.e(this, "Error getting pre-signed URL for file upload, $message")
 					UploadResult.Error("Error generating presignedUrl", IOException("Response code: ${response.statusCode.code}"))
 				}
 
@@ -222,18 +220,18 @@ object S3Uploader {
 						is ConnectException,
 						is SocketException,
 						is SocketTimeoutException -> {
-							LoggerWithLevel.w(this, "Error getting pre-signed URL for file upload", response.throwable)
+							Log.w(this, "Error getting pre-signed URL for file upload", response.throwable)
 						}
 						else -> {
 							val message = firstNotNullOrBlank({ response.throwable.message }, { response.message() }, fallback = "Unknown error")
-							LoggerWithLevel.e(this, "Error getting pre-signed URL for file upload, $message", response.throwable)
+							Log.e(this, "Error getting pre-signed URL for file upload, $message", response.throwable)
 						}
 					}
 					UploadResult.Error("Error generating presignedUrl", response.throwable)
 				}
 			}
 		} catch (e: Exception) {
-			LoggerWithLevel.e(this, "Error getting pre-signed URL for file upload", e)
+			Log.e(this, "Error getting pre-signed URL for file upload", e)
 			UploadResult.Error("Error generating presignedUrl", e)
 		}
 	}
@@ -255,7 +253,7 @@ object S3Uploader {
 		data: PreSignedURLData,
 		progressFlow: MutableStateFlow<Float>?
 	): UploadResult {
-		LoggerWithLevel.v(this, "Start uploading file:\"${file.name}\", mediaType:\"$mediaType\"")
+		Log.v(this, "Start uploading file:\"${file.name}\", mediaType:\"$mediaType\"")
 		return try {
 			val requestBody = if (progressFlow != null) {
 				ProgressRequestBody(file, mediaType, progressFlow)
@@ -270,20 +268,20 @@ object S3Uploader {
 			when(response) {
 				is ApiResponse.Success -> {
 					progressFlow?.value = 100f // Ensure progress hits 100% on success, if provided
-					LoggerWithLevel.d(this, "file Uploading is successful!")
+					Log.d(this, "file Uploading is successful!")
 					UploadResult.Success(data.filePath)
 				}
 				is ApiResponse.Failure.Error -> {
-					LoggerWithLevel.e(this, "Uploading is failed with code: ${response.statusCode.code}, message: ${response.message()}")
+					Log.e(this, "Uploading is failed with code: ${response.statusCode.code}, message: ${response.message()}")
 					UploadResult.Error("Error uploading file", IOException("Response code: ${response.statusCode.code}"))
 				}
 				is ApiResponse.Failure.Exception -> {
-					LoggerWithLevel.e(this, "Uploading is failed with exception: ", response.throwable)
+					Log.e(this, "Uploading is failed with exception: ", response.throwable)
 					UploadResult.Error("Error uploading file", response.throwable)
 				}
 			}
 		} catch (e: Exception) {
-			LoggerWithLevel.e(this, "Error uploading file", e)
+			Log.e(this, "Error uploading file", e)
 			UploadResult.Error("Error uploading file", e)
 		}
 	}

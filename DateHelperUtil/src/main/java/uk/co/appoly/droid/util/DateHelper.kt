@@ -1,9 +1,11 @@
 package uk.co.appoly.droid.util
 
 import com.duck.flexilogger.FlexiLog
-import com.duck.flexilogger.LoggerWithLevel
 import com.duck.flexilogger.LoggingLevel
-import uk.co.appoly.droid.DateHelperLogger
+import uk.co.appoly.droid.Log
+import uk.co.appoly.droid.util.DateHelper.SERVER_PATTERN_DATE
+import uk.co.appoly.droid.util.DateHelper.SERVER_PATTERN_FULL
+import uk.co.appoly.droid.util.DateHelper.SERVER_PATTERN_SHORT
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
@@ -22,8 +24,6 @@ import java.time.format.DateTimeFormatter
  * - [SERVER_PATTERN_DATE]: Date-only format, e.g., "2023-12-01"
  */
 object DateHelper {
-	private var logger: LoggerWithLevel = DateHelperLogger.withLevel(LoggingLevel.NONE)
-
 	/**
 	 * ISO-8601 extended format with microseconds, e.g., "2023-12-01T10:38:29.000000Z"
 	 */
@@ -48,7 +48,7 @@ object DateHelper {
 		logger: FlexiLog,
 		loggingLevel: LoggingLevel = LoggingLevel.NONE
 	) {
-		this.logger = logger.withLevel(loggingLevel)
+		Log.updateLogger(logger, loggingLevel)
 	}
 
 	/**
@@ -70,7 +70,7 @@ object DateHelper {
 				val it: LocalDateTime = LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern(SERVER_PATTERN_FULL))
 				it
 			} catch (e: Exception) {
-				logger.d(this, "parseLocalDateTime: failed to parse \"$dateTime\" from SERVER_PATTERN_FULL, trying with SERVER_PATTERN_SHORT", e)
+				Log.d(this, "parseLocalDateTime: failed to parse \"$dateTime\" from SERVER_PATTERN_FULL, trying with SERVER_PATTERN_SHORT", e)
 				null
 			} ?: run {
 				//attempt to pars from pattern SERVER_PATTERN_SHORT
@@ -78,7 +78,7 @@ object DateHelper {
 					val it: LocalDateTime = LocalDateTime.parse(dateTime, DateTimeFormatter.ofPattern(SERVER_PATTERN_SHORT))
 					it
 				} catch (e: Exception) {
-					logger.e(this@DateHelper, "parseLocalDateTime: failed to parse \"$dateTime\" with SERVER_PATTERN_SHORT", e)
+					Log.e(this@DateHelper, "parseLocalDateTime: failed to parse \"$dateTime\" with SERVER_PATTERN_SHORT", e)
 					null
 				}
 			}
@@ -118,7 +118,7 @@ object DateHelper {
 				val it: LocalDate = LocalDate.parse(dateTime, DateTimeFormatter.ofPattern(SERVER_PATTERN_DATE))
 				it
 			} catch (e: Exception) {
-				logger.e(this@DateHelper, "parseLocalDate: failed to parse \"$dateTime\" with SERVER_PATTERN_DATE", e)
+				Log.e(this@DateHelper, "parseLocalDate: failed to parse \"$dateTime\" with SERVER_PATTERN_DATE", e)
 				null
 			} ?: run {
 				//attempt to parse as date-time

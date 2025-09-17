@@ -3,7 +3,6 @@ package uk.co.appoly.droid.data.repo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import com.duck.flexilogger.FlexiLog
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import uk.co.appoly.droid.data.remote.ServiceManager
+import uk.co.appoly.droid.Log
 import uk.co.appoly.droid.data.remote.model.APIResult
 import kotlin.concurrent.Volatile
 import kotlin.concurrent.atomics.AtomicBoolean
@@ -76,12 +75,6 @@ class RefreshableAPIFlow<T : Any>(
 		apiCall = apiCall,
 		scope = scope
 	)
-
-	/**
-	 * Logger instance used for logging API calls and errors.
-	 */
-	private val Log: FlexiLog
-		get() = ServiceManager.getLogger()
 
 	private val isRefreshing = AtomicBoolean(false)
 
