@@ -2,7 +2,11 @@ package uk.co.appoly.droid.s3upload.utils
 
 import com.duck.flexilogger.FlexiLog
 import com.duck.flexilogger.LogType
+import com.duck.flexilogger.LoggerWithLevel
+import com.duck.flexilogger.LoggingLevel
 import uk.co.appoly.droid.s3upload.S3Uploader
+
+val S3UploadLog = LoggerWithLevel(LoggingLevel.V, S3UploadLogger)
 
 internal object S3UploadLogger : FlexiLog() {
 	/**

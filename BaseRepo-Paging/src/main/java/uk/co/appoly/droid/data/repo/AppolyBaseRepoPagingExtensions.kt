@@ -4,6 +4,7 @@ import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.retrofit.errorBody
 import com.skydoves.sandwich.retrofit.statusCode
+import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.data.remote.model.APIResult
 import uk.co.appoly.droid.data.remote.model.response.BaseResponse
 import uk.co.appoly.droid.data.remote.model.response.GenericNestedPagedResponse
@@ -51,7 +52,7 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 				APIResult.Success(PageData(result))
 			} else {
 				val message = result.message.ifNullOrBlank { "Unknown error" }
-				logger.e(
+				BaseRepoLog.e(
 					caller = this,
 					msg = "$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
 				)
@@ -69,12 +70,12 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 				val errorBody = response.errorBody.parseBody<BaseResponse>(getRetrofitClient())
 				errors = errorBody?.errors ?: listOf("Unknown error")
 				messages = errorBody?.messages
-				logger.e(
+				BaseRepoLog.e(
 					caller = this,
 					msg = "$logDescription failed! code:${response.statusCode.code}, messages:\"$messages\", errors:\"$errors\""
 				)
 			} catch (e: Exception) {
-				logger.e(
+				BaseRepoLog.e(
 					caller = this,
 					msg = "$logDescription failed! code:${response.statusCode.code} - Failed to parse error body",
 					tr = e
@@ -95,7 +96,7 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 				is ConnectException,
 				is SocketException,
 				is SocketTimeoutException -> {
-					logger.w(
+					BaseRepoLog.w(
 						caller = this,
 						msg = "$logDescription failed Due to No Connection!",
 						tr = response.throwable
@@ -113,7 +114,7 @@ inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
 						{ response.message() },
 						fallback = { "Unknown error" }
 					)
-					logger.e(
+					BaseRepoLog.e(
 						caller = this,
 						msg = "$logDescription failed with exception! message:\"$message\"",
 						tr = response.throwable
