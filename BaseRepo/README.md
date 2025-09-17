@@ -13,7 +13,7 @@ Foundation module for implementing the repository pattern with standardized API 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.30")
+implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.31")
 ```
 
 ## API Response Structure
@@ -91,9 +91,11 @@ The standardized error handling in BaseRepo automatically processes these respon
 Create a base repository class that extends `AppolyBaseRepo`:
 
 ```kotlin
-abstract class BaseRepo : AppolyBaseRepo({ RetrofitClient }) {
-    override val logger: FlexiLog = Log//Your Implementation of FlexiLogger
-}
+abstract class BaseRepo : AppolyBaseRepo(
+	getRetrofitClient = { RetrofitClient },
+	logger = Log, //Your Implementation of FlexiLogger
+	loggingLevel = LoggingLevel.V// Set desired logging level
+)
 ```
 
 ### Making API Calls
