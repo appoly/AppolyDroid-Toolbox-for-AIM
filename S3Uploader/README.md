@@ -13,7 +13,7 @@ Standalone module for Amazon S3 file uploading with progress tracking and error 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.30")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.31")
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ class MyApp: Application() {
             tokenProvider = {
                 // Provide your API auth token if needed
             },
-            loggingLevel = // Set desired LoggingLevel. e.g: if (isDebug) LoggingLevel.W else LoggingLevel.NONE,
+			loggingLevel =,// Set desired LoggingLevel. e.g: if (isDebug) LoggingLevel.W else LoggingLevel.NONE
             logger = // Your implementation of FlexiLogger
         )
     }

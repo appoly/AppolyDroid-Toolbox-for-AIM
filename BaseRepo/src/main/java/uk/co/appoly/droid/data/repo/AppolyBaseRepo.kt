@@ -1,6 +1,7 @@
 package uk.co.appoly.droid.data.repo
 
 import com.duck.flexilogger.FlexiLog
+import com.duck.flexilogger.LoggingLevel
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.message
 import com.skydoves.sandwich.retrofit.errorBody
@@ -9,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.BaseRepoLogger
 import uk.co.appoly.droid.data.remote.BaseRetrofitClient
 import uk.co.appoly.droid.data.remote.BaseService
@@ -41,13 +43,13 @@ import kotlin.contracts.contract
  */
 @OptIn(ExperimentalContracts::class)
 abstract class AppolyBaseRepo(
-	val getRetrofitClient: () -> BaseRetrofitClient
+	val getRetrofitClient: () -> BaseRetrofitClient,
+	logger: FlexiLog = BaseRepoLogger,
+	loggingLevel: LoggingLevel = LoggingLevel.V
 ) {
-	/**
-	 * Logger instance used for logging API calls and errors.
-	 * Defaults to [BaseRepoLogger], but can be overridden by subclasses.
-	 */
-	open val logger: FlexiLog = BaseRepoLogger
+	init {
+		BaseRepoLog.updateLogger(logger, loggingLevel)
+	}
 
 	/**
 	 * Gets or creates a [ServiceManager] instance for managing API services.
@@ -56,8 +58,7 @@ abstract class AppolyBaseRepo(
 	 */
 	fun getServiceManager(): ServiceManager {
 		return ServiceManager.getInstance(
-			getRetrofitClient = { getRetrofitClient() },
-			getLogger = { logger }
+			getRetrofitClient = getRetrofitClient,
 		)
 	}
 
@@ -214,7 +215,7 @@ abstract class AppolyBaseRepo(
 	): APIResult.Error {
 		val errors = result.errors ?: listOf("Unknown error")
 		val messages = result.messages
-		logger.e(
+		BaseRepoLog.e(
 			caller = this,
 			msg = "$logDescription failed! code:$statusCode, messages:\"$messages\", errors:\"$errors\""
 		)
@@ -228,12 +229,12 @@ abstract class AppolyBaseRepo(
 			val errorBody = response.errorBody.parseBody<BaseResponse>(getRetrofitClient())
 			errors = errorBody?.errors ?: listOf("Unknown error")
 			messages = errorBody?.messages
-			logger.e(
+			BaseRepoLog.e(
 				caller = this,
 				msg = "$logDescription failed! code:${response.statusCode.code}, messages:\"$messages\", errors:\"$errors\""
 			)
 		} catch (e: Exception) {
-			logger.e(
+			BaseRepoLog.e(
 				caller = this,
 				msg = "$logDescription failed! code:${response.statusCode.code} - Failed to parse error body",
 				tr = e
@@ -250,7 +251,7 @@ abstract class AppolyBaseRepo(
 			is ConnectException,
 			is SocketException,
 			is SocketTimeoutException -> {
-				logger.w(
+				BaseRepoLog.w(
 					caller = this,
 					msg = "$logDescription failed Due to No Connection!",
 					tr = response.throwable
@@ -268,7 +269,7 @@ abstract class AppolyBaseRepo(
 					{ response.message() },
 					fallback = { "Unknown error" }
 				)
-				logger.e(
+				BaseRepoLog.e(
 					caller = this,
 					msg = "$logDescription failed with exception! message:\"$message\"",
 					tr = response.throwable
