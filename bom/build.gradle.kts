@@ -39,7 +39,9 @@ dependencies {
 		// Shared 3rd party dependencies (commonly used via api() in modules)
 		// Room (used in DateHelperUtil-Room)
 		api("androidx.room:room-runtime:${libs.versions.roomVersion.get()}")
+		api("androidx.room:room-compiler:${libs.versions.roomVersion.get()}")
 		api("androidx.room:room-ktx:${libs.versions.roomVersion.get()}")
+		api("androidx.room:room-testing:${libs.versions.roomVersion.get()}")
 
 		// Paging (used in BaseRepo-Paging)
 		api("androidx.paging:paging-runtime:${libs.versions.paging.get()}")

@@ -52,32 +52,39 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.32_rc01" # Replace with the latest version
+appolydroidToolbox = "1.0.32_rc02" # Replace with the latest version
 
 [libraries]
-appolydroid-bom = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroid-BOM", version.ref = "appolydroidToolbox" }
+appolydroid-toolbox-bom = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroid-BOM", version.ref = "appolydroidToolbox" }
 # AppolyDroid modules (versions managed by BOM)
-appolydroid-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo" }
-appolydroid-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader" }
-appolydroid-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-Paging" }
-appolydroid-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState" }
-appolydroid-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar" }
-appolydroid-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar-UiState" }
-appolydroid-dateHelper = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil" }
-appolydroid-dateHelper-room = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Room" }
-appolydroid-dateHelper-serialization = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Serialization" }
-appolydroid-composeExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "ComposeExtensions" }
-appolydroid-lazyListPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyListPagingExtensions" }
-appolydroid-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyGridPagingExtensions" }
-appolydroid-pagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "PagingExtensions" }
-appolydroid-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "S3Uploader" }
+appolydroid-toolbox-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo" }
+appolydroid-toolbox-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader" }
+appolydroid-toolbox-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-Paging" }
+appolydroid-toolbox-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState" }
+appolydroid-toolbox-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar" }
+appolydroid-toolbox-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar-UiState" }
+appolydroid-toolbox-dateHelper = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil" }
+appolydroid-toolbox-dateHelper-room = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Room" }
+appolydroid-toolbox-dateHelper-serialization = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Serialization" }
+appolydroid-toolbox-compose-extensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "ComposeExtensions" }
+appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyListPagingExtensions" }
+appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyGridPagingExtensions" }
+appolydroid-toolbox-pagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "PagingExtensions" }
+appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "S3Uploader" }
 # Shared 3rd party dependencies (versions managed by BOM)
+#Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx" }
+androidx-room-testing = { group = "androidx.room", name = "room-testing" }
+#Paging
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime" }
+#Kotlinx Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json" }
+#Sandwich
 sandwich = { group = "com.github.skydoves", name = "sandwich" }
 sandwich-retrofit = { group = "com.github.skydoves", name = "sandwich-retrofit" }
+#FlexiLogger
 flexiLogger = { group = "com.github.projectdelta6", name = "FlexiLogger" }
 flexiLogger-httpLogger = { group = "com.github.projectdelta6.FlexiLogger", name = "FlexiHttpLogger" }
 ```
@@ -87,32 +94,39 @@ Then in your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Import the BOM
-    implementation(platform(libs.appolydroid.bom))
+    implementation(platform(libs.appolydroid.toolbox.bom))
 
     // Now you can use AppolyDroid modules without specifying versions
-    implementation(libs.appolydroid.baseRepo)
-    implementation(libs.appolydroid.baseRepo.s3)
-    implementation(libs.appolydroid.baseRepo.paging)
-    implementation(libs.appolydroid.uiState)
-    implementation(libs.appolydroid.appSnackBar)
-    implementation(libs.appolydroid.appSnackBar.uiState)
-    implementation(libs.appolydroid.dateHelper)
-    implementation(libs.appolydroid.dateHelper.room)
-    implementation(libs.appolydroid.dateHelper.serialization)
-    implementation(libs.appolydroid.composeExtensions)
-    implementation(libs.appolydroid.lazyListPagingExtensions)
-    implementation(libs.appolydroid.lazyGridPagingExtensions)
-    implementation(libs.appolydroid.pagingExtensions)
-    implementation(libs.appolydroid.s3Uploader)
+    implementation(libs.appolydroid.toolbox.baseRepo)
+    implementation(libs.appolydroid.toolbox.baseRepo.s3)
+    implementation(libs.appolydroid.toolbox.baseRepo.paging)
+    implementation(libs.appolydroid.toolbox.uiState)
+    implementation(libs.appolydroid.toolbox.appSnackBar)
+    implementation(libs.appolydroid.toolbox.appSnackBar.uiState)
+    implementation(libs.appolydroid.toolbox.dateHelper)
+    implementation(libs.appolydroid.toolbox.dateHelper.room)
+    implementation(libs.appolydroid.toolbox.dateHelper.serialization)
+    implementation(libs.appolydroid.toolbox.compose.extensions)
+    implementation(libs.appolydroid.toolbox.lazyListPagingExtensions)
+    implementation(libs.appolydroid.toolbox.lazyGridPagingExtensions)
+    implementation(libs.appolydroid.toolbox.pagingExtensions)
+    implementation(libs.appolydroid.toolbox.s3Uploader)
 
     // The BOM also provides versions for shared dependencies.
     // If you need to reference them directly, you can use:
+    // Room
     // implementation(libs.androidx.room.runtime)
+    // ksp(libs.androidx.room.compiler)
     // implementation(libs.androidx.room.ktx)
+    // androidTestImplementation(libs.androidx.room.testing)
+    // Paging
     // implementation(libs.androidx.paging.runtime)
+    // Kotlinx Serialization
     // implementation(libs.kotlinx.serialization.json)
+    // Sandwich
     // implementation(libs.sandwich)
     // implementation(libs.sandwich.retrofit)
+    // FlexiLogger
     // implementation(libs.flexiLogger)
     // implementation(libs.flexiLogger.httpLogger)
 }
@@ -125,7 +139,7 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Import the BOM
-    implementation(platform("com.github.appoly.AppolyDroid-Toolbox:AppolyDroid-BOM:1.0.32_rc01"))
+    implementation(platform("com.github.appoly.AppolyDroid-Toolbox:AppolyDroid-BOM:1.0.32_rc02"))
 
     // Now you can use AppolyDroid modules without specifying versions
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo")
@@ -158,7 +172,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.32_rc01" # Replace with the latest version
+appolydroidToolbox = "1.0.32_rc02" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox
