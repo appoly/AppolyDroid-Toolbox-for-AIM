@@ -15,8 +15,8 @@ Extension module for DateHelperUtil that provides kotlinx.serialization integrat
 
 ```gradle.kts
 // Requires base DateHelperUtil module
-implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.32_rc01")
+implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.32_rc01")
 
 // Required kotlinx.serialization dependencies
 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.9.0")
@@ -50,15 +50,15 @@ import java.time.ZonedDateTime
 data class Event(
     val id: Int,
     val title: String,
-    
+
     // Non-nullable LocalDate
     @Serializable(with = LocalDateSerializer::class)
     val eventDate: LocalDate,
-    
+
     // Nullable LocalDateTime
     @Serializable(with = NullableDateTimeSerializer::class)
     val startTime: LocalDateTime?,
-    
+
     // ZonedDateTime (with timezone preservation)
     @Serializable(with = ZonedDateTimeSerializer::class)
     val createdAt: ZonedDateTime
@@ -116,6 +116,7 @@ Note: ZonedDateTime values are always converted to UTC before serialization for 
 ## Timezone Handling
 
 For ZonedDateTime values:
+
 1. When serializing: The ZonedDateTime is converted to UTC timezone
 2. When deserializing: The UTC time is parsed and then converted to the device's local timezone
 
@@ -150,3 +151,4 @@ val parsedEvents = json.decodeFromString(ListSerializer(Event.serializer()), jso
 
 - [DateHelperUtil](../DateHelperUtil/README.md) - Base date/time utility module
 - [kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) - Kotlin serialization library
+

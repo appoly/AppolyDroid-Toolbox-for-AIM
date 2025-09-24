@@ -13,7 +13,7 @@ Standalone module for Amazon S3 file uploading with progress tracking and error 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.32_rc01")
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ class MyApp: Application() {
             tokenProvider = {
                 // Provide your API auth token if needed
             },
-			loggingLevel =,// Set desired LoggingLevel. e.g: if (isDebug) LoggingLevel.W else LoggingLevel.NONE
+            loggingLevel =,// Set desired LoggingLevel. e.g: if (isDebug) LoggingLevel.W else LoggingLevel.NONE
             logger = // Your implementation of FlexiLogger
         )
     }
@@ -47,7 +47,7 @@ class MyApp: Application() {
 class FileUploadViewModel : ViewModel() {
     // MutableStateFlow to track upload progress (0-100)
     val uploadProgress = MutableStateFlow(0f)
-    
+
     suspend fun uploadFile(file: File): Result<String> {
         return try {
             val uploadResult = S3Uploader.uploadFile(
@@ -68,12 +68,12 @@ class FileUploadViewModel : ViewModel() {
 ```kotlin
 class FileUploadRepository {
     private val apiService: ApiService // Your API service interface
-    
+
     suspend fun getPresignedUrl(fileType: String): String {
         val response = apiService.getPresignedUploadUrl(fileType)
         return response.presignedUrl
     }
-    
+
     suspend fun uploadFile(file: File, progressFlow: MutableStateFlow<Float>? = null): Result<String> {
         return try {
             val presignedUrl = getPresignedUrl(file.extension)
@@ -95,13 +95,13 @@ class FileUploadRepository {
 ```kotlin
 class UploadViewModel : ViewModel() {
     private val repository: FileUploadRepository
-    
+
     private val _uploadProgress = MutableStateFlow(0f)
     val uploadProgress: StateFlow<Float> = _uploadProgress
-    
+
     private val _uploadState = MutableStateFlow<UploadState>(UploadState.Idle)
     val uploadState: StateFlow<UploadState> = _uploadState
-    
+
     fun uploadImage(file: File) {
         _uploadState.value = UploadState.Uploading
         viewModelScope.launch {
@@ -114,7 +114,7 @@ class UploadViewModel : ViewModel() {
                 }
         }
     }
-    
+
     sealed class UploadState {
         object Idle : UploadState()
         object Uploading : UploadState()
@@ -127,7 +127,7 @@ class UploadViewModel : ViewModel() {
 fun UploadScreen(viewModel: UploadViewModel) {
     val uploadProgress by viewModel.uploadProgress.collectAsState()
     val uploadState by viewModel.uploadState.collectAsState()
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -138,9 +138,9 @@ fun UploadScreen(viewModel: UploadViewModel) {
         Button(onClick = { /* Show image picker */ }) {
             Text("Select Image")
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         when (val state = uploadState) {
             is UploadViewModel.UploadState.Idle -> {
                 // Idle state
@@ -196,22 +196,22 @@ class MediaUploadRepository {
                 "pdf" -> "application/pdf"
                 else -> "application/octet-stream"
             }
-            
+
             val presignedUrl = getPresignedUrlForType(fileExtension, contentType)
-            
+
             val uploadResult = S3Uploader.uploadFile(
                 presignedUrl = presignedUrl,
                 file = file,
                 progressMutableFlow = progressFlow,
                 contentType = contentType
             )
-            
+
             Result.success(uploadResult)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     private suspend fun getPresignedUrlForType(extension: String, contentType: String): String {
         // Call your backend to get a presigned URL
         return apiService.getPresignedUrl(extension, contentType).presignedUrl
@@ -226,7 +226,7 @@ class CustomS3UploaderExample {
     suspend fun uploadLargeFile(file: File, progressFlow: MutableStateFlow<Float>): Result<String> {
         return try {
             val presignedUrl = getPresignedUrl(file.name)
-            
+
             val uploadResult = S3Uploader.uploadFile(
                 presignedUrl = presignedUrl,
                 file = file,
@@ -235,13 +235,13 @@ class CustomS3UploaderExample {
                 chunkSize = 1024 * 1024, // 1MB chunks
                 bufferSize = 8192 // 8KB buffer
             )
-            
+
             Result.success(uploadResult)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     private suspend fun getPresignedUrl(fileName: String): String {
         // Implementation to get presigned URL
         return ""
@@ -251,7 +251,7 @@ class CustomS3UploaderExample {
 
 ## API Reference
 
-### S3Uploader
+### S3Uploader Object
 
 ```kotlin
 object S3Uploader {
@@ -263,7 +263,7 @@ object S3Uploader {
         chunkSize: Int = DEFAULT_CHUNK_SIZE,
         bufferSize: Int = DEFAULT_BUFFER_SIZE
     ): String
-    
+
     companion object {
         const val DEFAULT_CHUNK_SIZE = 512 * 1024 // 512KB
         const val DEFAULT_BUFFER_SIZE = 4096 // 4KB
@@ -296,3 +296,4 @@ The S3Uploader throws exceptions for various error conditions:
 
 - For an S3 uploader that integrates with the BaseRepo module, see the [BaseRepo-S3Uploader](../BaseRepo-S3Uploader/README.md) module.
 - The S3Uploader requires a presigned URL, which should be generated by your backend service.
+

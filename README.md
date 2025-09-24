@@ -30,7 +30,9 @@ dependencyResolutionManagement {
     }
 }
 ```
+
 or in your `settings.gradle` with:
+
 ```gradle
 allprojects {
     repositories {
@@ -40,13 +42,123 @@ allprojects {
 }
 ```
 
-### Using Version Catalog
+### Using the BOM (Bill of Materials)
+
+For easier dependency management, you can use the AppolyDroid BOM which provides version alignment for all modules and their shared dependencies:
+
+#### Using Version Catalog
 
 In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.31" # Replace with the latest version
+appolydroidToolbox = "1.0.32_rc01" # Replace with the latest version
+
+[libraries]
+appolydroid-bom = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroid-BOM", version.ref = "appolydroidToolbox" }
+# AppolyDroid modules (versions managed by BOM)
+appolydroid-baseRepo = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo" }
+appolydroid-baseRepo-s3 = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-S3Uploader" }
+appolydroid-baseRepo-paging = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "BaseRepo-Paging" }
+appolydroid-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "UiState" }
+appolydroid-appSnackBar = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar" }
+appolydroid-appSnackBar-uiState = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppSnackBar-UiState" }
+appolydroid-dateHelper = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil" }
+appolydroid-dateHelper-room = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Room" }
+appolydroid-dateHelper-serialization = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "DateHelperUtil-Serialization" }
+appolydroid-composeExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "ComposeExtensions" }
+appolydroid-lazyListPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyListPagingExtensions" }
+appolydroid-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyGridPagingExtensions" }
+appolydroid-pagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "PagingExtensions" }
+appolydroid-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "S3Uploader" }
+# Shared 3rd party dependencies (versions managed by BOM)
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx" }
+androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json" }
+sandwich = { group = "com.github.skydoves", name = "sandwich" }
+sandwich-retrofit = { group = "com.github.skydoves", name = "sandwich-retrofit" }
+flexiLogger = { group = "com.github.projectdelta6", name = "FlexiLogger" }
+flexiLogger-httpLogger = { group = "com.github.projectdelta6.FlexiLogger", name = "FlexiHttpLogger" }
+```
+
+Then in your module's `build.gradle.kts`:
+
+```gradle.kts
+dependencies {
+    // Import the BOM
+    implementation(platform(libs.appolydroid.bom))
+
+    // Now you can use AppolyDroid modules without specifying versions
+    implementation(libs.appolydroid.baseRepo)
+    implementation(libs.appolydroid.baseRepo.s3)
+    implementation(libs.appolydroid.baseRepo.paging)
+    implementation(libs.appolydroid.uiState)
+    implementation(libs.appolydroid.appSnackBar)
+    implementation(libs.appolydroid.appSnackBar.uiState)
+    implementation(libs.appolydroid.dateHelper)
+    implementation(libs.appolydroid.dateHelper.room)
+    implementation(libs.appolydroid.dateHelper.serialization)
+    implementation(libs.appolydroid.composeExtensions)
+    implementation(libs.appolydroid.lazyListPagingExtensions)
+    implementation(libs.appolydroid.lazyGridPagingExtensions)
+    implementation(libs.appolydroid.pagingExtensions)
+    implementation(libs.appolydroid.s3Uploader)
+
+    // The BOM also provides versions for shared dependencies.
+    // If you need to reference them directly, you can use:
+    // implementation(libs.androidx.room.runtime)
+    // implementation(libs.androidx.room.ktx)
+    // implementation(libs.androidx.paging.runtime)
+    // implementation(libs.kotlinx.serialization.json)
+    // implementation(libs.sandwich)
+    // implementation(libs.sandwich.retrofit)
+    // implementation(libs.flexiLogger)
+    // implementation(libs.flexiLogger.httpLogger)
+}
+```
+
+#### Without Version Catalog (BOM)
+
+In your module's `build.gradle.kts`:
+
+```gradle.kts
+dependencies {
+    // Import the BOM
+    implementation(platform("com.github.appoly.AppolyDroid-Toolbox:AppolyDroid-BOM:1.0.32_rc01"))
+
+    // Now you can use AppolyDroid modules without specifying versions
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:ComposeExtensions")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:PagingExtensions")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader")
+}
+```
+
+**Benefits of using the BOM:**
+
+- Ensures all AppolyDroid modules use compatible versions
+- Provides version management for shared 3rd party dependencies
+- Simplifies dependency declarations
+- Reduces version conflicts
+
+### Individual Module Installation
+
+In your `libs.versions.toml` file:
+
+```toml
+[versions]
+appolydroidToolbox = "1.0.32_rc01" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox
@@ -85,7 +197,6 @@ dependencies {
     implementation(libs.appolydroid.toolbox.compose.extensions)
 }
 ```
-
 ### Without Version Catalog
 
 In your module's `build.gradle.kts`:
@@ -93,68 +204,56 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Add only the modules you need
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.31")
-    implementation("com.github.appoly.AppolyDroid-Toolbox:ComposeExtensions:1.0.31")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-S3Uploader:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo-Paging:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Room:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:DateHelperUtil-Serialization:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:S3Uploader:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox:ComposeExtensions:1.0.32_rc01_bom")
 }
 ```
 
 ## Modules
-
 ### BaseRepo
 Foundation for repository pattern implementation with API call handling.
 [Learn more](BaseRepo/README.md)
-
 ### BaseRepo-S3Uploader
 Extension to BaseRepo adding S3 upload capabilities.
 [Learn more](BaseRepo-S3Uploader/README.md)
-
 ### BaseRepo-Paging
 Extends BaseRepo with Jetpack Paging capabilities.
 [Learn more](BaseRepo-Paging/README.md)
-
 ### DateHelperUtil
 Utilities for date and time operations.
 [Learn more](DateHelperUtil/README.md)
-
 ### DateHelperUtil-Room
 Room database integration for DateHelperUtil.
 [Learn more](DateHelperUtil-Room/README.md)
-
 ### DateHelperUtil-Serialization
 Kotlinx Serialization support for DateHelperUtil.
 [Learn more](DateHelperUtil-Serialization/README.md)
-
 ### UiState
 Simplified UI state management.
 [Learn more](UiState/README.md)
-
 ### AppSnackBar
 Enhanced Snackbar implementation.
 [Learn more](AppSnackBar/README.md)
-
 ### AppSnackBar-UiState
 Integration of AppSnackBar with UiState.
 [Learn more](AppSnackBar-UiState/README.md)
-
 ### LazyListPagingExtensions
 Extensions for Jetpack Compose LazyList with paging support.
 [Learn more](LazyListPagingExtensions/README.md)
-
 ### LazyGridPagingExtensions
 Extensions for Jetpack Compose LazyGrid with paging support.
 [Learn more](LazyGridPagingExtensions/README.md)
-
 ### S3Uploader
 Standalone S3 file upload utility.
 [Learn more](S3Uploader/README.md)
@@ -165,7 +264,7 @@ Some modules depend on [FlexiLogger](https://github.com/projectdelta6/FlexiLogge
 
 ## License
 
-```
+```text
 MIT License
 
 Copyright (c) 2025 Appoly Ltd

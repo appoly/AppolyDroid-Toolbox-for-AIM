@@ -13,9 +13,9 @@ Integration module that bridges the AppSnackBar and UiState modules, providing a
 
 ```gradle.kts
 // Requires both base modules
-implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox:UiState:1.0.32_rc01")
+implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar:1.0.32_rc01")
+implementation("com.github.appoly.AppolyDroid-Toolbox:AppSnackBar-UiState:1.0.32_rc01")
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ fun MyScreen(viewModel: MyViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState = viewModel.uiState.collectAsState().value
     val scope = rememberCoroutineScope()
-    
+
     // Show snackbar when UI state changes to error
     LaunchedEffect(key1 = uiState) {
         if (uiState.isError()) {
@@ -40,7 +40,7 @@ fun MyScreen(viewModel: MyViewModel) {
             )
         }
     }
-    
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
@@ -59,15 +59,15 @@ fun MyScreen(viewModel: MyViewModel) {
 class MyViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle())
     val uiState = _uiState.asStateFlow()
-    
+
     fun performAction() {
         _uiState.value = UiState.Loading()
-        
+
         viewModelScope.launch {
             try {
                 // Perform some operation
                 val result = repository.doSomething()
-                
+
                 // Update UI state to success
                 _uiState.value = UiState.Success()
             } catch (e: Exception) {
@@ -76,7 +76,7 @@ class MyViewModel : ViewModel() {
             }
         }
     }
-    
+
     fun resetState() {
         _uiState.value = UiState.Idle()
     }
@@ -87,7 +87,7 @@ fun MyScreen(viewModel: MyViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val uiState = viewModel.uiState.collectAsState().value
     val scope = rememberCoroutineScope()
-    
+
     // Show appropriate snackbars for different UI states
     LaunchedEffect(key1 = uiState) {
         when {
@@ -107,7 +107,7 @@ fun MyScreen(viewModel: MyViewModel) {
             }
         }
     }
-    
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
@@ -129,7 +129,7 @@ fun MyScreen(viewModel: MyViewModel) {
             ) {
                 Text("Perform Action")
             }
-            
+
             // Show loading indicator
             if (uiState.isLoading()) {
                 CircularProgressIndicator(
@@ -166,3 +166,4 @@ An extension property that converts a UiState to the appropriate SnackBarType.
 
 - [UiState](../UiState/README.md) - For UI state management
 - [AppSnackBar](../AppSnackBar/README.md) - For type-based snackbar styling
+
