@@ -15,8 +15,8 @@ Extension functions for easy integration of Jetpack Paging 3 with Compose LazyCo
 
 ```gradle.kts
 // Requires the base PagingExtensions module
-implementation("com.github.appoly.AppolyDroid-Toolbox:PagingExtensions:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox:PagingExtensions:1.0.32")
+implementation("com.github.appoly.AppolyDroid-Toolbox:LazyListPagingExtensions:1.0.32")
 
 // Make sure to include Jetpack Paging Compose
 implementation("androidx.paging:paging-compose:3.3.6")
@@ -30,7 +30,7 @@ implementation("androidx.paging:paging-compose:3.3.6")
 @Composable
 fun ItemsList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyColumn {
         lazyPagingItemsStates(
             lazyPagingItems = items,
@@ -50,7 +50,7 @@ fun ItemsList(viewModel: ItemsViewModel) {
 @Composable
 fun AdvancedItemsList(viewModel: AdvancedViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyColumn {
         lazyPagingItemsStates(
             lazyPagingItems = items,
@@ -78,7 +78,7 @@ fun AdvancedItemsList(viewModel: AdvancedViewModel) {
 @Composable
 fun CustomStatesItemsList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     // Provide custom UI providers
     CompositionLocalProvider(
         LocalLoadingState provides MyLoadingStateProvider(),
@@ -104,7 +104,7 @@ fun CustomStatesItemsList(viewModel: ItemsViewModel) {
 @Composable
 fun ErrorHandlingList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyColumn {
         lazyPagingItemsStates(
             lazyPagingItems = items,
@@ -143,7 +143,7 @@ so as not to trigger page load operations.
 @Composable
 fun ItemsWithNeighboursList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyColumn {
         lazyPagingItemsStatesWithNeighbours(
             lazyPagingItems = items,
@@ -153,26 +153,26 @@ fun ItemsWithNeighboursList(viewModel: ItemsViewModel) {
             itemContentType = { it.type }  // Content type for recycling
         ) { previousItem, currentItem, nextItem, itemKey, itemContentType ->
             // Access to neighbouring items
-			// eg yuo may want to add additional list Items based on a comparison of
-			// the current item with the previous and/or next items like a date separator.
-			if(currentItem.date != previousItem?.date) {
+            // eg yuo may want to add additional list Items based on a comparison of
+            // the current item with the previous and/or next items like a date separator.
+            if(currentItem.date != previousItem?.date) {
                 item(
-					key = "date_separator_${currentItem.date}",
-					contentType = "date_separator"
-				) {
-					DateSeparator(currentItem.date)
+                    key = "date_separator_${currentItem.date}",
+                    contentType = "date_separator"
+                ) {
+                    DateSeparator(currentItem.date)
                 }
             }
-			item (
-				key = itemKey,// this is the value returned by itemKey function
+            item (
+                key = itemKey,// this is the value returned by itemKey function
                 contentType = itemContentType// this is the value returned by itemContentType function
-			) {
-				ItemRowWithContext(
-					item = currentItem,
-					previousItem = previousItem,
-					nextItem = nextItem
-				)
-			}
+            ) {
+                ItemRowWithContext(
+                    item = currentItem,
+                    previousItem = previousItem,
+                    nextItem = nextItem
+                )
+            }
         }
     }
 }
@@ -186,7 +186,7 @@ For scenarios where you need access to the item index:
 @Composable
 fun IndexedItemsList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyColumn {
         lazyPagingItemsIndexedStates(
             lazyPagingItems = items,
@@ -211,7 +211,7 @@ If you need complete control over how items are rendered:
 @Composable
 fun CustomItemsList(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyColumn {
         lazyPagingItemsStates(
             lazyPagingItems = items,
@@ -313,3 +313,4 @@ fun <T : Any> LazyListScope.lazyPagingItemsStates(
 - [PagingExtensions](../PagingExtensions/README.md) - Core paging utility module
 - [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Android paging library
 - [Jetpack Compose](https://developer.android.com/jetpack/compose) - Android UI toolkit
+
