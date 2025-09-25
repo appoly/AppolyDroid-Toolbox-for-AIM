@@ -14,15 +14,16 @@ An extension module that bridges BaseRepo and S3Uploader, enabling seamless file
 
 ```gradle.kts
 // Requires both the base modules
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-S3Uploader:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.32")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.32")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-S3Uploader:1.0.32")
 ```
 
 ## How it Works
 
 This module acts as a bridge between:
-1. **S3Uploader Module** - Handles the direct S3 upload functionality with pre-signed URLs  
+
+1. **S3Uploader Module** - Handles the direct S3 upload functionality with pre-signed URLs
 2. **BaseRepo Module** - Provides repository pattern implementation with standardized API call handling
 
 The bridge enables your repository classes to seamlessly upload files to S3 and receive results in the standard `APIResult` format used throughout your app.
@@ -58,10 +59,10 @@ First, initialize the S3Uploader in your Application class:
 class MyApp: Application() {
     override fun onCreate() {
         super.onCreate()
-        
+
         // Initialize S3Uploader with your auth token provider
         S3Uploader.initS3Uploader(
-            tokenProvider = { 
+            tokenProvider = {
                 // Return your authentication token
                 authManager.getToken()
             },
@@ -107,7 +108,7 @@ class MediaRepository : AppolyBaseRepo({ YourRetrofitClient }) {
 class UploadViewModel(private val mediaRepository: MediaRepository) : ViewModel() {
     private val _uploadProgress = MutableStateFlow(0f)
     val uploadProgress: StateFlow<Float> = _uploadProgress.asStateFlow()
-    
+
     suspend fun uploadVideo(file: File): APIResult<String> {
         return mediaRepository.uploadVideo(file, _uploadProgress)
     }
@@ -117,12 +118,12 @@ class UploadViewModel(private val mediaRepository: MediaRepository) : ViewModel(
 @Composable
 fun UploadScreen(viewModel: UploadViewModel) {
     val progress by viewModel.uploadProgress.collectAsState()
-    
+
     LinearProgressIndicator(
         progress = { progress / 100f },
         modifier = Modifier.fillMaxWidth()
     )
-    
+
     Text("${progress.toInt()}% Uploaded")
 }
 ```
@@ -134,15 +135,15 @@ This approach combines uploading a file and then sending the resulting S3 path t
 ```kotlin
 class UserRepository : AppolyBaseRepo({ YourRetrofitClient }) {
     private val userService by lazyService<UserAPI>()
-    
+
     /**
      * Upload a profile picture and associate it with a user
      */
-    suspend fun updateProfilePicture(userId: String, imageFile: File): APIResult<UserProfile> = 
+    suspend fun updateProfilePicture(userId: String, imageFile: File): APIResult<UserProfile> =
         uploadFileToS3(
             generatePresignedURL = "https://api.example.com/uploads/generate-presigned-url",
             file = imageFile,
-            sendPathApiCall = { s3FilePath -> 
+            sendPathApiCall = { s3FilePath ->
                 // This API call is only made if the S3 upload succeeds
                 doAPICall("updateProfilePicture") {
                     userService.api.updateProfilePicture(userId, s3FilePath)

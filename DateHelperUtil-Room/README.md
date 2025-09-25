@@ -15,8 +15,8 @@ Extension module for DateHelperUtil that provides Room database integration for 
 
 ```gradle.kts
 // Requires base DateHelperUtil module
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Room:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.32")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Room:1.0.32")
 
 // Required Room dependencies
 implementation("androidx.room:room-runtime:2.8.0")
@@ -37,15 +37,15 @@ Add the converters to your Room database by annotating your database class with 
 )
 @TypeConverters(
     DBDateConverters::class // Include the DateHelperUtil-Room converters
-) 
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val postDao: PostDao
-    
+
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
-        
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -90,16 +90,16 @@ Room will automatically handle the conversion between your Java 8 date-time type
 interface UserDao {
     @Query("SELECT * FROM users WHERE registrationDate >= :startDate")
     fun getUsersRegisteredAfter(startDate: LocalDateTime): Flow<List<UserEntity>>
-    
+
     @Query("SELECT * FROM users WHERE birthDate BETWEEN :startDate AND :endDate")
     suspend fun getUsersBornBetween(startDate: LocalDate, endDate: LocalDate): List<UserEntity>
-    
+
     @Insert
     suspend fun insertUser(user: UserEntity): Long
-    
+
     @Update
     suspend fun updateUser(user: UserEntity)
-    
+
     @Query("UPDATE users SET lastLoginDate = :loginTime WHERE id = :userId")
     suspend fun updateLastLogin(userId: Long, loginTime: ZonedDateTime)
 }
@@ -116,14 +116,14 @@ class UserRepository(private val userDao: UserDao) {
         val oneWeekAgo = LocalDateTime.now().minusWeeks(1)
         return userDao.getUsersRegisteredAfter(oneWeekAgo)
     }
-    
+
     // Get users born in a specific year
     suspend fun getUsersBornInYear(year: Int): List<UserEntity> {
         val startDate = LocalDate.of(year, 1, 1)
         val endDate = LocalDate.of(year, 12, 31)
         return userDao.getUsersBornBetween(startDate, endDate)
     }
-    
+
     // Create a new user with current registration time
     suspend fun createUser(username: String, email: String, birthDate: LocalDate?): Long {
         val user = UserEntity(
@@ -136,7 +136,7 @@ class UserRepository(private val userDao: UserDao) {
         )
         return userDao.insertUser(user)
     }
-    
+
     // Update a user's last login time
     suspend fun recordUserLogin(userId: Long) {
         userDao.updateLastLogin(userId, ZonedDateTime.now())
@@ -155,6 +155,7 @@ The DateHelperUtil-Room module stores date-time values in the following formats:
 | ZonedDateTime | ISO-8601 extended format (UTC) | "2023-05-30T15:45:30.000000Z" |
 
 For ZonedDateTime values:
+
 1. When storing: The ZonedDateTime is converted to UTC timezone before storage
 2. When retrieving: The UTC time is parsed and then converted to the device's local timezone
 
@@ -170,19 +171,19 @@ The main class containing type converters for Room:
 class DBDateConverters {
     @TypeConverter
     fun localDateTimeToJson(date: LocalDateTime?): String?
-    
+
     @TypeConverter
     fun jsonToLocalDateTime(json: String?): LocalDateTime?
-    
+
     @TypeConverter
     fun localDateToJson(date: LocalDate?): String?
-    
+
     @TypeConverter
     fun jsonToLocalDate(json: String?): LocalDate?
-    
+
     @TypeConverter
     fun zonedDateTimeToJson(date: ZonedDateTime?): String?
-    
+
     @TypeConverter
     fun jsonToZonedDateTime(json: String?): ZonedDateTime?
 }
@@ -199,3 +200,4 @@ class DBDateConverters {
 - The converters leverage DateHelper's parsing and formatting methods for consistency
 - The module automatically uses DateHelperUtil's standardized date formats
 - For troubleshooting, enable logging in DateHelper: `DateHelper.setLogger(yourLogger, LoggingLevel.D)`
+

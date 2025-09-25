@@ -49,12 +49,14 @@ abstract class UpdateReadmeVersions : DefaultTask() {
         val versionsMap = mutableMapOf<String, String?>()
 
         versionsMap["toolbox"] = extractVersion(tomlContent, "toolboxVersion")
+        versionsMap["bom"] = versionsMap["toolbox"] // Use same version as toolbox
         versionsMap["room"] = extractVersion(tomlContent, "roomVersion")
         versionsMap["kotlinx-serialization"] = extractVersion(tomlContent, "kotlinxSerialization")
         versionsMap["paging"] = extractVersion(tomlContent, "paging")
 
-        // Check if all required versions were found
-        val missingVersions = versionsMap.filterValues { it == null }.keys
+        // Check if all required versions were found (excluding bom since it uses toolbox version)
+        val requiredVersions = versionsMap.filterKeys { it != "bom" }
+        val missingVersions = requiredVersions.filterValues { it == null }.keys
         if (missingVersions.isNotEmpty()) {
             missingVersions.forEach { key ->
                 val versionKey = when (key) {
@@ -67,11 +69,12 @@ abstract class UpdateReadmeVersions : DefaultTask() {
         }
 
         val toolboxVersion = versionsMap["toolbox"]!!
+        val bomVersion = versionsMap["bom"]!!
         val roomVersion = versionsMap["room"]!!
         val kotlinxSerializationVersion = versionsMap["kotlinx-serialization"]!!
         val pagingVersion = versionsMap["paging"]!!
 
-        logger.lifecycle("Found versions - toolbox: $toolboxVersion, room: $roomVersion, kotlinx-serialization: $kotlinxSerializationVersion, paging: $pagingVersion")
+        logger.lifecycle("Found versions - toolbox: $toolboxVersion, bom: $bomVersion (same as toolbox), room: $roomVersion, kotlinx-serialization: $kotlinxSerializationVersion, paging: $pagingVersion")
 
         // Find all README.md files in the project
         val readmeFiles = rootDir.walk()
@@ -89,20 +92,77 @@ abstract class UpdateReadmeVersions : DefaultTask() {
             var fileUpdates = 0
 
             // Pattern 1: Check toolbox implementation statements in code blocks
-            val toolboxResult = updateVersions(
-                content = content,
-                pattern = Pattern.compile("(implementation\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox-for-AIM:[^:]+:)([^\"')]+)([\"')])")
-                    .toMatchProcessor(1, 3) { it == toolboxVersion },
-                file = file,
-                versionName = "toolbox",
-                expectedVersion = toolboxVersion,
-                checkOnly = checkOnly.get()
-            )
+            // For the main README, skip the BOM section since it intentionally has no versions
+            val isMainReadme = file.name.equals("README.md", ignoreCase = true) && file.parentFile == rootDir
+            val bomSectionStart = if (isMainReadme) content.indexOf("#### Without Version Catalog (BOM)") else -1
+            val bomSectionEnd = if (bomSectionStart != -1) {
+                val nextSection = content.indexOf("#### ", bomSectionStart + 1)
+                if (nextSection != -1) nextSection else content.length
+            } else -1
+
+            val toolboxResult = if (bomSectionStart != -1 && bomSectionEnd != -1) {
+                // Process content before BOM section
+                val beforeBom = content.substring(0, bomSectionStart)
+                val afterBom = content.substring(bomSectionEnd)
+
+                val beforeResult = updateVersions(
+                    content = beforeBom,
+                    pattern = Pattern.compile("(implementation\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox-for-AIM:[^:]+:)([^\"')]+)([\"')])")
+                        .toMatchProcessor(1, 3) { it == toolboxVersion },
+                    file = file,
+                    versionName = "toolbox",
+                    expectedVersion = toolboxVersion,
+                    checkOnly = checkOnly.get()
+                )
+
+                val afterResult = updateVersions(
+                    content = afterBom,
+                    pattern = Pattern.compile("(implementation\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox-for-AIM:[^:]+:)([^\"')]+)([\"')])")
+                        .toMatchProcessor(1, 3) { it == toolboxVersion },
+                    file = file,
+                    versionName = "toolbox",
+                    expectedVersion = toolboxVersion,
+                    checkOnly = checkOnly.get()
+                )
+
+                // Combine results
+                val combinedContent = beforeResult.first + content.substring(bomSectionStart, bomSectionEnd) + afterResult.first
+                val hasInconsistencies = beforeResult.second || afterResult.second
+                val totalUpdates = beforeResult.third + afterResult.third
+                Triple(combinedContent, hasInconsistencies, totalUpdates)
+            } else {
+                // Process normally
+                updateVersions(
+                    content = content,
+                    pattern = Pattern.compile("(implementation\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox-for-AIM:[^:]+:)([^\"')]+)([\"')])")
+                        .toMatchProcessor(1, 3) { it == toolboxVersion },
+                    file = file,
+                    versionName = "toolbox",
+                    expectedVersion = toolboxVersion,
+                    checkOnly = checkOnly.get()
+                )
+            }
 
             if (toolboxResult.second) hasInconsistencies = true
             content = toolboxResult.first
             fileUpdates += toolboxResult.third
             totalUpdates += toolboxResult.third
+
+            // Pattern 1.5: Check BOM platform statements in code blocks
+            val bomResult = updateVersions(
+                content = content,
+                pattern = Pattern.compile("(implementation\\(platform\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox-for-AIM:AppolyDroid-Toolbox-bom:)([^\"')]+)([\"')])")
+                    .toMatchProcessor(1, 3) { it == toolboxVersion },
+                file = file,
+                versionName = "bom",
+                expectedVersion = toolboxVersion,
+                checkOnly = checkOnly.get()
+            )
+
+            if (bomResult.second) hasInconsistencies = true
+            content = bomResult.first
+            fileUpdates += bomResult.third
+            totalUpdates += bomResult.third
 
             // Pattern 2: Check Room dependency versions in code blocks
             val roomResult = updateVersions(
@@ -173,7 +233,7 @@ abstract class UpdateReadmeVersions : DefaultTask() {
                 try {
                     val tomlResult = updateVersions(
                         content = content,
-                        pattern = Pattern.compile("(appolydroidToolbox_AIM\\s*=\\s*\")([^\"]+)(\".+?\\#\\s*Replace with the latest version)")
+                        pattern = Pattern.compile("(appolydroidToolbox_AIM\\s*=\\s*\")([^\"]+)(\")")
                             .toMatchProcessor(1, 3) { it == toolboxVersion },
                         file = file,
                         versionName = "toolbox TOML example",
@@ -185,6 +245,22 @@ abstract class UpdateReadmeVersions : DefaultTask() {
                     content = tomlResult.first
                     fileUpdates += tomlResult.third
                     totalUpdates += tomlResult.third
+
+                    // Pattern 6.5: Check BOM TOML version example in main README
+                    val bomTomlResult = updateVersions(
+                        content = content,
+                        pattern = Pattern.compile("(appolydroidBom\\s*=\\s*\")([^\"]+)(\")")
+                            .toMatchProcessor(1, 3) { it == toolboxVersion },
+                        file = file,
+                        versionName = "bom TOML example",
+                        expectedVersion = toolboxVersion,
+                        checkOnly = checkOnly.get()
+                    )
+
+                    if (bomTomlResult.second) hasInconsistencies = true
+                    content = bomTomlResult.first
+                    fileUpdates += bomTomlResult.third
+                    totalUpdates += bomTomlResult.third
                 } catch (e: Exception) {
                     logger.warn("Error processing TOML version example in main README: ${e.message}")
                 }
@@ -245,14 +321,18 @@ abstract class UpdateReadmeVersions : DefaultTask() {
 
             while (matcher.find()) {
                 val foundVersion = matcher.group(2)
-                if (!isCorrectVersion(foundVersion)) {
+                if (foundVersion != null && !isCorrectVersion(foundVersion)) {
                     if (checkOnly) {
                         logger.error("$versionName version mismatch in ${file.name}: found $foundVersion, expected $expectedVersion")
                         hasInconsistencies = true
                     } else {
-                        val replacement = matcher.group(prefixGroup) + expectedVersion + matcher.group(suffixGroup)
-                        matcher.appendReplacement(sb, replacement)
-                        updatedCount++
+                        val prefix = matcher.group(prefixGroup)
+                        val suffix = matcher.group(suffixGroup)
+                        if (prefix != null && suffix != null) {
+                            val replacement = prefix + expectedVersion + suffix
+                            matcher.appendReplacement(sb, replacement)
+                            updatedCount++
+                        }
                     }
                 } else if (!checkOnly) {
                     matcher.appendReplacement(sb, matcher.group())

@@ -13,7 +13,7 @@ Foundation module for implementing the repository pattern with standardized API 
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.32")
 ```
 
 ## API Response Structure
@@ -22,9 +22,9 @@ The BaseRepo module expects a specific JSON structure for all API responses. The
 
 ### Response Format
 
-All API responses should follow one of these formats:
+All API responses should follow one of these formats.
 
-The `messages` field is optional in all responses.
+**Note:** The `messages` field is optional in all responses.
 The `errors` field is optional in all responses, and is only checked when the `status` is `"error"`.
 
 #### Basic Response
@@ -102,9 +102,9 @@ Create a base repository class that extends `AppolyBaseRepo`:
 
 ```kotlin
 abstract class BaseRepo : AppolyBaseRepo(
-	getRetrofitClient = { RetrofitClient },
-	logger = Log, //Your Implementation of FlexiLogger
-	loggingLevel = LoggingLevel.V// Set desired logging level
+    getRetrofitClient = { RetrofitClient },
+    logger = Log, //Your Implementation of FlexiLogger
+    loggingLevel = LoggingLevel.V// Set desired logging level
 )
 ```
 
@@ -114,8 +114,8 @@ Define your API service interface using Sandwich for response handling:
 
 ```kotlin
 interface UserAPI : BaseService.API {
-	@GET("/api/user")
-	suspend fun fetchUser(): ApiResponse<GenericResponse<UserData>>
+    @GET("/api/user")
+    suspend fun fetchUser(): ApiResponse<GenericResponse<UserData>>
 }
 ```
 
@@ -123,11 +123,11 @@ Use the `doAPICall` method for standardized API request handling:
 
 ```kotlin
 abstract class UserRepo: BaseRepo() {
-	private val userService by lazyService<UserAPI>()
+    private val userService by lazyService<UserAPI>()
 
-	suspend fun fetchUser(userId: Int): APIResult<UserData> = doAPICall("fetchUser") {
-		userService.api.getUser(userId)
-	}
+    suspend fun fetchUser(userId: Int): APIResult<UserData> = doAPICall("fetchUser") {
+        userService.api.getUser(userId)
+    }
 }
 ```
 
@@ -141,7 +141,9 @@ fun getUserFlow(userId: Int): Flow<APIFlowState<UserData>> = flow {
     emit(fetchUser(userId).asApiFlowState())
 }
 ```
+
 or
+
 ```kotlin
 fun getUserFlow(userId: Int): Flow<APIFlowState<UserData>> = callApiAsFlow {
     fetchUser(userId).asApiFlowState()
@@ -178,11 +180,11 @@ val userNameFlow = userDataRefreshFlow.cacheSuccessData("Unknown User") { user -
 // Use in Compose
 @Composable
 fun UserScreen() {
-	val cachedUser by cachedUserFlow.collectAsState()
-	val userName by userNameFlow.collectAsState()
+    val cachedUser by cachedUserFlow.collectAsState()
+    val userName by userNameFlow.collectAsState()
 
-	// cachedUser retains the last successful value even during refresh
-	// userName shows "Unknown User" initially, then the actual name
+    // cachedUser retains the last successful value even during refresh
+    // userName shows "Unknown User" initially, then the actual name
 }
 ```
 
@@ -239,11 +241,13 @@ Base class for repositories with API handling capabilities.
 
 #### `APIResult<T>`
 Sealed class representing an API result:
+
 - `APIResult.Success<T>`: Contains successful data
 - `APIResult.Error`: Contains error information
 
 #### `APIFlowState<T>`
 Sealed class representing a Flow API state:
+
 - `APIFlowState.Loading`: Loading state
 - `APIFlowState.Success<T>`: Success state with data
 - `APIFlowState.Error`: Error state with message
@@ -254,11 +258,13 @@ A Flow wrapper that can be refreshed on demand.
 ### Key Methods
 
 #### `doAPICall`
+
 ```kotlin
 suspend fun <T> doAPICall(tag: String, apiCall: suspend () -> ApiResponse<GenericResponse<T>>): APIResult<T>
 ```
 
 #### `doAPICallWithBaseResponse`
+
 ```kotlin
 suspend fun doAPICallWithBaseResponse(tag: String, apiCall: suspend () -> ApiResponse<BaseResponse>): APIResult<BaseResponse>
 ```
@@ -275,3 +281,4 @@ suspend fun doAPICallWithBaseResponse(tag: String, apiCall: suspend () -> ApiRes
 
 - [BaseRepo-Paging](../BaseRepo-Paging/README.md) - Adds Jetpack Paging support
 - [BaseRepo-S3Uploader](../BaseRepo-S3Uploader/README.md) - Adds S3 upload capabilities
+

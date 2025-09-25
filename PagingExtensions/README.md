@@ -12,7 +12,7 @@ Core utilities and extensions for Jetpack Paging 3 integration, providing the fo
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:PagingExtensions:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:PagingExtensions:1.0.32")
 ```
 
 ## Usage
@@ -165,7 +165,7 @@ Interface for providing custom error state UI:
 interface ErrorStateProvider {
     @Composable
     fun ErrorState(modifier: Modifier, text: String, onRetry: (() -> Unit)?)
-    
+
     @Composable
     fun ErrorState(modifier: Modifier, text: @Composable () -> Unit, onRetry: (() -> Unit)?)
 }
@@ -193,3 +193,4 @@ This module provides the foundation for:
 
 - Jetpack Compose
 - [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview)
+

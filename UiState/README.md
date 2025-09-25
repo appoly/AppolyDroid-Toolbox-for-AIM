@@ -13,7 +13,7 @@ A standardized UI state management library for Android applications, providing c
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.32")
 ```
 
 ## Usage
@@ -24,12 +24,12 @@ implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.31")
 class MyViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle())
     val uiState = _uiState.asStateFlow()
-    
+
     fun loadData() {
         // Update state to Loading
         _uiState.value = UiState.Loading()
 
-		viewModelScope.launch {
+        viewModelScope.launch {
             try {
                 val result = repository.fetchData()
                 // Update state to Success
@@ -73,12 +73,12 @@ class MyViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle())
     val uiState = _uiState.asStateFlow()
 
-	fun loadUserProfile(userId: String) {
+    fun loadUserProfile(userId: String) {
         _uiState.value = UiState.Loading(key = "profile")
         // ...fetch profile...
     }
 
-	fun loadUserPosts(userId: String) {
+    fun loadUserPosts(userId: String) {
         _uiState.value = UiState.Loading(key = "posts")
         // ...fetch posts...
     }
@@ -127,3 +127,4 @@ UiState works well with other Appoly modules:
 
 - [AppSnackBar-UiState](../AppSnackBar-UiState/README.md) - For automatic Snackbar display based on UI state
 - [BaseRepo](../BaseRepo/README.md) - For connecting repository results with UI state
+
