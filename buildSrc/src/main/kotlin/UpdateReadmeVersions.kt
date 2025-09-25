@@ -151,7 +151,7 @@ abstract class UpdateReadmeVersions : DefaultTask() {
             // Pattern 1.5: Check BOM platform statements in code blocks
             val bomResult = updateVersions(
                 content = content,
-                pattern = Pattern.compile("(implementation\\(platform\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox:AppolyDroid-BOM:)([^\"')]+)([\"')])")
+                pattern = Pattern.compile("(implementation\\(platform\\([\"']com\\.github\\.appoly\\.AppolyDroid-Toolbox:AppolyDroid-Toolbox-bom:)([^\"')]+)([\"')])")
                     .toMatchProcessor(1, 3) { it == toolboxVersion },
                 file = file,
                 versionName = "bom",

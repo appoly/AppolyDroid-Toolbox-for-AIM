@@ -105,7 +105,7 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Import the BOM
-    implementation(platform("com.github.appoly.AppolyDroid-Toolbox:AppolyDroid-Toolbox-bom:1.0.32_rc03"))
+    implementation(platform("com.github.appoly.AppolyDroid-Toolbox:AppolyDroid-Toolbox-bom:1.0.32"))
 
     // Now you can use AppolyDroid modules without specifying versions
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo")
