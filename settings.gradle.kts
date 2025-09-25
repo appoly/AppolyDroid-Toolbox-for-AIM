@@ -23,6 +23,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AppolyDroid"
+include(":bom")
 include(":app")
 include(":BaseRepo")
 include(":BaseRepo-S3Uploader")

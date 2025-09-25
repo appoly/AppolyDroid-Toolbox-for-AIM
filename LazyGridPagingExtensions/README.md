@@ -14,8 +14,8 @@ Extension functions for integrating Jetpack Paging 3 with Compose LazyVerticalGr
 
 ```gradle.kts
 // Requires the base PagingExtensions module
-implementation("com.github.appoly.AppolyDroid-Toolbox:PagingExtensions:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox:PagingExtensions:1.0.32")
+implementation("com.github.appoly.AppolyDroid-Toolbox:LazyGridPagingExtensions:1.0.32")
 
 // Make sure to include Jetpack Paging Compose
 implementation("androidx.paging:paging-compose:3.3.6")
@@ -29,7 +29,7 @@ implementation("androidx.paging:paging-compose:3.3.6")
 @Composable
 fun ItemsGrid(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2)
     ) {
@@ -51,7 +51,7 @@ fun ItemsGrid(viewModel: ItemsViewModel) {
 @Composable
 fun AdvancedItemsGrid(viewModel: AdvancedViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 128.dp)
     ) {
@@ -63,7 +63,7 @@ fun AdvancedItemsGrid(viewModel: AdvancedViewModel) {
             retry = { items.retry() },  // Custom retry action
             itemKey = { it.id },  // Custom key function
             // Custom span based on item properties
-            itemSpan = { item -> 
+            itemSpan = { item ->
                 if (item != null && item.isFullWidth) {
                     GridItemSpan(maxLineSpan)  // Full width for featured items
                 } else {
@@ -89,7 +89,7 @@ fun AdvancedItemsGrid(viewModel: AdvancedViewModel) {
 @Composable
 fun CustomEmptyStateGrid(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(3)
     ) {
@@ -114,7 +114,7 @@ fun CustomEmptyStateGrid(viewModel: ItemsViewModel) {
 @Composable
 fun CustomStatesItemsGrid(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     // Provide custom UI providers
     CompositionLocalProvider(
         LocalLoadingState provides MyLoadingStateProvider(),
@@ -142,7 +142,7 @@ fun CustomStatesItemsGrid(viewModel: ItemsViewModel) {
 @Composable
 fun ErrorHandlingGrid(viewModel: ItemsViewModel) {
     val items = viewModel.itemsFlow.collectAsLazyPagingItems()
-    
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2)
     ) {
@@ -259,3 +259,4 @@ fun LazyGridScope.emptyStateItem(
 - [PagingExtensions](../PagingExtensions/README.md) - Core paging utility module
 - [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Android paging library
 - [Jetpack Compose](https://developer.android.com/jetpack/compose) - Android UI toolkit
+
