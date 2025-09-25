@@ -43,7 +43,7 @@ publishing {
 		create<MavenPublication>("bom") {
 			from(components["javaPlatform"])
 			groupId = "com.github.appoly"
-			artifactId = project.name + "-BOM"
+			artifactId = "AppolyDroid-Toolbox-bom"
 			version = libs.versions.toolboxVersion.get()
 		}
 	}
