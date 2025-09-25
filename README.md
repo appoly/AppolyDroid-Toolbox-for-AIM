@@ -52,7 +52,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.32_rc03" # Replace with the latest version
+appolydroidToolbox = "1.0.32" # Replace with the latest version
 
 [libraries]
 appolydroid-toolbox-bom = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroid-Toolbox-bom", version.ref = "appolydroidToolbox" }
@@ -138,7 +138,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.32_rc03" # Replace with the latest version
+appolydroidToolbox = "1.0.32" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox
