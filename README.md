@@ -52,7 +52,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.32_rc02" # Replace with the latest version
+appolydroidToolbox = "1.0.32_rc03" # Replace with the latest version
 
 [libraries]
 appolydroid-toolbox-bom = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "AppolyDroid-BOM", version.ref = "appolydroidToolbox" }
@@ -71,22 +71,6 @@ appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.Appo
 appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "LazyGridPagingExtensions" }
 appolydroid-toolbox-pagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "PagingExtensions" }
 appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox", name = "S3Uploader" }
-# Shared 3rd party dependencies (versions managed by BOM)
-#Room
-androidx-room-runtime = { group = "androidx.room", name = "room-runtime" }
-androidx-room-compiler = { group = "androidx.room", name = "room-compiler" }
-androidx-room-ktx = { group = "androidx.room", name = "room-ktx" }
-androidx-room-testing = { group = "androidx.room", name = "room-testing" }
-#Paging
-androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime" }
-#Kotlinx Serialization
-kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json" }
-#Sandwich
-sandwich = { group = "com.github.skydoves", name = "sandwich" }
-sandwich-retrofit = { group = "com.github.skydoves", name = "sandwich-retrofit" }
-#FlexiLogger
-flexiLogger = { group = "com.github.projectdelta6", name = "FlexiLogger" }
-flexiLogger-httpLogger = { group = "com.github.projectdelta6.FlexiLogger", name = "FlexiHttpLogger" }
 ```
 
 Then in your module's `build.gradle.kts`:
@@ -111,24 +95,6 @@ dependencies {
     implementation(libs.appolydroid.toolbox.lazyGridPagingExtensions)
     implementation(libs.appolydroid.toolbox.pagingExtensions)
     implementation(libs.appolydroid.toolbox.s3Uploader)
-
-    // The BOM also provides versions for shared dependencies.
-    // If you need to reference them directly, you can use:
-    // Room
-    // implementation(libs.androidx.room.runtime)
-    // ksp(libs.androidx.room.compiler)
-    // implementation(libs.androidx.room.ktx)
-    // androidTestImplementation(libs.androidx.room.testing)
-    // Paging
-    // implementation(libs.androidx.paging.runtime)
-    // Kotlinx Serialization
-    // implementation(libs.kotlinx.serialization.json)
-    // Sandwich
-    // implementation(libs.sandwich)
-    // implementation(libs.sandwich.retrofit)
-    // FlexiLogger
-    // implementation(libs.flexiLogger)
-    // implementation(libs.flexiLogger.httpLogger)
 }
 ```
 
@@ -139,7 +105,7 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Import the BOM
-    implementation(platform("com.github.appoly.AppolyDroid-Toolbox:AppolyDroid-BOM:1.0.32_rc02"))
+    implementation(platform("com.github.appoly.AppolyDroid-Toolbox:AppolyDroid-BOM:1.0.32_rc03"))
 
     // Now you can use AppolyDroid modules without specifying versions
     implementation("com.github.appoly.AppolyDroid-Toolbox:BaseRepo")
@@ -172,7 +138,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.32_rc02" # Replace with the latest version
+appolydroidToolbox = "1.0.32_rc03" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox
