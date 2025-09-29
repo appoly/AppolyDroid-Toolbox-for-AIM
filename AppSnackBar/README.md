@@ -13,7 +13,7 @@ A customizable Jetpack Compose Snackbar implementation with support for differen
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.33")
 ```
 
 ## Usage
@@ -24,7 +24,7 @@ implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.31
 @Composable
 fun MyScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { snackbarData ->
@@ -87,7 +87,7 @@ scope.launch {
         actionLabel = "Undo",
         type = SnackBarType.Info
     )
-    
+
     // Handle the action button click
     when (result) {
         SnackbarResult.ActionPerformed -> {
@@ -114,7 +114,7 @@ fun MyApp() {
         success = Color(0xFF4CAF50),  // Custom green
         error = Color(0xFFF44336)     // Custom red
     )
-    
+
     // Provide the colors to all composables in the hierarchy
     CompositionLocalProvider(
         LocalAppSnackBarColors provides customSnackbarColors
@@ -132,7 +132,7 @@ fun MyApp() {
 fun MyScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
@@ -159,7 +159,7 @@ fun MyScreen() {
             ) {
                 Text("Show Info Snackbar")
             }
-            
+
             Button(
                 onClick = {
                     scope.launch {
@@ -172,7 +172,7 @@ fun MyScreen() {
             ) {
                 Text("Show Success Snackbar")
             }
-            
+
             Button(
                 onClick = {
                     scope.launch {
@@ -192,7 +192,7 @@ fun MyScreen() {
 
 ## API Reference
 
-### AppSnackBar
+### AppSnackBar Component
 
 ```kotlin
 @Composable
@@ -202,6 +202,7 @@ fun AppSnackBar(snackbarData: SnackbarData)
 ### SnackBarType
 
 An enum class that defines the types of snackbars:
+
 - `SnackBarType.Info` - For general information messages
 - `SnackBarType.Success` - For successful operation notifications
 - `SnackBarType.Error` - For error messages and warnings
@@ -237,3 +238,4 @@ suspend fun SnackbarHostState.showSnackbar(
 ## Dependencies
 
 - Jetpack Compose Material 3
+

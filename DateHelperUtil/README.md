@@ -13,7 +13,7 @@ A utility module for standardized date and time operations in Android applicatio
 ## Installation
 
 ```gradle.kts
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.33")
 ```
 
 ## Usage
@@ -147,3 +147,4 @@ const val SERVER_PATTERN_DATE = "yyyy-MM-dd"
 
 - [DateHelperUtil-Room](../DateHelperUtil-Room/README.md) - Room database integration
 - [DateHelperUtil-Serialization](../DateHelperUtil-Serialization/README.md) - Kotlinx Serialization support
+

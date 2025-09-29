@@ -15,12 +15,12 @@ An extension module for BaseRepo that adds Jetpack Paging 3 support for efficien
 
 ```gradle.kts
 // Requires the base BaseRepo module
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.31")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.31")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.33")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.33")
 
 // For Compose UI integration
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.31") // For LazyColumn
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.31") // For LazyGrid
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.33") // For LazyColumn
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.33") // For LazyGrid
 ```
 
 ## API Response Format
@@ -70,7 +70,7 @@ In your repository, create a method that uses `doNestedPagedAPICall` to fetch a 
 ```kotlin
 class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
     private val libraryService by lazyService<LibraryAPI>()
-    
+
     // Function to fetch a single page
     suspend fun fetchLibraryPage(
         perPage: Int,
@@ -97,14 +97,14 @@ Create a factory that will generate paging sources on demand:
 ```kotlin
 class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
     // ...existing code...
-    
+
     fun getLibraryPagingSourceFactory(
         query: String,
         filters: Filters,
         pageSize: Int = 20,
         jumpingSupported: Boolean = true,
         jumpPageThreshold: Float = 2f
-    ): GenericInvalidatingPagingSourceFactory<LibraryItem> = 
+    ): GenericInvalidatingPagingSourceFactory<LibraryItem> =
         GenericInvalidatingPagingSourceFactory(
             pageSize = pageSize,
             jumpingSupported = jumpingSupported,
@@ -123,21 +123,21 @@ class LibraryViewModel(
 ) : ViewModel() {
     private var currentQuery = ""
     private var currentFilters = Filters()
-    
+
     // Create factory and pager
-    private val pagingSourceFactory = 
+    private val pagingSourceFactory =
         libraryRepository.getLibraryPagingSourceFactory(currentQuery, currentFilters)
-    
+
     // Create flow to collect in UI
     val items = pagingSourceFactory.getPager()
         .flow
         .cachedIn(viewModelScope)
-    
+
     // Function to refresh data
     fun refresh() {
         pagingSourceFactory.invalidate()
     }
-    
+
     // Function to update search parameters
     fun search(query: String, filters: Filters) {
         currentQuery = query
@@ -155,7 +155,7 @@ class LibraryViewModel(
 @Composable
 fun LibraryScreen(viewModel: LibraryViewModel) {
     val items = viewModel.items.collectAsLazyPagingItems()
-    
+
     LazyColumn {
         items(
             count = items.itemCount,
@@ -169,14 +169,14 @@ fun LibraryScreen(viewModel: LibraryViewModel) {
                 LoadingItemPlaceholder()
             }
         }
-        
+
         // Handle different loading states
         when (items.loadState.refresh) {
             is LoadState.Loading -> item { FullScreenLoader() }
             is LoadState.Error -> item { ErrorView(onRetry = { items.retry() }) }
             else -> Unit
         }
-        
+
         // Append loading indicator
         when (items.loadState.append) {
             is LoadState.Loading -> item { LoadingIndicator() }
@@ -193,33 +193,33 @@ fun LibraryScreen(viewModel: LibraryViewModel) {
 class LibraryFragment : Fragment() {
     private val viewModel: LibraryViewModel by viewModels()
     private val adapter = LibraryAdapter()
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view)
-        
+
         binding.recyclerView.adapter = adapter.withLoadStateHeaderAndFooter(
             header = LoadingStateAdapter { adapter.retry() },
             footer = LoadingStateAdapter { adapter.retry() }
         )
-        
+
         // Collect paging data
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.items.collectLatest { pagingData ->
                 adapter.submitData(pagingData)
             }
         }
-        
+
         // Set up swipe refresh
         binding.swipeRefresh.setOnRefreshListener {
             viewModel.refresh()
         }
-        
+
         // Monitor load state
         viewLifecycleOwner.lifecycleScope.launch {
             adapter.loadStateFlow.collectLatest { loadState ->
-                binding.swipeRefresh.isRefreshing = 
+                binding.swipeRefresh.isRefreshing =
                     loadState.refresh is LoadState.Loading
-                
+
                 // Show error if initial load fails
                 if (loadState.refresh is LoadState.Error) {
                     showError((loadState.refresh as LoadState.Error).error.message)
@@ -255,8 +255,8 @@ pagingSourceFactory = GenericInvalidatingPagingSourceFactory(
     pageSize = 20,
     jumpingSupported = true,
     jumpPageThreshold = 5f
-) { perPage, page -> 
-    fetchPage(perPage, page) 
+) { perPage, page ->
+    fetchPage(perPage, page)
 }
 ```
 
@@ -271,13 +271,13 @@ fun testInvalidation() {
         pageSize = 10,
         fetchPageCall = { _, _ -> mockSuccessResult() }
     )
-    
+
     // Create a paging source
     val pagingSource = factory.invoke()
-    
+
     // Verify paging source is tracked
     assertEquals(1, factory.pagingSources().size)
-    
+
     // Invalidate and verify tracking is reset
     factory.invalidate()
     assertEquals(0, factory.pagingSources().size)
@@ -306,3 +306,4 @@ Thread-safe factory that creates and tracks paging sources, allowing for invalid
 
 - [BaseRepo](../BaseRepo/README.md) - Core repository pattern implementation
 - [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Android paging library
+
