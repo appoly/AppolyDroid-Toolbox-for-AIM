@@ -1,131 +1,108 @@
 package uk.co.appoly.droid.data.repo
 
 import com.skydoves.sandwich.ApiResponse
-import com.skydoves.sandwich.message
-import com.skydoves.sandwich.retrofit.errorBody
 import com.skydoves.sandwich.retrofit.statusCode
-import uk.co.appoly.droid.BaseRepoLog
 import uk.co.appoly.droid.data.remote.model.APIResult
-import uk.co.appoly.droid.data.remote.model.response.BaseResponse
-import uk.co.appoly.droid.data.remote.model.response.GenericNestedPagedResponse
+import uk.co.appoly.droid.data.remote.model.response.GenericPagedResponse
 import uk.co.appoly.droid.data.remote.model.response.PageData
-import uk.co.appoly.droid.data.repo.AppolyBaseRepo.Companion.RESPONSE_EXCEPTION_CODE
-import uk.co.appoly.droid.util.NoConnectivityException
-import uk.co.appoly.droid.util.asNoConnectivityException
-import uk.co.appoly.droid.util.firstNotNullOrBlank
-import uk.co.appoly.droid.util.ifNullOrBlank
-import uk.co.appoly.droid.util.parseBody
-import java.net.ConnectException
-import java.net.SocketException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
+import uk.co.appoly.droid.data.remote.model.response.ResponseStatus
 
 /**
  * Extension function for AppolyBaseRepo to handle API calls that return paginated data
- * with a nested structure.
+ * with a flat structure.
  *
- * This function is similar to [AppolyBaseRepo.doAPICall] but specifically processes
- * [GenericNestedPagedResponse] responses and converts them to [PageData] for easier
- * consumption by Paging components.
+ * This function processes [GenericPagedResponse] responses and converts them to [PageData]
+ * for easier consumption by Paging components. It correctly handles both filtered and
+ * unfiltered result sets by using `filteredRecords` for pagination calculations.
  *
- * Example usage:
+ * ## Pagination Behavior
+ * - When `length > 0`: Returns a specific page of results with pagination metadata
+ * - When `length == -1`: Returns all remaining items starting from `startIndex` as a single page
+ *
+ * ## Important Notes
+ * - This function assumes the API accepts start index and length parameters for pagination
+ * - Pagination metadata in [PageData] is calculated based on client-side `startIndex`/`length`
+ *   and the server's `filteredRecords` count
+ * - `filteredRecords` is used for all pagination calculations, ensuring correct page counts
+ *   when server-side filtering is applied
+ * - Input validation ensures `startIndex >= 0` and `length` is either `-1` or positive
+ * - Server response validation ensures `filteredRecords` is non-negative and `lastPage >= 1`
+ *
+ * ## Example usage
  * ```kotlin
- * suspend fun fetchUserList(page: Int): APIResult<PageData<User>> =
- *     doNestedPagedAPICall("fetchUserList") {
- *         userService.api.getUsers(page = page, perPage = 20)
- *     }
+ * // Fetch page 2 with 20 items per page
+ * suspend fun fetchUserList(page: Int, perPage: Int): APIResult<PageData<User>> =
+ *    doPagedAPICall("fetchUserList", startIndex = (page - 1) * perPage, length = perPage) {
+ *        userService.api.getUsers(start = (page - 1) * perPage, length = perPage)
+ *    }
+ *
+ * // Fetch all users starting from index 0
+ * suspend fun fetchAllUsers(): APIResult<PageData<User>> =
+ *    doPagedAPICall("fetchAllUsers", startIndex = 0, length = -1) {
+ *        userService.api.getUsers(start = 0, length = -1)
+ *    }
  * ```
  *
  * @param T The type of items in the paginated list
  * @param logDescription Description for logging purposes
- * @param call Lambda that performs the API call and returns an [ApiResponse] with [GenericNestedPagedResponse]
- * @return An [APIResult] wrapping [PageData] with the normalized pagination data
+ * @param startIndex The starting index for pagination (0-based, passed to the API). Must be >= 0
+ * @param length The number of items to fetch per page. Use -1 to fetch all remaining items, or any positive value for specific page size
+ * @param call Lambda that performs the API call and returns an [ApiResponse] with [GenericPagedResponse]
+ * @return An [APIResult] wrapping [PageData] with pagination metadata based on filtered results
+ * @throws [IllegalArgumentException] if startIndex < 0 or length == 0 or length < -1
  */
-inline fun <T : Any> AppolyBaseRepo.doNestedPagedAPICall(
+inline fun <T : Any> AppolyBaseRepo.doPagedAPICall(
 	logDescription: String,
-	call: () -> ApiResponse<GenericNestedPagedResponse<T>>
+	startIndex: Int = 0,
+	length: Int = 50,
+	call: () -> ApiResponse<GenericPagedResponse<T>>
 ): APIResult<PageData<T>> {
+	// Validate inputs
+	require(startIndex >= 0) { "startIndex must be non-negative" }
+	require(length == -1 || length > 0) { "length must be -1 (all items) or positive non-zero value" }
 	return when (val response = call()) {
 		is ApiResponse.Success -> {
 			val result = response.data
-			if (result.success && result.pageData != null) {
-				APIResult.Success(PageData(result))
-			} else {
-				val message = result.message.ifNullOrBlank { "Unknown error" }
-				BaseRepoLog.e(
-					caller = this,
-					msg = "$logDescription failed! code:${response.statusCode.code}, message:\"$message\""
+			if (result.status == ResponseStatus.Success) {
+				// Validate server response
+				val validFilteredRecords = result.filteredRecords.coerceAtLeast(0)
+				APIResult.Success(
+					PageData(
+						data = result.data,
+						currentPage = if (length == -1) 1 else (startIndex / length) + 1,
+						lastPage = if (length == -1) {
+							1
+						} else {
+							// Safe division - prevent overflow
+							maxOf(1, (validFilteredRecords + length - 1) / length)
+						},
+						perPage = if (length == -1) validFilteredRecords else length,
+						from = if (result.data.isNotEmpty()) startIndex + 1 else 0,
+						to = if (result.data.isNotEmpty()) startIndex + result.data.size else 0,
+						total = validFilteredRecords
+					)
 				)
-				APIResult.Error(
-					responseCode = response.statusCode.code,
-					errors = listOf(message)
+			} else {
+				handleFailure(
+					result = result,
+					statusCode = response.statusCode.code,
+					logDescription = logDescription
 				)
 			}
 		}
 
 		is ApiResponse.Failure.Error -> {
-			var messages: List<String>? = null
-			var errors: List<String>
-			try {
-				val errorBody = response.errorBody.parseBody<BaseResponse>(getRetrofitClient())
-				errors = errorBody?.errors ?: listOf("Unknown error")
-				messages = errorBody?.messages
-				BaseRepoLog.e(
-					caller = this,
-					msg = "$logDescription failed! code:${response.statusCode.code}, messages:\"$messages\", errors:\"$errors\""
-				)
-			} catch (e: Exception) {
-				BaseRepoLog.e(
-					caller = this,
-					msg = "$logDescription failed! code:${response.statusCode.code} - Failed to parse error body",
-					tr = e
-				)
-				errors = listOf("Unknown error")
-			}
-			APIResult.Error(
-				responseCode = response.statusCode.code,
-				messages = messages,
-				errors = errors
+			handleFailureError(
+				response = response,
+				logDescription = logDescription
 			)
 		}
 
 		is ApiResponse.Failure.Exception -> {
-			when (response.throwable) {
-				is NoConnectivityException,
-				is UnknownHostException,
-				is ConnectException,
-				is SocketException,
-				is SocketTimeoutException -> {
-					BaseRepoLog.w(
-						caller = this,
-						msg = "$logDescription failed Due to No Connection!",
-						tr = response.throwable
-					)
-					APIResult.Error(
-						responseCode = RESPONSE_EXCEPTION_CODE,
-						errors = listOf("No Internet Connection"),
-						throwable = response.throwable.asNoConnectivityException()
-					)
-				}
-
-				else -> {
-					val message = firstNotNullOrBlank(
-						{ response.throwable.message },
-						{ response.message() },
-						fallback = { "Unknown error" }
-					)
-					BaseRepoLog.e(
-						caller = this,
-						msg = "$logDescription failed with exception! message:\"$message\"",
-						tr = response.throwable
-					)
-					APIResult.Error(
-						responseCode = RESPONSE_EXCEPTION_CODE,
-						errors = listOf(message),
-						throwable = response.throwable
-					)
-				}
-			}
+			handleFailureException(
+				response = response,
+				logDescription = logDescription
+			)
 		}
 	}
 }
