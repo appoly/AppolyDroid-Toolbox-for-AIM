@@ -208,7 +208,7 @@ abstract class AppolyBaseRepo(
 		)
 	}
 
-	protected fun handleFailure(
+	fun handleFailure(
 		result: RootJson,
 		statusCode: Int,
 		logDescription: String
@@ -222,7 +222,7 @@ abstract class AppolyBaseRepo(
 		return APIResult.Error(responseCode = statusCode, messages = messages, errors = errors)
 	}
 
-	protected fun handleFailureError(response: ApiResponse.Failure.Error, logDescription: String): APIResult.Error {
+	fun handleFailureError(response: ApiResponse.Failure.Error, logDescription: String): APIResult.Error {
 		var messages: List<String>? = null
 		var errors: List<String>
 		try {
@@ -244,7 +244,7 @@ abstract class AppolyBaseRepo(
 		return APIResult.Error(responseCode = response.statusCode.code, messages = messages, errors = errors)
 	}
 
-	protected fun handleFailureException(response: ApiResponse.Failure.Exception, logDescription: String): APIResult.Error {
+	fun handleFailureException(response: ApiResponse.Failure.Exception, logDescription: String): APIResult.Error {
 		return when (response.throwable) {
 			is NoConnectivityException,
 			is UnknownHostException,

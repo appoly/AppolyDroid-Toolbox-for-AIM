@@ -15,34 +15,36 @@ An extension module for BaseRepo that adds Jetpack Paging 3 support for efficien
 
 ```gradle.kts
 // Requires the base BaseRepo module
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.33")
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.33")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.34")
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.34")
 
 // For Compose UI integration
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.33") // For LazyColumn
-implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.33") // For LazyGrid
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.34") // For LazyColumn
+implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.34") // For LazyGrid
 ```
 
 ## API Response Format
 
-This module requires your paginated API responses to follow a specific nested structure as shown below:
+This module requires your paginated API responses to follow a flat structure as shown below:
 
 ```json
 {
-  "success": true,
-  "message": "Data retrieved successfully",
-  "data": {
-    "data": [
-      { "id": 1, "name": "Item 1" },
-      { "id": 2, "name": "Item 2" }
-    ],
-    "current_page": 1,
-    "last_page": 5,
-    "per_page": 10,
-    "from": 1,
-    "to": 10,
-    "total": 48
-  }
+  "status": "success",
+  "messages": [
+    "Data retrieved successfully"
+  ],
+  "data": [
+    {
+      "id": 1,
+      "name": "Item 1"
+    },
+    {
+      "id": 2,
+      "name": "Item 2"
+    }
+  ],
+  "total_records": 48,
+  "filtered_records": 10
 }
 ```
 
@@ -53,38 +55,34 @@ This module requires your paginated API responses to follow a specific nested st
 First, create your API service interface that returns paginated responses:
 
 ```kotlin
-interface LibraryAPI : BaseService.API {
-    @POST("api/library/search")
-    suspend fun searchLibrary(
-        @Query("per_page") perPage: Int,
-        @Query("page") page: Int,
-        @Body body: SearchRequestBody
-    ): ApiResponse<GenericNestedPagedResponse<LibraryItem>>
+interface SitesAPI : BaseService.API {
+	@POST("api/v1/sites")
+	suspend fun searchSites(
+		@Query("start") startIndex: Int,
+		@Query("length") length: Int,
+		@Query("search") search: String?,
+	): ApiResponse<GenericPagedResponse<SitesItem>>
 }
 ```
 
 ### Step 2: Add Repository Method to Fetch Pages
 
-In your repository, create a method that uses `doNestedPagedAPICall` to fetch a page:
+In your repository, create a method that uses `doPagedAPICall` to fetch a page:
 
 ```kotlin
-class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
-    private val libraryService by lazyService<LibraryAPI>()
+class SitesRepository : AppolyBaseRepo({ YourRetrofitClient }) {
+	private val sitesService by lazyService<SitesAPI>()
 
     // Function to fetch a single page
-    suspend fun fetchLibraryPage(
-        perPage: Int,
-        page: Int,
-        query: String,
-        filters: Filters
-    ): APIResult<PageData<LibraryItem>> = doNestedPagedAPICall("fetchLibraryPage") {
-        libraryService.api.searchLibrary(
-            perPage = perPage,
-            page = page,
-            body = SearchRequestBody(
-                query = query,
-                filters = filters
-            )
+	suspend fun fetchSitesPage(
+		startIndex: Int,
+		length: Int,
+		search: String?
+	): APIResult<PageData<SitesItem>> = doPagedAPICall("fetchSitesPage", startIndex, length) {
+		sitesService.api.searchSites(
+			startIndex = startIndex,
+			length = length,
+			search = search
         )
     }
 }
@@ -95,22 +93,22 @@ class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
 Create a factory that will generate paging sources on demand:
 
 ```kotlin
-class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
+class SitesRepository : AppolyBaseRepo({ YourRetrofitClient }) {
     // ...existing code...
 
-    fun getLibraryPagingSourceFactory(
-        query: String,
-        filters: Filters,
+	fun getSitesPagingSourceFactory(
+		search: String?,
         pageSize: Int = 20,
         jumpingSupported: Boolean = true,
         jumpPageThreshold: Float = 2f
-    ): GenericInvalidatingPagingSourceFactory<LibraryItem> =
+	): GenericInvalidatingPagingSourceFactory<SitesItem> =
         GenericInvalidatingPagingSourceFactory(
             pageSize = pageSize,
             jumpingSupported = jumpingSupported,
             jumpPageThreshold = jumpPageThreshold
         ) { perPage, page ->
-            fetchLibraryPage(perPage, page, query, filters)
+			val startIndex = (page - 1) * perPage
+			fetchSitesPage(startIndex, perPage, search)
         }
 }
 ```
@@ -118,15 +116,14 @@ class LibraryRepository : AppolyBaseRepo({ YourRetrofitClient }) {
 ### Step 4: Use in a ViewModel
 
 ```kotlin
-class LibraryViewModel(
-    private val libraryRepository: LibraryRepository
+class SitesViewModel(
+	private val sitesRepository: SitesRepository
 ) : ViewModel() {
-    private var currentQuery = ""
-    private var currentFilters = Filters()
+	private var currentSearch: String? = null
 
     // Create factory and pager
     private val pagingSourceFactory =
-        libraryRepository.getLibraryPagingSourceFactory(currentQuery, currentFilters)
+		sitesRepository.getSitesPagingSourceFactory(currentSearch)
 
     // Create flow to collect in UI
     val items = pagingSourceFactory.getPager()
@@ -139,9 +136,8 @@ class LibraryViewModel(
     }
 
     // Function to update search parameters
-    fun search(query: String, filters: Filters) {
-        currentQuery = query
-        currentFilters = filters
+	fun search(search: String?) {
+		currentSearch = search
         pagingSourceFactory.invalidate()
     }
 }
@@ -153,7 +149,7 @@ class LibraryViewModel(
 
 ```kotlin
 @Composable
-fun LibraryScreen(viewModel: LibraryViewModel) {
+fun SitesScreen(viewModel: SitesViewModel) {
     val items = viewModel.items.collectAsLazyPagingItems()
 
     LazyColumn {
@@ -163,7 +159,7 @@ fun LibraryScreen(viewModel: LibraryViewModel) {
         ) { index ->
             val item = items[index]
             if (item != null) {
-                LibraryItemCard(item = item)
+				SitesItemCard(item = item)
             } else {
                 // Placeholder for loading state
                 LoadingItemPlaceholder()
@@ -190,9 +186,9 @@ fun LibraryScreen(viewModel: LibraryViewModel) {
 #### In Traditional RecyclerView (with DataBinding)
 
 ```kotlin
-class LibraryFragment : Fragment() {
-    private val viewModel: LibraryViewModel by viewModels()
-    private val adapter = LibraryAdapter()
+class SitesFragment : Fragment() {
+	private val viewModel: SitesViewModel by viewModels()
+	private val adapter = SitesAdapter()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view)
@@ -286,7 +282,7 @@ fun testInvalidation() {
 
 ## Key Components
 
-### GenericNestedPagedResponse
+### GenericPagedResponse
 
 Models the nested paged response from your API.
 
@@ -306,4 +302,3 @@ Thread-safe factory that creates and tracks paging sources, allowing for invalid
 
 - [BaseRepo](../BaseRepo/README.md) - Core repository pattern implementation
 - [Jetpack Paging 3](https://developer.android.com/topic/libraries/architecture/paging/v3-overview) - Android paging library
-
