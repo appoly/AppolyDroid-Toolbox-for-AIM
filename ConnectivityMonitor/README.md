@@ -8,8 +8,8 @@
 
 Add the following dependency to your project's `build.gradle` file:
 
-```groovy
-implementation 'uk.co.appoly.droid:connectivitymonitor:1.0.0'
+```gradle.kts
+implementation("com.github.appoly.AppolyDroid-Toolbox:connectivitymonitor:1.0.34")
 ```
 
 ## Usage
