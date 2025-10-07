@@ -55,7 +55,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox_AIM = "1.0.34" # Replace with the latest version
+appolydroidToolbox_AIM = "1.0.35" # Replace with the latest version
 
 [libraries]
 appolydroid-toolbox-bom = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "AppolyDroid-Toolbox-bom", version.ref = "appolydroidToolbox_AIM" }
@@ -110,7 +110,7 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Import the BOM
-    implementation(platform("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppolyDroid-Toolbox-bom:1.0.34"))
+    implementation(platform("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppolyDroid-Toolbox-bom:1.0.35"))
 
     // Now you can use AppolyDroid modules without specifying versions
     implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo")
