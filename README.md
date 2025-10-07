@@ -74,6 +74,7 @@ appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.Appo
 appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "LazyGridPagingExtensions" }
 appolydroid-toolbox-pagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "PagingExtensions" }
 appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "S3Uploader" }
+appolydroid-toolbox-connectivityMonitor = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "ConnectivityMonitor" }
 ```
 
 Then in your module's `build.gradle.kts`:
@@ -98,6 +99,7 @@ dependencies {
     implementation(libs.appolydroid.toolbox.lazyGridPagingExtensions)
     implementation(libs.appolydroid.toolbox.pagingExtensions)
     implementation(libs.appolydroid.toolbox.s3Uploader)
+    implementation(libs.appolydroid.toolbox.connectivityMonitor)
 }
 ```
 
@@ -125,6 +127,7 @@ dependencies {
     implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions")
     implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:PagingExtensions")
     implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:ConnectivityMonitor")
 }
 ```
 
@@ -141,7 +144,7 @@ In your `libs.versions.toml` file:
 
 ```toml
 [versions]
-appolydroidToolbox = "1.0.33" # Replace with the latest version
+appolydroidToolbox = "1.0.34" # Replace with the latest version
 
 [libraries]
 #AppolyDroid-Toolbox-for-AIM
@@ -158,6 +161,7 @@ appolydroid-toolbox-lazyListPagingExtensions = { group = "com.github.appoly.Appo
 appolydroid-toolbox-lazyGridPagingExtensions = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "LazyGridPagingExtensions", version.ref = "appolydroidToolbox_AIM" }
 appolydroid-toolbox-s3Uploader = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "S3Uploader", version.ref = "appolydroidToolbox_AIM" }
 appolydroid-toolbox-compose-extensions = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "ComposeExtensions", version.ref = "appolydroidToolbox_AIM" }
+appolydroid-toolbox-connectivityMonitor = { group = "com.github.appoly.AppolyDroid-Toolbox-for-AIM", name = "ConnectivityMonitor", version.ref = "appolydroidToolbox" }
 ```
 
 Then in your module's `build.gradle.kts`:
@@ -178,6 +182,7 @@ dependencies {
     implementation(libs.appolydroid.toolbox.lazyGridPagingExtensions)
     implementation(libs.appolydroid.toolbox.s3Uploader)
     implementation(libs.appolydroid.toolbox.compose.extensions)
+    implementation(libs.appolydroid.toolbox.connectivityMonitor)
 }
 ```
 ### Without Version Catalog
@@ -187,19 +192,20 @@ In your module's `build.gradle.kts`:
 ```gradle.kts
 dependencies {
     // Add only the modules you need
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-S3Uploader:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Room:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Serialization:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar-UiState:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.32_rc01_bom")
-    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:ComposeExtensions:1.0.32_rc01_bom")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-S3Uploader:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:BaseRepo-Paging:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Room:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:DateHelperUtil-Serialization:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:UiState:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:AppSnackBar-UiState:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyListPagingExtensions:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:LazyGridPagingExtensions:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:S3Uploader:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:ComposeExtensions:1.0.32_rc01")
+    implementation("com.github.appoly.AppolyDroid-Toolbox-for-AIM:ConnectivityMonitor:1.0.32_rc01")
 }
 ```
 
@@ -240,7 +246,9 @@ Extensions for Jetpack Compose LazyGrid with paging support.
 ### S3Uploader
 Standalone S3 file upload utility.
 [Learn more](S3Uploader/README.md)
-
+### ConnectivityMonitor
+Connectivity monitoring flows
+[Learn more](ConnectivityMonitor/README.md)
 ## Dependencies
 
 Some modules depend on [FlexiLogger](https://github.com/projectdelta6/FlexiLogger) for logging capabilities.
