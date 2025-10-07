@@ -36,7 +36,7 @@ import kotlin.isInitialized
  *
  * Example of extending your Application class:
  * ```kotlin
- * class MyApp : ConnectionAwareApplication() {
+ * class MyApp : ConnectivityMonitorApplication() {
  *     override fun onCreate() {
  *         super.onCreate()
  *         // Your other application setup
@@ -46,7 +46,7 @@ import kotlin.isInitialized
  *
  * Then, from any part of your app (e.g., a ViewModel or Composable):
  * ```kotlin
- * val isOnline by ConnectionAwareApplication.isConnectedDebounced.collectAsState()
+ * val isOnline by ConnectivityMonitorApplication.isConnectedDebounced.collectAsState()
  * // Use isOnline to show/hide UI elements
  * ```
  */
